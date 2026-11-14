@@ -96,27 +96,27 @@
     {
       "name": "Thrive Approach",
       "relationship": "Introduced in our setting",
-      "logo": { "key": "site/partners/thrive.png", "alt": "Thrive: we've introduced Thrive in our setting", "width": 343, "height": 255 }
+      "logo": { "key": "site/partners/thrive.png", "alt": "Thrive: we've introduced Thrive in our setting", "width": 338, "height": 252 }
     },
     {
       "name": "Birmingham City University",
       "relationship": "Principal partner",
-      "logo": { "key": "site/partners/birmingham-city-university.png", "alt": "Birmingham City University", "width": 460, "height": 95 }
+      "logo": { "key": "site/partners/birmingham-city-university.png", "alt": "Principal partner with Birmingham City University", "width": 1000, "height": 463 }
     },
     {
       "name": "Newman University, Birmingham",
       "relationship": "Glad to be working with",
-      "logo": { "key": "site/partners/newman-university.png", "alt": "Newman University, Birmingham", "width": 314, "height": 270 }
+      "logo": { "key": "site/partners/newman-university.png", "alt": "Glad to be working with Newman University, Birmingham", "width": 691, "height": 566 }
     },
     {
       "name": "Independent Schools Association",
       "relationship": "Accredited member",
-      "logo": { "key": "site/partners/isa-member.png", "alt": "Independent Schools Association, accredited member", "width": 521, "height": 218 }
+      "logo": { "key": "site/partners/isa-member.png", "alt": "Independent Schools Association, accredited member", "width": 1000, "height": 351 }
     },
     {
       "name": "ISA Awards 2023",
       "relationship": "SEND School of the Year finalist",
-      "logo": { "key": "site/partners/isa-awards-finalist.png", "alt": "ISA Awards 2023 finalist, SEND School of the Year Award", "width": 555, "height": 252 }
+      "logo": { "key": "site/partners/isa-awards-finalist.png", "alt": "ISA Awards 2023 finalist, SEND School of the Year Award", "width": 1000, "height": 562 }
     },
     {
       "name": "Team Teach",
