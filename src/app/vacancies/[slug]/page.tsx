@@ -68,7 +68,7 @@ async function VacancyDetails({ params }: Pick<PageProps<"/vacancies/[slug]">, "
           <h1 className="mt-6 max-w-4xl text-title">{vacancy.title}</h1>
           <p className="mt-5 measure text-lead text-muted-foreground">{vacancy.summary}</p>
         </div>
-        <RiverLine className="absolute -bottom-3 left-0 h-10 w-full text-stone" quiet />
+        <RiverLine draw="load" className="absolute -bottom-3 left-0 h-10 w-full text-stone" quiet />
       </header>
 
       <div className="container-page grid gap-14 py-12 md:py-16 lg:grid-cols-12">

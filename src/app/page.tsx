@@ -3,6 +3,7 @@ import Link from "next/link"
 import { UpcomingEvents } from "@/components/home/upcoming-events"
 import { PartnerLogos } from "@/components/home/partner-logos"
 import { MediaImage } from "@/components/site/media-image"
+import { MobileDisclosure } from "@/components/site/mobile-disclosure"
 import { RiverLine } from "@/components/site/river-line"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
@@ -45,7 +46,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-        <RiverLine animated className="absolute bottom-4 left-0 h-16 w-full text-buttercup md:h-20" />
+        <RiverLine draw="load" className="absolute bottom-4 left-0 h-16 w-full text-buttercup md:h-20" />
       </section>
 
       <PartnerLogos partners={school.partners} />
@@ -70,19 +71,24 @@ export default async function HomePage() {
       </section>
 
       <section aria-labelledby="about" className="container-page grid gap-12 py-20 md:py-28 lg:grid-cols-12">
-        <div className="lg:col-span-4">
+        <div className="reveal lg:col-span-4">
           <div className="arch relative mx-auto aspect-[4/5] max-w-[20rem] bg-secondary lg:mx-0">
             <MediaImage asset={school.aboutImage} fill sizes="20rem" className="object-cover" />
           </div>
         </div>
-        <div className="lg:col-span-7 lg:col-start-6">
+        <div className="reveal lg:col-span-7 lg:col-start-6">
           <h2 id="about" className="text-title">
             About Wribbenhall
           </h2>
-          <div className="mt-8 space-y-5 text-lg leading-[1.7] text-ink/90 measure">
-            {school.mission.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+          <div className="mt-8 text-lg leading-[1.7] text-ink/90 measure">
+            <p>{school.mission[0]}</p>
+            <MobileDisclosure>
+              <div className="space-y-5 pt-5">
+                {school.mission.slice(1).map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+            </MobileDisclosure>
           </div>
 
           <Link
@@ -103,7 +109,7 @@ export default async function HomePage() {
             {school.features.map((feature) => (
               <div
                 key={feature.title}
-                className="border-t-2 border-white/25 pt-6 md:border-t-0 md:border-l-2 md:px-8 md:pt-0 md:first:border-l-0 md:first:pl-0"
+                className="reveal border-t-2 border-white/25 pt-6 md:border-t-0 md:border-l-2 md:px-8 md:pt-0 md:first:border-l-0 md:first:pl-0"
               >
                 <h3 className="text-heading text-panel-accent">{feature.title}</h3>
                 <p className="mt-3 text-panel-foreground/90">{feature.text}</p>
@@ -115,7 +121,7 @@ export default async function HomePage() {
 
       <section aria-labelledby="pupil-profile" className="container-page py-20 md:py-28">
         <div className="grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-5">
+          <div className="reveal lg:col-span-5">
             <h2 id="pupil-profile" className="text-title">
               Who we can help
             </h2>
@@ -170,18 +176,21 @@ export default async function HomePage() {
             </AccordionItem>
           </Accordion>
         </div>
-        <div className="mt-14 rounded-xl border border-border bg-card p-6 md:p-8">
+        <div className="reveal mt-14 rounded-xl border border-border bg-card p-6 md:p-8">
           <h3 className="font-sans text-lg font-semibold">How places are decided</h3>
-          <div className="mt-3 grid gap-4 text-ink/85 md:grid-cols-3">
-            {school.pupilProfile.decisions.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
+          <MobileDisclosure label="Read how places are decided">
+            <div className="mt-3 grid gap-4 text-ink/85 md:grid-cols-3">
+              {school.pupilProfile.decisions.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
+          </MobileDisclosure>
         </div>
       </section>
 
-      <section aria-labelledby="visit" className="container-page pb-24">
-        <div className="grid gap-8 rounded-2xl bg-accent px-7 py-12 md:grid-cols-12 md:px-14 md:py-16">
+      <section aria-labelledby="visit" className="container-page relative pb-24">
+        <RiverLine draw="scroll" quiet className="mb-10 h-10 w-full text-buttercup" />
+        <div className="reveal grid gap-8 rounded-2xl bg-accent px-7 py-12 md:grid-cols-12 md:px-14 md:py-16">
           <div className="md:col-span-7">
             <h2 id="visit" className="text-title text-accent-foreground">
               Talk to us about your child
