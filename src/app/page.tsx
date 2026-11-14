@@ -48,6 +48,8 @@ export default async function HomePage() {
         <RiverLine animated className="absolute bottom-4 left-0 h-16 w-full text-buttercup md:h-20" />
       </section>
 
+      <PartnerLogos partners={school.partners} />
+
       <section aria-labelledby="coming-up" className="border-y border-border bg-card">
         <div className="container-page grid gap-8 py-14 lg:grid-cols-12">
           <div className="lg:col-span-3">
@@ -177,8 +179,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      <PartnerLogos partners={school.partners} />
 
       <section aria-labelledby="visit" className="container-page pb-24">
         <div className="grid gap-8 rounded-2xl bg-accent px-7 py-12 md:grid-cols-12 md:px-14 md:py-16">

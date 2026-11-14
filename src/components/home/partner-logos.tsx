@@ -31,9 +31,6 @@ export function PartnerLogos({ partners }: PartnerLogosProps) {
                   className="h-24 w-auto max-w-full object-contain"
                 />
               </div>
-              <p className="border-t border-stone bg-stone/40 px-4 py-3 text-center text-sm font-semibold text-black">
-                {partner.relationship}
-              </p>
             </li>
           ))}
         </ul>
