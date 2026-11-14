@@ -20,6 +20,11 @@ const familyLinks = [
     description: "Holidays, long weekends and teacher training days.",
   },
   {
+    href: "/staff",
+    title: "Our staff",
+    description: "Meet the team who look after our pupils.",
+  },
+  {
     href: "/policies",
     title: "Policies and inspection reports",
     description: "School policies, safeguarding, ISI and Ofsted reports.",
@@ -255,26 +260,6 @@ export default async function HomePage() {
             ),
           )}
         </div>
-      </section>
-
-      <section aria-labelledby="staff" className="container-page py-20 md:py-28">
-        <h2 id="staff" className="text-title">
-          Our staff
-        </h2>
-        <ul className="mt-12 grid gap-x-12 gap-y-12 md:grid-cols-2">
-          {school.staff.map((member) => (
-            <li key={member.name} className="flex gap-5">
-              <div className="relative size-24 shrink-0 overflow-hidden rounded-full bg-secondary ring-4 ring-card">
-                <MediaImage asset={member.portrait} fill sizes="96px" className="object-cover" />
-              </div>
-              <div>
-                <h3 className="text-subheading">{member.name}</h3>
-                <p className="font-semibold text-severn">{member.role}</p>
-                <p className="mt-3 text-ink/85">{member.bio}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
       </section>
 
       <section aria-labelledby="families" className="container-page pb-20 md:pb-28">
