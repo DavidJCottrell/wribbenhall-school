@@ -37,10 +37,10 @@ export function ContactForms({ officeEmail }: { officeEmail: string }) {
   return (
     <Tabs id="forms" value={tab} onValueChange={changeTab} className="scroll-mt-28 gap-0">
       <TabsList className="h-auto w-full justify-start gap-1 rounded-none rounded-t-xl border border-b-0 border-border bg-secondary p-1.5 sm:w-auto sm:rounded-t-xl">
-        <TabsTrigger value="enquiry" className="h-11 flex-1 px-5 text-base data-[state=active]:shadow-none sm:flex-none">
+        <TabsTrigger value="enquiry" className="h-auto min-h-11 flex-1 px-3 py-2 text-base whitespace-normal data-[state=active]:shadow-none sm:flex-none sm:px-5">
           Send an enquiry
         </TabsTrigger>
-        <TabsTrigger value="apply" className="h-11 flex-1 px-5 text-base data-[state=active]:shadow-none sm:flex-none">
+        <TabsTrigger value="apply" className="h-auto min-h-11 flex-1 px-3 py-2 text-base whitespace-normal data-[state=active]:shadow-none sm:flex-none sm:px-5">
           Apply for a place
         </TabsTrigger>
       </TabsList>

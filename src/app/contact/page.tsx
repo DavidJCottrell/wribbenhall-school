@@ -21,7 +21,7 @@ export default async function ContactPage() {
         <p>Call or email the school, send us a message, or start an application for your child.</p>
       </PageHeader>
 
-      <div className="container-page grid gap-12 py-12 md:py-16 lg:grid-cols-12">
+      <div className="container-page grid gap-12 py-12 md:py-16 grid-cols-1 lg:grid-cols-12">
         <aside className="space-y-10 lg:col-span-4">
           <section aria-labelledby="school-office">
             <h2 id="school-office" className="text-heading">

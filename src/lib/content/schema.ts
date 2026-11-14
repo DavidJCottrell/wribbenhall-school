@@ -62,6 +62,13 @@ export const schoolSchema = z.object({
     notProvidedFor: z.array(z.string()),
     decisions: z.array(z.string()),
   }),
+  partners: z.array(
+    z.object({
+      name: z.string(),
+      relationship: z.string(),
+      logo: mediaAssetSchema,
+    }),
+  ),
   recognition: z.array(
     z.object({
       title: z.string(),

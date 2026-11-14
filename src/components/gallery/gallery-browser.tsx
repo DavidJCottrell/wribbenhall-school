@@ -39,14 +39,14 @@ export function GalleryBrowser({ albums }: { albums: GalleryAlbum[] }) {
         aria-label="Choose an album"
         className="flex w-full flex-wrap justify-start gap-2 shadow-none"
       >
-        <ToggleGroupItem value={ALL} className="h-10 flex-none rounded-full! border px-4 data-[state=on]:bg-ink data-[state=on]:text-white">
+        <ToggleGroupItem value={ALL} className="h-10 flex-none rounded-full! border px-4 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
           All albums
         </ToggleGroupItem>
         {albums.map((album) => (
           <ToggleGroupItem
             key={album.id}
             value={album.id}
-            className="h-10 flex-none rounded-full! border px-4 data-[state=on]:bg-ink data-[state=on]:text-white"
+            className="h-10 flex-none rounded-full! border px-4 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
           >
             {album.title}
           </ToggleGroupItem>
@@ -101,7 +101,7 @@ export function GalleryBrowser({ albums }: { albums: GalleryAlbum[] }) {
 
       <Dialog open={Boolean(viewingImage)} onOpenChange={(open) => !open && setViewing(null)}>
         <DialogContent
-          className="max-w-[min(72rem,calc(100vw-2rem))] gap-0 overflow-hidden border-0 bg-ink p-0 text-white sm:max-w-[min(72rem,calc(100vw-2rem))]"
+          className="max-w-[min(72rem,calc(100vw-2rem))] gap-0 overflow-hidden border-0 bg-panel-deep p-0 text-panel-foreground sm:max-w-[min(72rem,calc(100vw-2rem))]"
           onKeyDown={(event) => {
             if (event.key === "ArrowRight") step(1)
             if (event.key === "ArrowLeft") step(-1)
@@ -125,7 +125,7 @@ export function GalleryBrowser({ albums }: { albums: GalleryAlbum[] }) {
                   <DialogTitle className="font-sans text-base font-semibold">
                     {viewingImage.caption ?? viewingImage.alt}
                   </DialogTitle>
-                  <DialogDescription className="text-white/70">
+                  <DialogDescription className="text-panel-foreground/70">
                     {viewingAlbum.title}, photo {viewing.index + 1} of {viewingAlbum.images.length}
                   </DialogDescription>
                 </div>

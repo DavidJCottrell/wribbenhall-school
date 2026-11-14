@@ -25,7 +25,7 @@ export function ClosingStatus({ closingDate }: { closingDate: string }) {
     <span className="inline-flex flex-wrap items-center gap-2">
       {label}
       {daysLeft <= 7 ? (
-        <Badge className="bg-buttercup text-sm text-ink">
+        <Badge className="bg-accent text-sm text-accent-foreground">
           {daysLeft === 0 ? "Closes today" : daysLeft === 1 ? "1 day left" : `${daysLeft} days left`}
         </Badge>
       ) : null}

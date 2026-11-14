@@ -92,6 +92,38 @@
       "This decision will be based on information received from the pupil's current placement, information on their EHCP, information from professionals who have assessed the pupil, and an interview with the child and their parent(s) or family."
     ]
   },
+  "partners": [
+    {
+      "name": "Thrive Approach",
+      "relationship": "Introduced in our setting",
+      "logo": { "key": "site/partners/thrive.png", "alt": "Thrive: we've introduced Thrive in our setting", "width": 343, "height": 255 }
+    },
+    {
+      "name": "Birmingham City University",
+      "relationship": "Principal partner",
+      "logo": { "key": "site/partners/birmingham-city-university.png", "alt": "Birmingham City University", "width": 460, "height": 95 }
+    },
+    {
+      "name": "Newman University, Birmingham",
+      "relationship": "Glad to be working with",
+      "logo": { "key": "site/partners/newman-university.png", "alt": "Newman University, Birmingham", "width": 314, "height": 270 }
+    },
+    {
+      "name": "Independent Schools Association",
+      "relationship": "Accredited member",
+      "logo": { "key": "site/partners/isa-member.png", "alt": "Independent Schools Association, accredited member", "width": 521, "height": 218 }
+    },
+    {
+      "name": "ISA Awards 2023",
+      "relationship": "SEND School of the Year finalist",
+      "logo": { "key": "site/partners/isa-awards-finalist.png", "alt": "ISA Awards 2023 finalist, SEND School of the Year Award", "width": 555, "height": 252 }
+    },
+    {
+      "name": "Team Teach",
+      "relationship": "Staff trained in Team Teach",
+      "logo": { "key": "site/partners/team-teach.png", "alt": "Team Teach", "width": 469, "height": 104 }
+    }
+  ],
   "recognition": [
     {
       "title": "ISA finalists",

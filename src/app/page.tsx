@@ -1,48 +1,12 @@
 import Link from "next/link"
 
 import { UpcomingEvents } from "@/components/home/upcoming-events"
+import { PartnerLogos } from "@/components/home/partner-logos"
 import { MediaImage } from "@/components/site/media-image"
 import { RiverLine } from "@/components/site/river-line"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { getEvents, getSchool } from "@/lib/content"
-
-const familyLinks = [
-  {
-    href: "/contact#apply",
-    title: "Apply for a place",
-    description: "Tell us about your child and we'll be in touch to talk it through.",
-  },
-  {
-    href: "/calendar",
-    title: "Term dates",
-    description: "Holidays, long weekends and teacher training days.",
-  },
-  {
-    href: "/about",
-    title: "About us",
-    description: "Our staff, recognition and SEND information.",
-  },
-  {
-    href: "/policies",
-    title: "Policies and inspection reports",
-    description: "School policies, safeguarding, ISI and Ofsted reports.",
-  },
-  {
-    href: "/gallery",
-    title: "Life at school",
-    description: "Photos of the house, the garden and the Wyre Forest.",
-  },
-  {
-    href: "/vacancies",
-    title: "Work with us",
-    description: "Current jobs and how to apply.",
-  },
-  {
-    href: "/contact",
-    title: "Contact the school",
-    description: "Phone, email, address and an enquiry form.",
-  },
-]
 
 export default async function HomePage() {
   const [school, events] = await Promise.all([getSchool(), getEvents()])
@@ -51,7 +15,7 @@ export default async function HomePage() {
   return (
     <>
       <section className="relative overflow-hidden">
-        <div className="container-page grid items-end gap-10 pt-12 pb-20 md:pt-16 lg:grid-cols-12 lg:gap-12 lg:pb-28">
+        <div className="container-page grid items-end gap-10 pt-12 pb-20 md:pt-16 grid-cols-1 lg:grid-cols-12 lg:gap-12 lg:pb-28">
           <div className="lg:col-span-7 lg:pb-8">
             <h1 className="text-display text-ink">
               <span className="block">Wribbenhall</span>
@@ -128,7 +92,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section aria-labelledby="our-school" className="bg-severn text-white">
+      <section aria-labelledby="our-school" className="bg-panel panel-edge text-panel-foreground">
         <div className="container-page py-20 md:py-24">
           <h2 id="our-school" className="max-w-2xl text-title">
             Our school
@@ -139,8 +103,8 @@ export default async function HomePage() {
                 key={feature.title}
                 className="border-t-2 border-white/25 pt-6 md:border-t-0 md:border-l-2 md:px-8 md:pt-0 md:first:border-l-0 md:first:pl-0"
               >
-                <h3 className="text-heading text-buttercup">{feature.title}</h3>
-                <p className="mt-3 text-white/90">{feature.text}</p>
+                <h3 className="text-heading text-panel-accent">{feature.title}</h3>
+                <p className="mt-3 text-panel-foreground/90">{feature.text}</p>
               </div>
             ))}
           </div>
@@ -159,40 +123,50 @@ export default async function HomePage() {
               ))}
             </div>
           </div>
-          <div className="grid gap-10 sm:grid-cols-2 lg:col-span-7">
-            <div>
-              <h3 className="font-sans text-lg font-semibold">Our pupils&apos; main needs</h3>
-              <ul className="mt-3 space-y-2">
-                {school.pupilProfile.mainNeeds.map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <span aria-hidden="true" className="mt-2.5 size-2 shrink-0 rounded-full bg-severn" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <h3 className="mt-8 font-sans text-lg font-semibold">These may also include</h3>
-              <ul className="mt-3 space-y-2">
-                {school.pupilProfile.mayInclude.map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <span aria-hidden="true" className="mt-2.5 size-2 shrink-0 rounded-full bg-severn/60" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-sans text-lg font-semibold">We are not able to provide for</h3>
-              <ul className="mt-3 space-y-2">
-                {school.pupilProfile.notProvidedFor.map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <span aria-hidden="true" className="mt-2.5 h-0.5 w-2.5 shrink-0 bg-ink/60" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-3 text-sm text-muted-foreground">This list includes, but is not limited to, these profiles.</p>
-            </div>
-          </div>
+          <Accordion type="multiple" className="self-start border-t border-border lg:col-span-7">
+            <AccordionItem value="main-needs">
+              <AccordionTrigger className="py-5 font-display text-subheading font-normal">
+                Our pupils&apos; main needs
+              </AccordionTrigger>
+              <AccordionContent className="text-base">
+                <ul className="space-y-2">
+                  {school.pupilProfile.mainNeeds.map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span aria-hidden="true" className="mt-2.5 size-2 shrink-0 rounded-full bg-severn" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <h3 className="mt-6 font-sans text-base font-semibold">These may also include</h3>
+                <ul className="mt-3 space-y-2">
+                  {school.pupilProfile.mayInclude.map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span aria-hidden="true" className="mt-2.5 size-2 shrink-0 rounded-full bg-severn/60" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="not-provided-for">
+              <AccordionTrigger className="py-5 font-display text-subheading font-normal">
+                We are not able to provide for
+              </AccordionTrigger>
+              <AccordionContent className="text-base">
+                <ul className="space-y-2">
+                  {school.pupilProfile.notProvidedFor.map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span aria-hidden="true" className="mt-2.5 h-0.5 w-2.5 shrink-0 bg-ink/60" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  This list includes, but is not limited to, these profiles.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
         <div className="mt-14 rounded-xl border border-border bg-card p-6 md:p-8">
           <h3 className="font-sans text-lg font-semibold">How places are decided</h3>
@@ -204,40 +178,24 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section aria-labelledby="families" className="container-page pb-20 md:pb-28">
-        <h2 id="families" className="text-title">
-          Information for families
-        </h2>
-        <ul className="mt-10 grid border-t border-border md:grid-cols-2 md:gap-x-12">
-          {familyLinks.map((link) => (
-            <li key={link.title} className="border-b border-border">
-              <Link href={link.href} className="group block py-6">
-                <span className="text-subheading font-display text-ink group-hover:text-severn group-hover:underline group-hover:decoration-buttercup group-hover:decoration-2 group-hover:underline-offset-[6px]">
-                  {link.title}
-                </span>
-                <span className="mt-1 block text-muted-foreground">{link.description}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <PartnerLogos partners={school.partners} />
 
       <section aria-labelledby="visit" className="container-page pb-24">
-        <div className="grid gap-8 rounded-2xl bg-buttercup px-7 py-12 md:grid-cols-12 md:px-14 md:py-16">
+        <div className="grid gap-8 rounded-2xl bg-accent px-7 py-12 md:grid-cols-12 md:px-14 md:py-16">
           <div className="md:col-span-7">
-            <h2 id="visit" className="text-title text-ink">
+            <h2 id="visit" className="text-title text-accent-foreground">
               Talk to us about your child
             </h2>
-            <p className="mt-4 max-w-xl text-lg text-ink/85">
+            <p className="mt-4 max-w-xl text-lg text-accent-foreground/85">
               Every place starts with a conversation. Get in touch and we&apos;ll explain how applications work and
               whether Wribbenhall could be right for your child.
             </p>
           </div>
           <div className="flex flex-col justify-end gap-3 md:col-span-5 md:items-end">
-            <Button asChild size="lg" className="bg-ink text-white hover:bg-ink/90">
+            <Button asChild size="lg" className="bg-panel text-panel-foreground panel-edge hover:bg-panel/90">
               <Link href="/contact#enquiry">Make an enquiry</Link>
             </Button>
-            <p className="text-ink/85">
+            <p className="text-accent-foreground/85">
               Or call{" "}
               <a href={phoneHref} className="font-semibold underline underline-offset-4">
                 {school.phone}

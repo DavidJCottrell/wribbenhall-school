@@ -24,7 +24,7 @@ export default async function CalendarPage() {
         </p>
       </PageHeader>
 
-      <div className="container-page grid gap-14 py-14 lg:grid-cols-12 lg:gap-12">
+      <div className="container-page grid gap-14 py-14 grid-cols-1 lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-8">
           <CalendarView events={events} />
         </div>

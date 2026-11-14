@@ -99,7 +99,7 @@ export default async function AboutPage() {
                 <p className="mt-2 max-w-prose text-lg text-ink/85">{item.text}</p>
               </div>
               {item.link ? (
-                <Button asChild variant="outline" className="shrink-0">
+                <Button asChild variant="outline" className="h-auto min-h-11 shrink-0 py-2 text-center whitespace-normal">
                   <a href={item.link.url} target="_blank" rel="noopener">
                     {item.link.label}
                     <span className="sr-only"> (opens in a new tab)</span>

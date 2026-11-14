@@ -150,7 +150,7 @@ export function CalendarView({ events }: { events: SchoolEvent[] }) {
                 <span
                   className={cn(
                     "grid size-7 place-items-center rounded-full text-sm",
-                    isToday && "bg-severn font-semibold text-white",
+                    isToday && "bg-primary font-semibold text-primary-foreground",
                   )}
                 >
                   {format(day, "d")}

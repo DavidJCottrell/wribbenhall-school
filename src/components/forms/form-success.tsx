@@ -27,7 +27,7 @@ export function FormSuccess({
 
   return (
     <div className="rounded-xl border-2 border-severn bg-card p-6 md:p-8" role="status">
-      <span className="grid size-11 place-items-center rounded-full bg-severn text-white">
+      <span className="grid size-11 place-items-center rounded-full bg-primary text-primary-foreground">
         <CheckIcon className="size-6" />
       </span>
       <h3 ref={headingRef} tabIndex={-1} className="mt-5 text-heading outline-none">

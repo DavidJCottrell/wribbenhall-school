@@ -21,8 +21,8 @@ export function LogoMark({ className }: { className?: string }) {
 export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn("flex items-center gap-3", className)}>
-      <LogoMark />
-      <span className="font-display text-lg leading-none tracking-tight whitespace-nowrap sm:text-[1.375rem]">
+      <LogoMark className="in-data-[text-size]:max-sm:hidden" />
+      <span className="font-display text-lg leading-[1.05] tracking-tight sm:text-[1.375rem] sm:leading-none sm:whitespace-nowrap">
         Wribbenhall School
       </span>
     </span>

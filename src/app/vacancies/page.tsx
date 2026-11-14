@@ -84,13 +84,13 @@ export default async function VacanciesPage() {
         </div>
 
         <aside className="lg:col-span-4">
-          <div className="rounded-xl bg-severn p-7 text-white">
+          <div className="rounded-xl bg-panel panel-edge p-7 text-panel-foreground">
             <h2 className="text-heading">Working here</h2>
-            <p className="mt-4 text-white/90">
+            <p className="mt-4 text-panel-foreground/90">
               Wribbenhall is a small independent specialist school for children and young people with special
               educational needs and disabilities, run on a trauma-informed, family-style nurture model.
             </p>
-            <p className="mt-3 text-white/90">Full training is provided, including Team Teach.</p>
+            <p className="mt-3 text-panel-foreground/90">Full training is provided, including Team Teach.</p>
           </div>
           <div className="mt-6 px-1 text-sm text-muted-foreground">
             <p>
