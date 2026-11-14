@@ -1,213 +1,109 @@
 [
   {
-    "id": "evt-inset-sep",
-    "title": "INSET day: school closed to pupils",
-    "date": "2026-09-01",
+    "id": "summer-holiday-2026",
+    "title": "Summer holiday",
+    "date": "2026-07-11",
+    "endDate": "2026-09-06",
+    "category": "term"
+  },
+  {
+    "id": "training-days-sep-2026",
+    "title": "Teacher training days: school closed to pupils",
+    "date": "2026-09-07",
+    "endDate": "2026-09-08",
     "category": "inset"
   },
   {
-    "id": "evt-term-starts-autumn",
+    "id": "autumn-term-starts-2026",
     "title": "Autumn term starts",
-    "date": "2026-09-02",
+    "date": "2026-09-09",
     "category": "term"
   },
   {
-    "id": "evt-half-term-oct",
-    "title": "Half term",
-    "date": "2026-10-26",
-    "endDate": "2026-10-30",
+    "id": "autumn-long-weekend-2026",
+    "title": "Autumn long weekend",
+    "date": "2026-09-18",
+    "endDate": "2026-09-21",
     "category": "term"
   },
   {
-    "id": "evt-inset-nov",
-    "title": "INSET day: school closed to pupils",
-    "date": "2026-11-02",
-    "category": "inset"
+    "id": "autumn-half-term-2026",
+    "title": "Autumn mid-term holiday",
+    "date": "2026-10-17",
+    "endDate": "2026-11-01",
+    "category": "term"
   },
   {
-    "id": "evt-children-in-need",
-    "title": "Children in Need non-uniform day",
-    "date": "2026-11-13",
-    "category": "school",
-    "description": "Wear something spotty. Donations go to BBC Children in Need."
+    "id": "christmas-holiday-2026",
+    "title": "Christmas holiday",
+    "date": "2026-12-12",
+    "endDate": "2027-01-03",
+    "category": "term"
   },
   {
-    "id": "evt-parents-evening-autumn",
-    "title": "Parents' evening",
-    "date": "2026-11-19",
-    "startTime": "15:30",
-    "endTime": "19:00",
-    "location": "Classrooms",
-    "category": "parents",
-    "description": "Fifteen-minute meetings with your child's class teacher. Book a slot through the school office."
-  },
-  {
-    "id": "evt-coffee-morning-nov",
-    "title": "Family coffee morning",
-    "date": "2026-11-26",
-    "startTime": "09:15",
-    "endTime": "10:30",
-    "location": "The Riverside Room",
-    "category": "parents",
-    "description": "An informal chance to meet other families and our family support worker. Younger siblings welcome."
-  },
-  {
-    "id": "evt-winter-fair",
-    "title": "Winter fair",
-    "date": "2026-12-05",
-    "startTime": "11:00",
-    "endTime": "14:00",
-    "location": "School hall and playground",
-    "category": "community",
-    "description": "Stalls run by pupils, a raffle and hot food. All money raised goes to the sensory room fund."
-  },
-  {
-    "id": "evt-nativity",
-    "title": "Primary nativity",
-    "date": "2026-12-10",
-    "startTime": "13:45",
-    "endTime": "14:45",
-    "location": "School hall",
-    "category": "school",
-    "description": "Two tickets per family. The performance is relaxed and pupils can come and go."
-  },
-  {
-    "id": "evt-christmas-lunch",
-    "title": "Christmas lunch",
-    "date": "2026-12-16",
-    "category": "school"
-  },
-  {
-    "id": "evt-term-ends-autumn",
-    "title": "Autumn term ends",
-    "date": "2026-12-18",
-    "endTime": "13:30",
-    "category": "term",
-    "description": "School closes at 1:30pm. Transport has been arranged for the earlier finish."
-  },
-  {
-    "id": "evt-inset-jan",
-    "title": "INSET day: school closed to pupils",
+    "id": "training-day-jan-2027",
+    "title": "Teacher training day: school closed to pupils",
     "date": "2027-01-04",
     "category": "inset"
   },
   {
-    "id": "evt-term-starts-spring",
+    "id": "spring-term-starts-2027",
     "title": "Spring term starts",
     "date": "2027-01-05",
     "category": "term"
   },
   {
-    "id": "evt-annual-review-week",
-    "title": "EHCP annual review week",
-    "date": "2027-01-25",
-    "endDate": "2027-01-29",
-    "category": "parents",
-    "description": "Reviews for pupils in Years 6, 9 and 11. You'll receive your invitation and paperwork three weeks before."
-  },
-  {
-    "id": "evt-open-morning-feb",
-    "title": "Open morning for prospective families",
-    "date": "2027-02-04",
-    "startTime": "09:30",
-    "endTime": "11:30",
-    "location": "Main reception",
-    "category": "community",
-    "description": "A guided tour, time with the headteacher and the chance to see classes at work. Please book through the contact page."
-  },
-  {
-    "id": "evt-half-term-feb",
-    "title": "Half term",
-    "date": "2027-02-15",
-    "endDate": "2027-02-19",
+    "id": "spring-half-term-2027",
+    "title": "Spring mid-term holiday",
+    "date": "2027-02-13",
+    "endDate": "2027-02-21",
     "category": "term"
   },
   {
-    "id": "evt-world-book-day",
-    "title": "World Book Day",
-    "date": "2027-03-04",
-    "category": "school",
-    "description": "Come dressed as a character, or bring a favourite book from home."
-  },
-  {
-    "id": "evt-parents-evening-spring",
-    "title": "Parents' evening",
-    "date": "2027-03-11",
-    "startTime": "15:30",
-    "endTime": "19:00",
-    "location": "Classrooms",
-    "category": "parents"
-  },
-  {
-    "id": "evt-arts-week",
-    "title": "Arts week",
-    "date": "2027-03-15",
-    "endDate": "2027-03-19",
-    "category": "school",
-    "description": "This year's theme is 'Forest'. The exhibition is open to families on Friday afternoon."
-  },
-  {
-    "id": "evt-term-ends-spring",
-    "title": "Spring term ends",
-    "date": "2027-03-26",
-    "endTime": "13:30",
+    "id": "easter-holiday-2027",
+    "title": "Easter holiday",
+    "date": "2027-03-20",
+    "endDate": "2027-04-11",
     "category": "term"
   },
   {
-    "id": "evt-inset-apr",
-    "title": "INSET day: school closed to pupils",
+    "id": "training-day-apr-2027",
+    "title": "Teacher training day: school closed to pupils",
     "date": "2027-04-12",
     "category": "inset"
   },
   {
-    "id": "evt-term-starts-summer",
+    "id": "summer-term-starts-2027",
     "title": "Summer term starts",
     "date": "2027-04-13",
     "category": "term"
   },
   {
-    "id": "evt-may-bank-holiday",
-    "title": "Early May bank holiday",
-    "date": "2027-05-03",
+    "id": "summer-half-term-2027",
+    "title": "Summer mid-term holiday",
+    "date": "2027-05-22",
+    "endDate": "2027-06-06",
     "category": "term"
   },
   {
-    "id": "evt-half-term-may",
-    "title": "Half term",
-    "date": "2027-05-31",
-    "endDate": "2027-06-04",
+    "id": "summer-holiday-2027",
+    "title": "Summer holiday",
+    "date": "2027-07-17",
+    "endDate": "2027-09-05",
     "category": "term"
   },
   {
-    "id": "evt-sports-day",
-    "title": "Sports day",
-    "date": "2027-07-07",
-    "startTime": "10:00",
-    "endTime": "14:00",
-    "location": "School field",
-    "category": "community",
-    "description": "Families are welcome all day. Bring a picnic for lunch on the field."
-  },
-  {
-    "id": "evt-leavers",
-    "title": "Leavers' celebration",
-    "date": "2027-07-16",
-    "startTime": "13:30",
-    "endTime": "15:00",
-    "location": "School hall",
-    "category": "community"
-  },
-  {
-    "id": "evt-term-ends-summer",
-    "title": "Summer term ends",
-    "date": "2027-07-21",
-    "endTime": "13:30",
-    "category": "term"
-  },
-  {
-    "id": "evt-inset-jul",
-    "title": "INSET day: school closed to pupils",
-    "date": "2027-07-22",
+    "id": "training-days-sep-2027",
+    "title": "Teacher training days: school closed to pupils",
+    "date": "2027-09-06",
+    "endDate": "2027-09-07",
     "category": "inset"
+  },
+  {
+    "id": "autumn-long-weekend-2027",
+    "title": "Autumn long weekend",
+    "date": "2027-09-18",
+    "endDate": "2027-09-20",
+    "category": "term"
   }
 ]

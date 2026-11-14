@@ -7,7 +7,7 @@ import { getSchool, getVacancies } from "@/lib/content"
 
 export const metadata: Metadata = {
   title: "Vacancies",
-  description: "Current jobs at Wribbenhall School, a special school in Bewdley.",
+  description: "Current jobs at Wribbenhall School, an independent specialist school in Bewdley.",
 }
 
 export default async function VacanciesPage() {
@@ -18,8 +18,8 @@ export default async function VacanciesPage() {
     <>
       <PageHeader title="Vacancies">
         <p>
-          Join a team that knows every pupil by name. We offer thorough induction, regular training with our therapy
-          team and time to plan together.
+          Join a small team supporting children who have found school hard. Current roles are listed below, with
+          everything you need to apply.
         </p>
       </PageHeader>
 
@@ -30,8 +30,8 @@ export default async function VacanciesPage() {
               <h2 className="text-heading">No vacancies at the moment</h2>
               <p className="mt-3 text-ink/85">
                 New roles are posted here first. You&apos;re welcome to send your CV to{" "}
-                <a href={`mailto:${school.recruitmentEmail}`} className="font-semibold underline underline-offset-4">
-                  {school.recruitmentEmail}
+                <a href={`mailto:${school.email}`} className="font-semibold underline underline-offset-4">
+                  {school.email}
                 </a>{" "}
                 and we&apos;ll keep it on file for six months.
               </p>
@@ -86,22 +86,22 @@ export default async function VacanciesPage() {
         <aside className="lg:col-span-4">
           <div className="rounded-xl bg-severn p-7 text-white">
             <h2 className="text-heading">Working here</h2>
-            <ul className="mt-5 space-y-3 text-white/90">
-              <li>Local Government Pension Scheme or Teachers&apos; Pension</li>
-              <li>Paid training in Team Teach, Makaton and medical care</li>
-              <li>Free on-site parking and a cycle-to-work scheme</li>
-              <li>Employee assistance programme for staff wellbeing</li>
-            </ul>
+            <p className="mt-4 text-white/90">
+              Wribbenhall is a small independent specialist school for children and young people with special
+              educational needs and disabilities, run on a trauma-informed, family-style nurture model.
+            </p>
+            <p className="mt-3 text-white/90">Full training is provided, including Team Teach.</p>
           </div>
           <div className="mt-6 px-1 text-sm text-muted-foreground">
             <p>
-              We are committed to safeguarding and promoting the welfare of children. All posts are subject to an
-              enhanced DBS check, references and safer recruitment checks.
+              We are committed to safeguarding and promoting the welfare of children and young people, and expect all
+              staff to share this commitment. All posts are subject to an enhanced DBS check, references and safer
+              recruitment checks.
             </p>
             <p className="mt-3">
               Questions about a role? Email{" "}
-              <a href={`mailto:${school.recruitmentEmail}`} className="break-all underline underline-offset-4">
-                {school.recruitmentEmail}
+              <a href={`mailto:${school.email}`} className="break-all underline underline-offset-4">
+                {school.email}
               </a>
             </p>
           </div>

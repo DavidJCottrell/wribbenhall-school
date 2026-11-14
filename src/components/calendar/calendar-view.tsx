@@ -40,6 +40,10 @@ export function CalendarView({ events }: { events: SchoolEvent[] }) {
   const today = useToday()
   const sorted = useMemo(() => [...events].sort((a, b) => a.date.localeCompare(b.date)), [events])
 
+  const usedCategories = useMemo(
+    () => categoryOrder.filter((category) => events.some((event) => event.category === category)),
+    [events],
+  )
   const [visibleCategories, setVisibleCategories] = useState<EventCategory[]>(categoryOrder)
   const [monthOverride, setMonthOverride] = useState<Date | null>(null)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
@@ -98,7 +102,7 @@ export function CalendarView({ events }: { events: SchoolEvent[] }) {
           onValueChange={(value) => setVisibleCategories(value as EventCategory[])}
           className="flex w-full flex-wrap justify-start gap-2 shadow-none"
         >
-          {categoryOrder.map((category) => (
+          {usedCategories.map((category) => (
             <ToggleGroupItem
               key={category}
               value={category}

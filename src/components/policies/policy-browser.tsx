@@ -1,6 +1,6 @@
 "use client"
 
-import { DownloadIcon, FileTextIcon, SearchIcon } from "lucide-react"
+import { DownloadIcon, ExternalLinkIcon, FileTextIcon, SearchIcon } from "lucide-react"
 import { useDeferredValue, useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -10,14 +10,16 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { policyCategorySchema, type PolicyCategory, type PolicyDocument } from "@/lib/content/schema"
 import { formatMedium } from "@/lib/dates"
-import { formatFileSize, mediaUrl } from "@/lib/media"
+import { describeDocument, documentUrl, isLinkedDocument } from "@/lib/media"
 
 const ALL = "all"
 const categories = policyCategorySchema.options
 
+const slugify = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+
 function matches(policy: PolicyDocument, query: string) {
   if (!query) return true
-  const haystack = `${policy.title} ${policy.summary} ${policy.category}`.toLowerCase()
+  const haystack = `${policy.title} ${policy.summary ?? ""} ${policy.category}`.toLowerCase()
   return query
     .toLowerCase()
     .split(/\s+/)
@@ -106,8 +108,8 @@ export function PolicyBrowser({ policies }: { policies: PolicyDocument[] }) {
       ) : (
         <div className="mt-4 space-y-14">
           {grouped.map((group) => (
-            <section key={group.name} aria-labelledby={`group-${group.name}`}>
-              <h2 id={`group-${group.name}`} className="text-heading">
+            <section key={group.name} id={slugify(group.name)} aria-labelledby={`group-${slugify(group.name)}`} className="scroll-mt-28">
+              <h2 id={`group-${slugify(group.name)}`} className="text-heading">
                 {group.name}
               </h2>
               <ul className="mt-4 divide-y divide-border border-y border-border">
@@ -124,31 +126,42 @@ export function PolicyBrowser({ policies }: { policies: PolicyDocument[] }) {
 }
 
 function PolicyRow({ policy }: { policy: PolicyDocument }) {
-  const href = mediaUrl(policy.file.key)
-  const format = policy.file.format.toUpperCase()
+  const href = documentUrl(policy.file)
+  const linked = isLinkedDocument(policy.file)
+  const details = [describeDocument(policy.file), policy.updated ? `Updated ${formatMedium(policy.updated)}` : null]
+    .filter(Boolean)
+    .join(". ")
 
   return (
-    <li className="grid gap-4 py-5 sm:grid-cols-[auto_1fr_auto] sm:items-start">
+    <li className="grid gap-3 py-5 sm:grid-cols-[auto_1fr_auto] sm:items-start sm:gap-4">
       <FileTextIcon aria-hidden="true" className="mt-1 hidden size-6 text-severn sm:block" />
       <div>
         <h3 className="font-sans text-lg font-semibold">
           <a href={href} target="_blank" rel="noopener" className="text-ink underline-offset-4 hover:text-severn hover:underline">
             {policy.title}
-            <span className="sr-only"> ({format}, opens in a new tab)</span>
+            <span className="sr-only"> (opens in a new tab)</span>
           </a>
         </h3>
-        <p className="mt-1 max-w-prose text-ink/85">{policy.summary}</p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {format}, {formatFileSize(policy.file.sizeBytes)}. Updated {formatMedium(policy.updated)}
+        {policy.summary ? <p className="mt-1 max-w-prose text-ink/85">{policy.summary}</p> : null}
+        <p className="mt-1 text-sm text-muted-foreground">
+          {details}
           {policy.reviewDue ? `. Next review ${formatMedium(policy.reviewDue)}` : null}
         </p>
       </div>
       <Button asChild variant="outline" size="sm" className="justify-self-start">
-        <a href={href} download>
-          <DownloadIcon />
-          Download
-          <span className="sr-only"> {policy.title}</span>
-        </a>
+        {linked ? (
+          <a href={href} target="_blank" rel="noopener">
+            <ExternalLinkIcon />
+            Open
+            <span className="sr-only"> {policy.title} in a new tab</span>
+          </a>
+        ) : (
+          <a href={href} download>
+            <DownloadIcon />
+            Download
+            <span className="sr-only"> {policy.title}</span>
+          </a>
+        )}
       </Button>
     </li>
   )

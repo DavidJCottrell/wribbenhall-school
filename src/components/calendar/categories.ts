@@ -2,12 +2,12 @@ import type { EventCategory } from "@/lib/content/schema"
 
 export const eventCategories: Record<EventCategory, { label: string; swatch: string; chip: string }> = {
   term: {
-    label: "Term dates",
+    label: "Holidays and term dates",
     swatch: "bg-severn",
     chip: "bg-severn text-white",
   },
   inset: {
-    label: "Closures",
+    label: "Training days",
     swatch: "bg-ink",
     chip: "bg-ink text-white",
   },

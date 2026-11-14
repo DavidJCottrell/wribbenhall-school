@@ -13,25 +13,32 @@ import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
-import { CV_TYPES, MAX_CV_BYTES, jobApplicationSchema, type JobApplicationValues } from "@/lib/forms/schemas"
+import { MAX_UPLOAD_BYTES, UPLOAD_TYPES, jobApplicationSchema, type JobApplicationValues } from "@/lib/forms/schemas"
 
-export function JobApplicationForm({ vacancySlug, vacancyTitle }: { vacancySlug: string; vacancyTitle: string }) {
+export function JobApplicationForm({
+  vacancySlug,
+  vacancyTitle,
+  applicationFormUrl,
+}: {
+  vacancySlug: string
+  vacancyTitle: string
+  applicationFormUrl?: string
+}) {
   const emptyValues: JobApplicationValues = {
     vacancySlug,
     fullName: "",
     email: "",
     phone: "",
-    currentRole: "",
-    supportingStatement: "",
+    message: "",
     rightToWork: false,
     declaration: false,
     website: "",
   }
 
   const [reference, setReference] = useState<string | null>(null)
-  const [cvError, setCvError] = useState<string | null>(null)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
-  const cvInput = useRef<HTMLInputElement>(null)
+  const uploadInput = useRef<HTMLInputElement>(null)
 
   const form = useForm<JobApplicationValues>({
     resolver: zodResolver(jobApplicationSchema),
@@ -39,24 +46,30 @@ export function JobApplicationForm({ vacancySlug, vacancyTitle }: { vacancySlug:
     mode: "onTouched",
   })
 
-  function checkCv() {
-    const file = cvInput.current?.files?.[0]
-    if (!file) return true
-    if (!CV_TYPES.includes(file.type) || file.size > MAX_CV_BYTES) {
-      setCvError("Upload a PDF or Word document under 5 MB")
+  function checkUpload() {
+    const file = uploadInput.current?.files?.[0]
+    if (!file) {
+      setUploadError("Attach your completed application form")
       return false
     }
-    setCvError(null)
+    if (!UPLOAD_TYPES.includes(file.type) || file.size > MAX_UPLOAD_BYTES) {
+      setUploadError("Upload a PDF or Word document under 5 MB")
+      return false
+    }
+    setUploadError(null)
     return true
   }
 
   const submitValues = (values: JobApplicationValues) => {
-    if (!checkCv()) return
+    if (!checkUpload()) {
+      uploadInput.current?.focus()
+      return
+    }
 
     const formData = new FormData()
     for (const [key, value] of Object.entries(values)) formData.append(key, String(value ?? ""))
-    const cv = cvInput.current?.files?.[0]
-    if (cv) formData.append("cv", cv)
+    const upload = uploadInput.current?.files?.[0]
+    if (upload) formData.append("applicationForm", upload)
 
     startTransition(async () => {
       const result = await submitJobApplication(formData)
@@ -65,7 +78,7 @@ export function JobApplicationForm({ vacancySlug, vacancyTitle }: { vacancySlug:
         form.reset(emptyValues)
       } else {
         applyServerErrors(form.setError, result.fieldErrors)
-        if (result.fieldErrors?.cv?.[0]) setCvError(result.fieldErrors.cv[0])
+        if (result.fieldErrors?.applicationForm?.[0]) setUploadError(result.fieldErrors.applicationForm[0])
         toast.error(result.message)
       }
     })
@@ -74,51 +87,65 @@ export function JobApplicationForm({ vacancySlug, vacancyTitle }: { vacancySlug:
   if (reference) {
     return (
       <FormSuccess title="Application sent" reference={reference} resetLabel="Back to the form" onReset={() => setReference(null)}>
-        <p>Thank you for applying for the {vacancyTitle} role. We&apos;ll let all applicants know the outcome of shortlisting after the closing date.</p>
+        <p>
+          Thank you for applying for the {vacancyTitle} role. We&apos;ll be in touch after the closing date.
+        </p>
       </FormSuccess>
     )
   }
 
   return (
-    <form onSubmit={(event) => form.handleSubmit(submitValues)(event)} noValidate className="relative">
+    <form
+      onSubmit={(event) => {
+        checkUpload()
+        form.handleSubmit(submitValues)(event)
+      }}
+      noValidate className="relative">
       <FieldGroup>
         <div className="grid gap-7 sm:grid-cols-2">
           <TextField control={form.control} name="fullName" label="Full name" autoComplete="name" />
           <TextField control={form.control} name="email" label="Email address" type="email" autoComplete="email" />
         </div>
-        <div className="grid gap-7 sm:grid-cols-2">
-          <TextField control={form.control} name="phone" label="Phone number" type="tel" autoComplete="tel" />
-          <TextField control={form.control} name="currentRole" label="Current job title" optional />
-        </div>
-        <TextAreaField
-          control={form.control}
-          name="supportingStatement"
-          label="Supporting statement"
-          description="Tell us why you'd like this role and how your experience matches the person specification."
-          rows={9}
-        />
-        <Field data-invalid={Boolean(cvError)}>
-          <FieldLabel htmlFor="cv" className="text-base">
-            CV <span className="font-normal text-muted-foreground">(optional)</span>
+        <TextField control={form.control} name="phone" label="Phone number" type="tel" autoComplete="tel" className="sm:max-w-xs" />
+        <Field data-invalid={Boolean(uploadError)}>
+          <FieldLabel htmlFor="applicationForm" className="text-base">
+            Completed application form
           </FieldLabel>
-          <FieldDescription>PDF or Word document, up to 5 MB.</FieldDescription>
+          <FieldDescription>
+            Word or PDF, up to 5 MB. We cannot accept CVs alone.
+            {applicationFormUrl ? (
+              <>
+                {" "}
+                <a href={applicationFormUrl} target="_blank" rel="noopener" className="font-semibold text-severn underline underline-offset-4">
+                  Get the application form
+                </a>
+              </>
+            ) : null}
+          </FieldDescription>
           <Input
-            ref={cvInput}
-            id="cv"
-            name="cv"
+            ref={uploadInput}
+            id="applicationForm"
+            name="applicationForm"
             type="file"
             accept=".pdf,.doc,.docx"
-            onChange={checkCv}
-            aria-invalid={Boolean(cvError)}
+            onChange={checkUpload}
+            aria-invalid={Boolean(uploadError)}
             className="h-auto py-2 file:mr-3 file:h-8 file:rounded-md file:bg-secondary file:px-3"
           />
-          <FieldError>{cvError}</FieldError>
+          <FieldError>{uploadError}</FieldError>
         </Field>
+        <TextAreaField
+          control={form.control}
+          name="message"
+          label="Anything else you'd like us to know"
+          optional
+          rows={4}
+        />
         <CheckboxField control={form.control} name="rightToWork" label="I have the right to work in the UK." />
         <CheckboxField
           control={form.control}
           name="declaration"
-          label="The information I've given is correct. I understand this post is subject to an enhanced DBS check and references."
+          label="The information I've given is correct. I understand this post is subject to an enhanced DBS check, references and safer recruitment checks."
         />
         <HoneypotField register={form.register("website")} />
         <div>

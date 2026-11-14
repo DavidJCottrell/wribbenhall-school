@@ -12,8 +12,10 @@ export async function SiteFooter() {
     <footer className="mt-auto bg-severn-deep text-white">
       <div className="container-page grid gap-12 py-16 md:grid-cols-12">
         <div className="md:col-span-5">
-          <div className="flex items-center gap-3">
-            <LogoMark className="text-white" />
+          <div className="flex items-center gap-4">
+            <span className="grid size-16 place-items-center rounded-full bg-white">
+              <LogoMark className="h-10" />
+            </span>
             <p className="font-display text-2xl">{school.name}</p>
           </div>
           <p className="mt-5 max-w-sm text-white/80">{school.shortDescription}</p>
@@ -34,7 +36,7 @@ export async function SiteFooter() {
               {school.phone}
             </a>
             <br />
-            <a className="underline decoration-buttercup decoration-2 underline-offset-4" href={`mailto:${school.email}`}>
+            <a className="break-all underline decoration-buttercup decoration-2 underline-offset-4" href={`mailto:${school.email}`}>
               {school.email}
             </a>
           </p>
@@ -51,16 +53,19 @@ export async function SiteFooter() {
               </li>
             ))}
             <li>
-              <a href={school.ofstedUrl} className="hover:text-white hover:underline" rel="noopener" target="_blank">
-                Ofsted reports
-              </a>
+              <Link href="/policies#inspections" className="hover:text-white hover:underline">
+                Inspection reports
+              </Link>
             </li>
           </ul>
         </nav>
       </div>
       <div className="border-t border-white/15">
         <div className="container-page flex flex-col gap-2 py-6 text-sm text-white/70 sm:flex-row sm:justify-between">
-          <p>{school.name}, Bewdley, Worcestershire</p>
+          <p>
+            © {school.name}
+            {school.vatNumber ? `. VAT number ${school.vatNumber}` : null}
+          </p>
           <p>
             Need this information in another format?{" "}
             <Link href="/contact" className="underline underline-offset-4 hover:text-white">

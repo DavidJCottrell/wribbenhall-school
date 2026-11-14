@@ -4,8 +4,8 @@ import { z } from "zod"
 
 import { getFormDelivery, type FormKind, type FormSubmission } from "@/lib/forms/delivery"
 import {
-  CV_TYPES,
-  MAX_CV_BYTES,
+  MAX_UPLOAD_BYTES,
+  UPLOAD_TYPES,
   enquirySchema,
   jobApplicationSchema,
   placeApplicationSchema,
@@ -71,31 +71,35 @@ export async function submitPlaceApplication(values: unknown): Promise<FormResul
 }
 
 export async function submitJobApplication(formData: FormData): Promise<FormResult> {
-  const cv = formData.get("cv")
+  const upload = formData.get("applicationForm")
   const parsed = jobApplicationSchema.safeParse({
     vacancySlug: formData.get("vacancySlug"),
     fullName: formData.get("fullName"),
     email: formData.get("email"),
     phone: formData.get("phone"),
-    currentRole: formData.get("currentRole") ?? "",
-    supportingStatement: formData.get("supportingStatement"),
+    message: formData.get("message") ?? "",
     rightToWork: formData.get("rightToWork") === "true",
     declaration: formData.get("declaration") === "true",
     website: formData.get("website") ?? "",
   })
   if (!parsed.success) return invalid(parsed.error)
 
-  let attachments: FormSubmission["attachments"]
-  if (cv instanceof File && cv.size > 0) {
-    if (cv.size > MAX_CV_BYTES || !CV_TYPES.includes(cv.type)) {
-      return {
-        ok: false,
-        message: "Your CV must be a PDF or Word document under 5 MB.",
-        fieldErrors: { cv: ["Upload a PDF or Word document under 5 MB"] },
-      }
+  if (!(upload instanceof File) || upload.size === 0) {
+    return {
+      ok: false,
+      message: "Attach your completed application form.",
+      fieldErrors: { applicationForm: ["Attach your completed application form"] },
     }
-    attachments = [{ name: cv.name, type: cv.type, size: cv.size, content: await cv.arrayBuffer() }]
+  }
+  if (upload.size > MAX_UPLOAD_BYTES || !UPLOAD_TYPES.includes(upload.type)) {
+    return {
+      ok: false,
+      message: "Your application form must be a PDF or Word document under 5 MB.",
+      fieldErrors: { applicationForm: ["Upload a PDF or Word document under 5 MB"] },
+    }
   }
 
-  return deliver("job-application", parsed.data, attachments)
+  return deliver("job-application", parsed.data, [
+    { name: upload.name, type: upload.type, size: upload.size, content: await upload.arrayBuffer() },
+  ])
 }

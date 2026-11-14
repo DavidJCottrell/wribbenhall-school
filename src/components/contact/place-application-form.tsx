@@ -105,8 +105,8 @@ export function PlaceApplicationForm({ admissionsEmail }: { admissionsEmail: str
         onReset={() => setReference(null)}
       >
         <p>
-          Our admissions lead will call or email you within five working days to talk things through and arrange a
-          visit for you and your child.
+          We&apos;ll be in touch to talk things through. Each application is considered individually, and includes an
+          interview with your child and family.
         </p>
         <p>
           Questions in the meantime? Email{" "}
@@ -179,13 +179,13 @@ export function PlaceApplicationForm({ admissionsEmail }: { admissionsEmail: str
               control={form.control}
               name="localAuthority"
               label="Local authority"
-              description="The council that holds or is assessing your child's EHCP, for example Worcestershire."
+              description="The council that holds or is assessing your child's EHCP, for example Worcestershire County Council."
             />
             <CheckboxGroupField
               control={form.control}
               name="needAreas"
-              label="Main areas of need"
-              description="Choose all that apply."
+              label="Which of these apply to your child?"
+              description="Choose all that apply. This helps us understand whether we can meet your child's needs."
               options={needAreas}
             />
             <TextAreaField

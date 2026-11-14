@@ -54,7 +54,7 @@ export function GalleryBrowser({ albums }: { albums: GalleryAlbum[] }) {
       </ToggleGroup>
 
       <div className="mt-12 space-y-20">
-        {shownAlbums.map((album) => (
+        {shownAlbums.map((album, albumIndex) => (
           <section key={album.id} aria-labelledby={`album-${album.id}`}>
             <div className="grid gap-2 md:grid-cols-12 md:items-end">
               <div className="md:col-span-8">
@@ -64,7 +64,12 @@ export function GalleryBrowser({ albums }: { albums: GalleryAlbum[] }) {
                 <p className="mt-2 max-w-2xl text-ink/85">{album.description}</p>
               </div>
               <p className="text-muted-foreground md:col-span-4 md:text-right">
-                <time dateTime={album.date}>{formatMedium(album.date)}</time>, {album.images.length} photos
+                {album.date ? (
+                  <>
+                    <time dateTime={album.date}>{formatMedium(album.date)}</time>,{" "}
+                  </>
+                ) : null}
+                {album.images.length} photos
               </p>
             </div>
 
@@ -82,6 +87,7 @@ export function GalleryBrowser({ albums }: { albums: GalleryAlbum[] }) {
                       width={image.width}
                       height={image.height}
                       sizes="(min-width: 1024px) 24rem, (min-width: 640px) 50vw, 100vw"
+                      loading={albumIndex === 0 && index < 3 ? "eager" : "lazy"}
                       className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.02]"
                     />
                     <span className="sr-only">Open larger photo</span>

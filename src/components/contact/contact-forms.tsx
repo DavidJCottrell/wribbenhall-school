@@ -11,7 +11,7 @@ type FormTab = "enquiry" | "apply"
 
 const isFormTab = (value: string): value is FormTab => value === "enquiry" || value === "apply"
 
-export function ContactForms({ officeEmail, admissionsEmail }: { officeEmail: string; admissionsEmail: string }) {
+export function ContactForms({ officeEmail }: { officeEmail: string }) {
   const [tab, setTab] = useState<FormTab>("enquiry")
 
   // Links like /contact#apply open the matching form
@@ -48,7 +48,7 @@ export function ContactForms({ officeEmail, admissionsEmail }: { officeEmail: st
         <TabsContent value="enquiry">
           <h2 className="text-heading">Send an enquiry</h2>
           <p className="mt-2 mb-8 max-w-prose text-muted-foreground">
-            Questions about visiting, transport, therapies or anything else. We reply within two working days.
+            Questions about admissions, visiting or anything else. We&apos;ll reply by email or phone.
           </p>
           <EnquiryForm officeEmail={officeEmail} />
         </TabsContent>
@@ -56,12 +56,13 @@ export function ContactForms({ officeEmail, admissionsEmail }: { officeEmail: st
           <h2 className="text-heading">Apply for a place</h2>
           <div className="mt-2 mb-8 max-w-prose space-y-2 text-muted-foreground">
             <p>
-              Places at Wribbenhall are agreed with your local authority as part of your child&apos;s EHCP. This form
-              tells us about your child so we can arrange a visit and support you through that process.
+              Each application is considered individually by the proprietor. We look at information from your
+              child&apos;s current placement, their EHCP and the professionals who have assessed them, and we meet
+              your child and family for an interview. This form is the first step.
             </p>
             <p>It takes about 10 minutes. You can go back to change answers before you send it.</p>
           </div>
-          <PlaceApplicationForm admissionsEmail={admissionsEmail} />
+          <PlaceApplicationForm admissionsEmail={officeEmail} />
         </TabsContent>
       </div>
     </Tabs>

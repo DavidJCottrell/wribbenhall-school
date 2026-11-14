@@ -1,55 +1,166 @@
 {
   "name": "Wribbenhall School",
-  "shortDescription": "A special school in Bewdley for children and young people aged 4 to 19 with complex learning needs.",
-  "ageRange": "4 to 19",
-  "address": {
-    "lines": ["Wribbenhall School", "Kidderminster Road", "Bewdley", "Worcestershire"],
-    "postcode": "DY12 1AA",
-    "mapUrl": "https://www.openstreetmap.org/search?query=Wribbenhall%20Bewdley"
-  },
-  "phone": "01299 000000",
-  "email": "office@wribbenhall.example.sch.uk",
-  "admissionsEmail": "admissions@wribbenhall.example.sch.uk",
-  "recruitmentEmail": "recruitment@wribbenhall.example.sch.uk",
-  "officeHours": [
-    { "days": "Monday to Thursday", "hours": "8:15am to 4:30pm" },
-    { "days": "Friday", "hours": "8:15am to 3:30pm" }
+  "shortDescription": "A small independent specialist school in Bewdley for children aged 5 to 18 with social, emotional and mental health needs, who are too anxious to attend other schools.",
+  "ageRange": "5 to 18",
+  "mission": [
+    "At Wribbenhall School we aim to nurture, inspire and re-engage children to achieve their full potential by providing a secure, caring and supportive environment where every child is valued as an individual.",
+    "We promote children and adults with positive self-esteem, confidence in their judgement, self-reliance, independence, ambition and compassion."
   ],
-  "headteacher": {
-    "name": "Mrs Clare Holloway",
-    "role": "Headteacher",
-    "portrait": {
-      "key": "site/headteacher.jpg",
-      "alt": "Portrait of the headteacher",
-      "width": 900,
-      "height": 1100
-    },
-    "welcome": [
-      "Every family finds us by a different route. Some of you have been looking for the right place for a long time; some of you are only just starting to think about what comes next.",
-      "Whichever it is, the best way to understand Wribbenhall is to come and see it. You'll meet staff who know each child well, classrooms set up around how pupils actually learn, and a lot of time spent outdoors by the river and in the woods.",
-      "We work closely with families, therapists and the local authority so that each pupil's plan is something we all recognise and can act on. If you'd like to talk about whether we could be the right school for your child, get in touch and we'll arrange a visit."
-    ]
+  "inspectionQuote": {
+    "text": "Pupils thrive in a secure, encouraging and respectful environment and achieve rapid improvement in academic performance and in their personal and social skills.",
+    "source": "Independent Schools Inspectorate, 2004"
   },
-  "heroImage": {
-    "key": "site/hero.jpg",
-    "alt": "Illustration of Bewdley Bridge over the River Severn with houses along the bank",
-    "width": 1400,
-    "height": 1750
+  "address": {
+    "lines": ["21 Crundalls Lane", "Bewdley", "Worcestershire"],
+    "postcode": "DY12 1JL",
+    "mapUrl": "https://www.openstreetmap.org/search?query=21%20Crundalls%20Lane%2C%20Bewdley%2C%20DY12%201JL"
   },
-  "pathways": [
+  "phone": "01299 405383",
+  "email": "enquiries@wribbenhallschool.co.uk",
+  "vatNumber": "GB478248449",
+  "people": [
     {
-      "name": "Explorers",
-      "summary": "A sensory and play-based curriculum for pupils at the earliest stages of learning, with communication and physical development at its heart."
+      "role": "Proprietor and Headteacher",
+      "name": "Mr Ellis Wells",
+      "email": "enquiries@wribbenhallschool.co.uk",
+      "phone": "01299 405383"
     },
     {
-      "name": "Discoverers",
-      "summary": "Topic-based learning that builds early literacy, number and independence, taught in small groups with lots of practical work."
-    },
-    {
-      "name": "Pathfinders",
-      "summary": "Accredited courses, work experience and life skills for older pupils, preparing them for college, supported employment and adult life."
+      "role": "Governor",
+      "name": "Mrs Linda Minnock",
+      "email": "l.minnock@btinternet.com",
+      "phone": "01299 405383"
     }
   ],
-  "localAuthority": "Worcestershire County Council",
-  "ofstedUrl": "https://reports.ofsted.gov.uk/"
+  "heroImage": {
+    "key": "gallery/our-school/02.jpg",
+    "alt": "The front of Wribbenhall School, a red-brick house on Crundalls Lane",
+    "width": 949,
+    "height": 1265
+  },
+  "aboutImage": {
+    "key": "site/individual-spaces.jpg",
+    "alt": "A quiet individual learning space with a desk, chair and teal sofa",
+    "width": 822,
+    "height": 1097
+  },
+  "sendProvision": {
+    "heading": "What kinds of SEN do we provide for?",
+    "text": "We are committed to ensuring that all pupils achieve their potential, personally, socially, emotionally and academically across all areas of the curriculum, regardless of their gender, ethnicity, social background or religion.",
+    "reportUrl": "https://wribbenhallschool.co.uk/static/media/SEN_Information_Report.c1c9cc99932a0dc69d71.docx"
+  },
+  "features": [
+    {
+      "title": "Nature resources",
+      "text": "Natural and open spaces allow the children to calm quickly. It supports them in their learning of academic subjects. It also allows them to develop strategies for social and emotional development and to increase their self-esteem."
+    },
+    {
+      "title": "Individual spaces",
+      "text": "Pupils often focus better in a calm and individual environment. This reduction in sensory stimulation is achieved by ensuring each pupil can choose to work in their individual learning space. They can also choose to work together or alongside each other."
+    },
+    {
+      "title": "Support animals",
+      "text": "Following in the footprints of our previous therapy dog Daisy, Charlie provides a soothing and affectionate presence to support children during challenging moments. Skipper, our resident cat, is also there for quiet times."
+    }
+  ],
+  "pupilProfile": {
+    "summary": [
+      "We provide specialist education for SEMH children aged 5 to 18 years, who are too anxious to attend schools and other establishments.",
+      "Our key pupil profile states the main issues that we are able to, and not able to, provide for."
+    ],
+    "mainNeeds": ["Anxiety", "Social phobia (including school phobia)"],
+    "mayInclude": [
+      "Selective mutism",
+      "Panic disorder",
+      "Agoraphobia",
+      "Separation anxiety (including school refusal)",
+      "Attachment disorder",
+      "Autism",
+      "Depression",
+      "Self-harming",
+      "Suicidal thoughts and behaviour",
+      "Other co-occurring conditions"
+    ],
+    "notProvidedFor": [
+      "Moderate, severe, and profound and multiple learning difficulties",
+      "Pathological demand avoidance",
+      "Conduct disorder"
+    ],
+    "decisions": [
+      "Each child's application will be considered by the proprietor on an individual basis, taking into consideration the attributes of the current pupils.",
+      "No previous outcomes can be considered a precedent or guide to future decisions made by the proprietor.",
+      "This decision will be based on information received from the pupil's current placement, information on their EHCP, information from professionals who have assessed the pupil, and an interview with the child and their parent(s) or family."
+    ]
+  },
+  "recognition": [
+    {
+      "title": "ISA finalists",
+      "text": "We are proud to have been a finalist in the 2023 Independent Schools Association SEND School of the Year Awards.",
+      "image": {
+        "key": "site/isa-finalists.jpg",
+        "alt": "Wribbenhall School staff holding the finalist certificate at the ISA National Awards 2023",
+        "width": 1312,
+        "height": 864
+      }
+    },
+    {
+      "title": "SchoolTV",
+      "text": "Learn ways to help children navigate anxiety with articles on SchoolTV.",
+      "link": {
+        "label": "Read the SchoolTV articles on anxiety",
+        "url": "https://wribbenhallschool.uk.schooltv.me/newsletter/anxiety-young-people"
+      }
+    }
+  ],
+  "staff": [
+    {
+      "name": "Ellis Wells",
+      "role": "Proprietor and Headteacher",
+      "bio": "I am a qualified and experienced teacher and SENDCo. I have completed a Post Experience Diploma in Psychology. I have a passion to work with children with additional needs and understand that their environment, interactions and attachment with others has a big impact on their learning.",
+      "portrait": { "key": "staff/ellis-wells.jpg", "alt": "Ellis Wells", "width": 192, "height": 192 }
+    },
+    {
+      "name": "Sally Wells",
+      "role": "Learning Support Assistant",
+      "bio": "I am a qualified Learning Support Assistant, experienced in SEN learning support. I have the patience to support children in their understanding and scaffold their learning.",
+      "portrait": { "key": "staff/sally-wells.jpg", "alt": "Sally Wells", "width": 152, "height": 188 }
+    },
+    {
+      "name": "Vikki Mathews",
+      "role": "Teacher",
+      "bio": "I am a qualified teacher with an SEN specialism. I have also completed a Lego Therapy course. I am passionate about working with children with SEN and SEMH and have a great understanding of how to promote learning. I use a nurturing and calm approach to ensure all children feel safe and secure so they are ready to learn.",
+      "portrait": { "key": "staff/vikki-mathews.jpg", "alt": "Vikki Mathews", "width": 949, "height": 1265 }
+    },
+    {
+      "name": "Becca Mason",
+      "role": "Teacher",
+      "bio": "I am a qualified teacher with several years' experience working closely with children with SEMH needs. I believe it is key to provide a safe, calm, nurturing environment within which children can become confident and secure in themselves and their abilities. I am trained and experienced in delivering Lego Therapy sessions and am looking forward to broadening my experience and training in other therapeutic approaches.",
+      "portrait": { "key": "staff/becca-mason.jpg", "alt": "Becca Mason", "width": 592, "height": 798 }
+    },
+    {
+      "name": "Anthony Arnold",
+      "role": "Learning Support Assistant",
+      "bio": "I am a qualified Learning Support Assistant, experienced in SEN learning support. I have over twenty years of experience in educational settings, encouraging and supporting pupils to access the curriculum and to overcome the challenges they may face. I use my experience and sense of humour to ease the burden felt by learners and help to guide them as they navigate their own individual challenges.",
+      "portrait": { "key": "staff/anthony-arnold.jpg", "alt": "Anthony Arnold", "width": 314, "height": 310 }
+    },
+    {
+      "name": "Donna Smith",
+      "role": "School Administrator",
+      "bio": "I have gained years of administrative experience from many diverse environments, both within the public and private sectors. I am working towards my Level 4 Diploma in School Business Management, to help support the school to its best potential. As well as being the Administrator of Wribbenhall School, I am also a qualified swimming teacher and enjoy assisting the children in this area too.",
+      "portrait": { "key": "staff/donna-smith.jpg", "alt": "Donna Smith", "width": 350, "height": 376 }
+    },
+    {
+      "name": "Josh Darby",
+      "role": "Ground Technician",
+      "bio": "I support the school as Ground Technician. With a Level 2 qualification in Property Maintenance, I have years of experience working in education as a Site Operative and started my career as an SEN Teaching Assistant. Using patience and understanding, I strive to provide a calm atmosphere for our pupils to learn in.",
+      "portrait": { "key": "staff/josh-darby.jpg", "alt": "Josh Darby", "width": 1046, "height": 1148 }
+    },
+    {
+      "name": "Charlie",
+      "role": "Assistance dog in training",
+      "bio": "Charlie is our new puppy training to be an assistance dog. He is loving, clever and energetic. He enjoys being with people.",
+      "portrait": { "key": "staff/charlie.jpg", "alt": "Charlie, a brown and white spaniel puppy", "width": 949, "height": 1265 }
+    }
+  ],
+  "calendarSubscribeUrl": "https://calendar.google.com/calendar/u/0?cid=d3JpYmJlbmhhbGxzY2hvb2xAZ21haWwuY29t"
 }

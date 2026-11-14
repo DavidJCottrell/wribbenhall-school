@@ -2,7 +2,7 @@
 
 Next.js 16 (App Router), React 19, Tailwind CSS 4 and shadcn/ui.
 
-All names, phone numbers, addresses, dates, policies, jobs and pictures are **placeholder content**. Replace them before the site goes anywhere public.
+Content was imported from the current site at wribbenhallschool.co.uk in November 2026: text, staff, photos, the logo, policy links, term dates from the school's Google Calendar, and the current vacancy. See "Content imported from the old site" below for what to check before launch.
 
 ## Run it on your laptop
 
@@ -28,18 +28,18 @@ Form submissions are printed in the terminal running the server, so you can see 
 
 | Path | What's there |
 | --- | --- |
-| `/` | Hero, upcoming events, headteacher's welcome, learning pathways, quick links |
+| `/` | Hero, upcoming dates, about the school, our school, who we can help, ISA finalists, staff, quick links |
 | `/calendar` | Month view with category filters, event list, term dates, `.ics` downloads |
 | `/gallery` | Albums with a keyboard-friendly lightbox |
-| `/policies` | Searchable, filterable document list with downloads |
-| `/vacancies` and `/vacancies/[slug]` | Job listings, job detail and an online application with CV upload |
+| `/policies` | Searchable list of policies, safeguarding documents and inspection reports (`/policies#inspections`) |
+| `/vacancies` and `/vacancies/[slug]` | Job listings, job detail, vacancy documents and an online application with an application form upload |
 | `/contact` | Office details, enquiry form, and a four-step application for a pupil place (`/contact#apply` opens it directly) |
 
 ## Where things live
 
 ```
 src/
-  content/            Placeholder data as JSON, one file per collection
+  content/            Site content as JSON, one file per collection
   lib/content/        Content layer: schemas, providers, cached getters
   lib/media.ts        Turns media keys into URLs (local or CDN)
   lib/forms/          Form schemas (shared by browser and server) and delivery
@@ -47,15 +47,16 @@ src/
   components/ui/      shadcn/ui components
   components/site/    Header, footer, page header, logo
   components/...      Feature components per page
-public/media/         Placeholder images and PDFs
-scripts/              Generator for the placeholder images and PDFs
+public/media/         Photos, staff portraits and the logo
 ```
 
 ## Editing content
 
 Edit the JSON files in `src/content`. Each one is validated against the schemas in `src/lib/content/schema.ts` when the site builds, so a typo in a date or a missing field fails loudly rather than showing a broken page.
 
-Images and documents are referenced by **key**, a path relative to the media root, for example `gallery/harvest/01.jpg`. Locally that resolves to `public/media/gallery/harvest/01.jpg`.
+Images are referenced by **key**, a path relative to the media root, for example `gallery/our-school/01.jpg`. Locally that resolves to `public/media/gallery/our-school/01.jpg`.
+
+Documents can be either a media key (`"key": "documents/attendance.pdf"`, served from `public/media` or your CDN) or a link (`"url": "https://drive.google.com/..."`). The policies and vacancy documents currently link to the school's Google Drive, as on the old site, so updating a file in Drive updates the website.
 
 ## Moving to a CDN or CMS
 
@@ -97,14 +98,20 @@ Every form has a hidden honeypot field to catch simple spam bots. For a public l
 npx shadcn@latest add accordion
 ```
 
-## Placeholder images and PDFs
+## Content imported from the old site
 
-`scripts/generate-placeholders.py` draws the illustrated placeholders and writes the dummy PDFs (needs Python 3 with Pillow, NumPy and ReportLab). You won't need it once real photos and documents are in place.
+- **Photos** were captured from the old site at the size it served them. Some staff portraits are small (Ellis Wells is 96 pixels) and will look soft; send better originals if you have them.
+- **Logo**: the header uses the tree from the school logo, cut out from its lettering. The full logo is at `public/media/site/logo.png`.
+- **Policy titles** were tidied from the Drive file names. Where the old site listed the same document twice, only the most recently modified copy is kept. Both "Admissions policy" and "Admissions policy 2026" are still listed; remove whichever is out of date.
+- **SEND information report** still links to the file on the old site (`/static/media/SEN_Information_Report...docx`). That link will break when the old site is replaced, so upload the report to Drive or `public/media/documents/` and update `src/content/school.json` and `src/content/policies.json`.
+- **Term dates** were read from the school's Google Calendar (wribbenhallschool@gmail.com). Term start and end dates are worked out from the holidays and training days, so check them.
+- **The vacancy** for a Learning Support Assistant closed on 13 November 2026, so its page shows "Applications have closed". Remove it from `src/content/vacancies.json` once it's filled.
+- **The documentary video** ("Safe Spaces") on the old site wasn't copied over. It's a large video file and is best hosted on YouTube or Vimeo, then linked from the home page.
 
 ## Before going live
 
-- Replace all placeholder content, especially contact details, the safeguarding text and term dates
-- Get consent for every photo of a pupil
+- Check the points under "Content imported from the old site"
+- Confirm consent is still in place for every photo of a pupil
 - Check statutory publishing requirements for maintained schools on GOV.UK
 - Add a privacy notice page and link the enquiry form's consent checkbox to it
 - Set up form delivery and test that messages arrive

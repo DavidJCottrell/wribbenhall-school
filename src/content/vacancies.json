@@ -1,89 +1,69 @@
 [
   {
-    "slug": "class-teacher-secondary",
-    "title": "Class teacher, secondary department",
-    "contract": "Permanent",
-    "hours": "Full time",
-    "salary": "MPS/UPS plus SEN allowance",
-    "closingDate": "2026-12-04",
-    "interviewDate": "2026-12-11",
-    "startDate": "April 2027",
-    "summary": "Lead a class of eight Key Stage 4 pupils on our Discoverers pathway, supported by an experienced team of three teaching assistants.",
+    "slug": "learning-support-assistant",
+    "title": "Learning Support Assistant for secondary-aged learners",
+    "contract": "Fixed term",
+    "hours": "Full time, term time only. 8:30am to 3:30pm Monday, Tuesday, Wednesday and Friday, and 8:30am to 4:30pm Thursday",
+    "salary": "£20,158 a year for the term-time year, paid monthly",
+    "closingDate": "2026-11-13",
+    "closingTime": "12 noon",
+    "interviewDate": "2026-11-25",
+    "startDate": "Monday 4 January 2027, temporary to 16 July 2027",
+    "summary": "We are looking for a warm, calm and resilient Learning Support Assistant to work with our secondary-aged learners (11 to 15), many of whom are autistic and/or anxious, in 1:1 and small-group settings.",
     "about": [
-      "We're looking for a teacher who enjoys planning practical, hands-on lessons and who sees each pupil's EHCP as a working document rather than paperwork.",
-      "You don't need to have worked in a special school before. We care more about how you build relationships with young people and how willing you are to learn from the therapists, families and support staff around you."
+      "Wribbenhall School is a small independent specialist school for children and young people with special educational needs and disabilities, run on a trauma-informed, family-style nurture model.",
+      "You will help teachers deliver differentiated learning, build learners' independence, confidence and resilience, support emotional wellbeing with consistent, positive approaches, and work closely with colleagues, families and other professionals.",
+      "Experience of supporting children with autism and anxiety is valuable, but patience, empathy and a genuine commitment to children matter most. Full training will be provided, including Team Teach.",
+      "This is a temporary post to 16 July 2027, to support a period of changes in organisational support for Key Stage 4 development."
     ],
     "responsibilities": [
-      "Plan and teach a broad curriculum adapted to each pupil's communication and learning needs",
-      "Lead and deploy a team of teaching assistants",
-      "Write and review termly targets linked to pupils' EHCP outcomes",
-      "Contribute to annual reviews and keep families informed of progress",
-      "Work alongside speech and language and occupational therapists"
+      "Model caring, respectful and compassionate behaviour towards learners and colleagues",
+      "Work closely with class teachers and other professionals to provide targeted support for learners with autism and anxiety",
+      "Assist teachers in planning and delivering differentiated learning activities, so every learner can access the curriculum",
+      "Support learners to develop independence, confidence and resilience",
+      "Use a range of communication strategies and resources to engage and motivate learners",
+      "Promote positive behaviour and emotional wellbeing, using consistent approaches in line with our behaviour policy",
+      "Monitor learner progress, share observations and contribute to review meetings",
+      "Foster positive relationships with learners, staff and families",
+      "Support the implementation of individual education and care plans",
+      "Help to create a calm and structured classroom environment"
     ],
     "personSpecification": [
-      "Qualified teacher status",
-      "Experience of adapting teaching for pupils with additional needs",
-      "Calm, consistent approach to supporting behaviour",
-      "Willingness to complete Team Teach training",
-      "Commitment to safeguarding and promoting the welfare of children"
+      "GCSE (or equivalent) in English and maths at grade 4 (C) or above",
+      "Level 2 or 3 Teaching Assistant or Learning Support qualification, or equivalent relevant experience",
+      "Experience of working with children or young people in a school, nurture or similar setting",
+      "Awareness of autism and anxiety, and the impact of anxiety on learning",
+      "Ability to adapt communication and activities to meet individual needs",
+      "Good organisational skills and the ability to work well as part of a small team",
+      "Understanding of safeguarding and child protection responsibilities (training is provided at induction)",
+      "Empathy, patience and a nurturing approach, with high expectations for all learners",
+      "Ability to remain calm under pressure"
     ],
-    "applicationPack": {
-      "key": "documents/vacancies/class-teacher-secondary.pdf",
-      "sizeBytes": 2320
-    }
-  },
-  {
-    "slug": "teaching-assistant-level-3",
-    "title": "Teaching assistant (level 3)",
-    "contract": "Permanent",
-    "hours": "32.5 hours a week, term time only",
-    "salary": "Grade 4, \u00a324,790 to \u00a325,584 pro rata",
-    "closingDate": "2026-11-27",
-    "interviewDate": "2026-12-03",
-    "startDate": "January 2027",
-    "summary": "Support pupils in our primary department with learning, communication and personal care.",
-    "about": [
-      "Our teaching assistants are at the centre of school life. You'll work closely with one class team and get to know each pupil well.",
-      "Full training is provided, including Makaton, moving and handling, and medical procedures where needed."
+    "howToApply": [
+      "Download the application form, job description and person specification, and our Child Protection and Safeguarding Policy below, or request an application pack from enquiries@wribbenhallschool.co.uk or 01299 405383.",
+      "Please complete the application form in full and return it to Ellis Wells by the closing date. We cannot accept CVs alone."
     ],
-    "responsibilities": [
-      "Support small group and one-to-one learning planned by the class teacher",
-      "Help pupils with personal care, eating and mobility",
-      "Use visual supports, Makaton and communication aids",
-      "Record observations and progress towards targets"
-    ],
-    "personSpecification": [
-      "Level 3 qualification in supporting teaching and learning, or equivalent experience",
-      "Experience working with children or young people with additional needs",
-      "Patient, warm and good at staying calm",
-      "Commitment to safeguarding and promoting the welfare of children"
-    ],
-    "applicationPack": {
-      "key": "documents/vacancies/teaching-assistant-level-3.pdf",
-      "sizeBytes": 2244
-    }
-  },
-  {
-    "slug": "midday-supervisor",
-    "title": "Midday supervisor",
-    "contract": "Permanent",
-    "hours": "7.5 hours a week, 11:45am to 1:15pm, term time only",
-    "salary": "Grade 2, pro rata",
-    "closingDate": "2026-12-11",
-    "startDate": "As soon as possible",
-    "summary": "Help pupils enjoy a calm, sociable lunchtime, both in the dining hall and on the playground.",
-    "about": [
-      "A good role for someone who wants a few hours' work in the middle of the day. Lunchtimes are an important part of our pupils' day for social skills and independence."
-    ],
-    "responsibilities": [
-      "Support pupils at lunch, including those who need help with eating",
-      "Lead simple playground games and activities",
-      "Follow pupils' care and behaviour plans"
-    ],
-    "personSpecification": [
-      "Experience of caring for children, paid or unpaid",
-      "Kind, reliable and happy to be outdoors in all weathers",
-      "Commitment to safeguarding and promoting the welfare of children"
+    "documents": [
+      {
+        "title": "Job advert",
+        "file": { "url": "https://drive.google.com/file/d/1oV1qkXfOH_yvIELAp-i-h1EK0kzv9WHU/view", "format": "docx" }
+      },
+      {
+        "title": "Job description and person specification",
+        "file": { "url": "https://drive.google.com/file/d/1I88ypgGAwQX_i4lxuy3VFvatP1b74eGy/view", "format": "docx" }
+      },
+      {
+        "title": "Application form",
+        "file": { "url": "https://drive.google.com/file/d/1Z10MKwuYQx5ULWM_xwyZp58cqFYzv6el/view", "format": "docx" }
+      },
+      {
+        "title": "Child Protection and Safeguarding Policy",
+        "file": { "url": "https://drive.google.com/file/d/1cSZ4c8Osl4by_tpn1q0RDNdfCQoPbhtM/view", "format": "docx" }
+      },
+      {
+        "title": "Recruitment of ex-offenders",
+        "file": { "url": "https://drive.google.com/file/d/1E8Vw3560bS5Emh3eVxiEF8-1ccTjsrws/view", "format": "docx" }
+      }
     ]
   }
 ]

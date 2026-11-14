@@ -17,13 +17,7 @@ const mustAgree = (message: string) => z.boolean().refine((value) => value, { me
 // Hidden field that people never see. Bots tend to fill it in.
 const honeypot = z.string().max(0).optional()
 
-export const enquiryTopics = [
-  "Arranging a visit",
-  "Admissions",
-  "Transport",
-  "Therapies and support",
-  "Something else",
-] as const
+export const enquiryTopics = ["Admissions", "Arranging a visit", "Vacancies", "Something else"] as const
 
 export const enquirerRoles = ["Parent or carer", "Professional", "Job seeker", "Other"] as const
 
@@ -39,19 +33,36 @@ export const enquirySchema = z.object({
 })
 
 export const yearGroups = [
-  "Reception",
-  ...Array.from({ length: 13 }, (_, index) => `Year ${index + 1}`),
-  "Year 14",
+  "Year 1",
+  "Year 2",
+  "Year 3",
+  "Year 4",
+  "Year 5",
+  "Year 6",
+  "Year 7",
+  "Year 8",
+  "Year 9",
+  "Year 10",
+  "Year 11",
+  "Year 12",
+  "Year 13",
 ] as const
 
 export const ehcpStatuses = ["Has an EHCP", "Assessment in progress", "No EHCP yet"] as const
 
+// Matches the school's pupil profile (src/content/school.json)
 export const needAreas = [
-  "Communication and interaction",
-  "Cognition and learning",
-  "Social, emotional and mental health",
-  "Sensory and physical",
-  "Medical",
+  "Anxiety",
+  "Social phobia or school phobia",
+  "Selective mutism",
+  "Panic disorder",
+  "Agoraphobia",
+  "Separation anxiety or school refusal",
+  "Attachment disorder",
+  "Autism",
+  "Depression",
+  "Self-harm",
+  "Other",
 ] as const
 
 export const placeApplicationSchema = z.object({
@@ -109,8 +120,8 @@ export const placeApplicationSteps = [
   },
 ] as const satisfies ReadonlyArray<{ title: string; fields: ReadonlyArray<keyof PlaceApplicationValues> }>
 
-export const MAX_CV_BYTES = 5 * 1024 * 1024
-export const CV_TYPES = [
+export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+export const UPLOAD_TYPES = [
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -121,12 +132,7 @@ export const jobApplicationSchema = z.object({
   fullName: requiredText("your full name", 120),
   email,
   phone: ukPhone,
-  currentRole: z.string().trim().max(160).optional().default(""),
-  supportingStatement: z
-    .string()
-    .trim()
-    .min(100, "Your supporting statement needs to be at least 100 characters")
-    .max(6000, "Keep your supporting statement to 6,000 characters or fewer"),
+  message: z.string().trim().max(2000, "Keep your message to 2,000 characters or fewer").optional().default(""),
   rightToWork: mustAgree("Confirm you have the right to work in the UK"),
   declaration: mustAgree("Confirm the information is correct"),
   website: honeypot,

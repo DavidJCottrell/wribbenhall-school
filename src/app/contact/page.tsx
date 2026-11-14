@@ -10,29 +10,30 @@ export const metadata: Metadata = {
   description: "Phone, email and address for Wribbenhall School, plus our enquiry and application forms.",
 }
 
+const telHref = (phone: string) => `tel:${phone.replace(/\s/g, "")}`
+
 export default async function ContactPage() {
   const school = await getSchool()
-  const phoneHref = `tel:${school.phone.replace(/\s/g, "")}`
 
   return (
     <>
       <PageHeader title="Contact us">
-        <p>
-          Call the office, send us a message or start an application for your child. To report an absence, please
-          phone before 9:15am.
-        </p>
+        <p>Call or email the school, send us a message, or start an application for your child.</p>
       </PageHeader>
 
       <div className="container-page grid gap-12 py-12 md:py-16 lg:grid-cols-12">
         <aside className="space-y-10 lg:col-span-4">
-          <section aria-labelledby="office">
-            <h2 id="office" className="text-heading">
-              School office
+          <section aria-labelledby="school-office">
+            <h2 id="school-office" className="text-heading">
+              The school
             </h2>
             <ul className="mt-5 space-y-4">
               <li className="flex gap-3">
                 <PhoneIcon aria-hidden="true" className="mt-1 size-5 shrink-0 text-severn" />
-                <a href={phoneHref} className="text-lg font-semibold underline decoration-buttercup decoration-2 underline-offset-4">
+                <a
+                  href={telHref(school.phone)}
+                  className="text-lg font-semibold underline decoration-buttercup decoration-2 underline-offset-4"
+                >
                   {school.phone}
                 </a>
               </li>
@@ -48,7 +49,12 @@ export default async function ContactPage() {
                   <address className="not-italic">
                     {school.address.lines.join(", ")}, {school.address.postcode}
                   </address>
-                  <a href={school.address.mapUrl} target="_blank" rel="noopener" className="mt-1 inline-block text-severn underline underline-offset-4">
+                  <a
+                    href={school.address.mapUrl}
+                    target="_blank"
+                    rel="noopener"
+                    className="mt-1 inline-block text-severn underline underline-offset-4"
+                  >
                     Open in a map
                   </a>
                 </div>
@@ -56,19 +62,32 @@ export default async function ContactPage() {
             </ul>
           </section>
 
-          <section aria-labelledby="hours">
-            <h2 id="hours" className="font-sans text-lg font-semibold">
-              Office hours
+          <section aria-labelledby="people">
+            <h2 id="people" className="font-sans text-lg font-semibold">
+              Who to contact
             </h2>
             <dl className="mt-3 divide-y divide-border border-y border-border">
-              {school.officeHours.map((row) => (
-                <div key={row.days} className="flex justify-between gap-4 py-3">
-                  <dt>{row.days}</dt>
-                  <dd className="text-right text-muted-foreground">{row.hours}</dd>
+              {school.people.map((person) => (
+                <div key={person.role} className="py-4">
+                  <dt className="text-sm text-muted-foreground">{person.role}</dt>
+                  <dd className="font-semibold text-ink">{person.name}</dd>
+                  {person.email ? (
+                    <dd>
+                      <a href={`mailto:${person.email}`} className="break-all underline underline-offset-4">
+                        {person.email}
+                      </a>
+                    </dd>
+                  ) : null}
+                  {person.phone ? (
+                    <dd>
+                      <a href={telHref(person.phone)} className="underline underline-offset-4">
+                        {person.phone}
+                      </a>
+                    </dd>
+                  ) : null}
                 </div>
               ))}
             </dl>
-            <p className="mt-3 text-sm text-muted-foreground">Closed during school holidays.</p>
           </section>
 
           <section aria-labelledby="safeguarding" className="rounded-xl border-l-4 border-buttercup bg-card p-5">
@@ -83,7 +102,7 @@ export default async function ContactPage() {
         </aside>
 
         <div className="lg:col-span-8">
-          <ContactForms officeEmail={school.email} admissionsEmail={school.admissionsEmail} />
+          <ContactForms officeEmail={school.email} />
         </div>
       </div>
     </>

@@ -54,7 +54,7 @@ export function EnquiryForm({ officeEmail }: { officeEmail: string }) {
         resetLabel="Send another enquiry"
         onReset={() => setReference(null)}
       >
-        <p>Someone from the school office will reply within two working days.</p>
+        <p>Thank you for getting in touch. We&apos;ll reply as soon as we can.</p>
         <p>
           If it&apos;s urgent, please call us. You can also email{" "}
           <a href={`mailto:${officeEmail}`} className="font-semibold underline underline-offset-4">
@@ -90,7 +90,7 @@ export function EnquiryForm({ officeEmail }: { officeEmail: string }) {
           control={form.control}
           name="message"
           label="Your message"
-          description="If you'd like to visit, tell us which days and times suit you best."
+          description="If you're asking about a place, tell us a little about your child and their current school."
           rows={6}
         />
         <CheckboxField
