@@ -21,6 +21,7 @@ const prefixes: Record<FormKind, string> = {
   "job-application": "JOB",
 }
 
+
 function createReference(kind: FormKind) {
   return `${prefixes[kind]}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`
 }
