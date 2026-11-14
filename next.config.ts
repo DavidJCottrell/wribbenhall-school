@@ -23,6 +23,9 @@ const nextConfig: NextConfig = {
     // Leaves room for a 5 MB CV upload plus the rest of the job application
     serverActions: { bodySizeLimit: "6mb" },
   },
+  async redirects() {
+    return [{ source: "/staff", destination: "/about", permanent: true }]
+  },
   images: {
     localPatterns: [{ pathname: "/media/**", search: "" }],
     remotePatterns: mediaRemotePatterns(),
