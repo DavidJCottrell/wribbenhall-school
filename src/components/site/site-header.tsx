@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
+import { DisplaySettings } from "./display-settings"
 import { Logo } from "./logo"
 import { isActivePath, mainNavigation } from "./navigation"
 
@@ -21,7 +22,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <div className="container-page flex h-[4.5rem] items-center justify-between gap-6">
-        <Link href="/" className="rounded-md text-ink" aria-label="Wribbenhall School, home">
+        <Link href="/" className="min-w-0 rounded-md text-ink" aria-label="Wribbenhall School, home">
           <Logo />
         </Link>
 
@@ -55,11 +56,13 @@ export function SiteHeader() {
           </ul>
         </nav>
 
+        <div className="flex items-center gap-2">
+        <DisplaySettings />
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" className="lg:hidden" aria-label="Open menu">
+            <Button variant="outline" className="max-sm:size-11 max-sm:px-0 lg:hidden" aria-label="Open menu">
               <MenuIcon />
-              Menu
+              <span className="max-sm:sr-only">Menu</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-[min(22rem,100vw)] bg-background">
@@ -94,6 +97,7 @@ export function SiteHeader() {
             </nav>
           </SheetContent>
         </Sheet>
+        </div>
       </div>
     </header>
   )

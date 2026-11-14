@@ -127,7 +127,7 @@ export function PlaceApplicationForm({ admissionsEmail }: { admissionsEmail: str
             <span
               className={cn(
                 "block h-1.5 rounded-full",
-                index < step ? "bg-severn" : index === step ? "bg-buttercup" : "bg-stone",
+                index < step ? "bg-primary" : index === step ? "bg-accent" : "bg-secondary",
               )}
             />
             <span className={cn("mt-2 hidden text-sm sm:block", index === step ? "font-semibold text-ink" : "text-muted-foreground")}>

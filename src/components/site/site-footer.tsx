@@ -9,7 +9,7 @@ export async function SiteFooter() {
   const school = await getSchool()
 
   return (
-    <footer className="mt-auto bg-severn-deep text-white">
+    <footer className="mt-auto bg-panel-deep panel-edge text-panel-foreground">
       <div className="container-page grid gap-12 py-16 md:grid-cols-12">
         <div className="md:col-span-5">
           <div className="flex items-center gap-4">
@@ -18,12 +18,12 @@ export async function SiteFooter() {
             </span>
             <p className="font-display text-2xl">{school.name}</p>
           </div>
-          <p className="mt-5 max-w-sm text-white/80">{school.shortDescription}</p>
+          <p className="mt-5 max-w-sm text-panel-foreground/80">{school.shortDescription}</p>
         </div>
 
         <div className="md:col-span-4">
           <h2 className="font-sans text-base font-semibold">Find us</h2>
-          <address className="mt-3 not-italic text-white/85">
+          <address className="mt-3 not-italic text-panel-foreground/85">
             {school.address.lines.map((line) => (
               <span key={line} className="block">
                 {line}
@@ -44,31 +44,31 @@ export async function SiteFooter() {
 
         <nav aria-label="Footer" className="md:col-span-3">
           <h2 className="font-sans text-base font-semibold">Pages</h2>
-          <ul className="mt-3 space-y-2 text-white/85">
+          <ul className="mt-3 space-y-2 text-panel-foreground/85">
             {mainNavigation.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="hover:text-white hover:underline">
+                <Link href={item.href} className="hover:text-panel-foreground hover:underline">
                   {item.label}
                 </Link>
               </li>
             ))}
             <li>
-              <Link href="/policies#inspections" className="hover:text-white hover:underline">
+              <Link href="/policies#inspections" className="hover:text-panel-foreground hover:underline">
                 Inspection reports
               </Link>
             </li>
           </ul>
         </nav>
       </div>
-      <div className="border-t border-white/15">
-        <div className="container-page flex flex-col gap-2 py-6 text-sm text-white/70 sm:flex-row sm:justify-between">
+      <div className="border-t border-panel-foreground/15">
+        <div className="container-page flex flex-col gap-2 py-6 text-sm text-panel-foreground/70 sm:flex-row sm:justify-between">
           <p>
             © {school.name}
             {school.vatNumber ? `. VAT number ${school.vatNumber}` : null}
           </p>
           <p>
             Need this information in another format?{" "}
-            <Link href="/contact" className="underline underline-offset-4 hover:text-white">
+            <Link href="/contact" className="underline underline-offset-4 hover:text-panel-foreground">
               Ask the school office
             </Link>
           </p>
