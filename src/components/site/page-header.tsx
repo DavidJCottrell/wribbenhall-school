@@ -9,7 +9,7 @@ export function PageHeader({ title, children }: { title: string; children?: Reac
         <h1 className="text-title text-ink">{title}</h1>
         {children ? <div className="mt-5 measure text-lead text-muted-foreground">{children}</div> : null}
       </div>
-      <RiverLine className="absolute -bottom-3 left-0 h-10 w-full text-stone" quiet />
+      <RiverLine draw="load" className="absolute -bottom-3 left-0 h-10 w-full text-stone" quiet />
     </div>
   )
 }
