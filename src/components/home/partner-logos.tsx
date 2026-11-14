@@ -21,19 +21,16 @@ export function PartnerLogos({ partners }: PartnerLogosProps) {
         <ul className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
           {partners.map((partner) => (
             <li key={partner.name} className="flex flex-col overflow-hidden rounded-xl border border-border bg-white">
-              <div className="grid flex-1 place-items-center p-6">
+              <div className="grid flex-1 place-items-center p-4">
                 <Image
                   src={mediaUrl(partner.logo.key)}
                   alt={partner.logo.alt}
                   width={partner.logo.width}
                   height={partner.logo.height}
                   sizes="(min-width: 768px) 14rem, 40vw"
-                  className="h-24 w-auto max-w-full object-contain"
+                  className="h-32 w-auto max-w-full object-contain"
                 />
               </div>
-              <p className="border-t border-stone bg-stone/40 px-4 py-3 text-center text-sm font-semibold text-black">
-                {partner.relationship}
-              </p>
             </li>
           ))}
         </ul>
