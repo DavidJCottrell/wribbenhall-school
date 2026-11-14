@@ -156,7 +156,6 @@
 
   html {
     font-size: var(--text-scale, 112.5%);
-    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -190,9 +189,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
     *,
     *::before,
     *::after {
