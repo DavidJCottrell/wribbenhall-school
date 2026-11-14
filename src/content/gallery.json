@@ -1,0 +1,267 @@
+[
+  {
+    "id": "forest-school",
+    "title": "Forest school in Ribbesford Woods",
+    "description": "Den building, fire safety and a lot of mud. Our Explorers class spends every Wednesday afternoon in the woods.",
+    "date": "2026-10-07",
+    "images": [
+      {
+        "key": "gallery/forest-school/01.jpg",
+        "alt": "Pupils building a den from fallen branches",
+        "caption": "Pupils building a den from fallen branches",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/forest-school/02.jpg",
+        "alt": "A group listening to birdsong in a clearing",
+        "caption": "A group listening to birdsong in a clearing",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/forest-school/03.jpg",
+        "alt": "Toasting marshmallows at the fire circle",
+        "caption": "Toasting marshmallows at the fire circle",
+        "width": 1200,
+        "height": 1500
+      },
+      {
+        "key": "gallery/forest-school/04.jpg",
+        "alt": "Collecting leaves for a sorting game",
+        "caption": "Collecting leaves for a sorting game",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/forest-school/05.jpg",
+        "alt": "Walking the woodland path together",
+        "caption": "Walking the woodland path together",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/forest-school/06.jpg",
+        "alt": "Making a mud kitchen recipe",
+        "caption": "Making a mud kitchen recipe",
+        "width": 1600,
+        "height": 1200
+      }
+    ]
+  },
+  {
+    "id": "sensory-garden",
+    "title": "The new sensory garden",
+    "description": "Raised beds, a water wall and scented planting, built with help from families and the Bewdley Rotary Club.",
+    "date": "2026-06-19",
+    "images": [
+      {
+        "key": "gallery/sensory-garden/01.jpg",
+        "alt": "Raised beds planted with lavender and mint",
+        "caption": "Raised beds planted with lavender and mint",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/sensory-garden/02.jpg",
+        "alt": "Pupils watering the herb bed",
+        "caption": "Pupils watering the herb bed",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/sensory-garden/03.jpg",
+        "alt": "The finished garden in full flower",
+        "caption": "The finished garden in full flower",
+        "width": 1200,
+        "height": 1500
+      },
+      {
+        "key": "gallery/sensory-garden/04.jpg",
+        "alt": "Planting bulbs along the fence",
+        "caption": "Planting bulbs along the fence",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/sensory-garden/05.jpg",
+        "alt": "A quiet corner with wind chimes",
+        "caption": "A quiet corner with wind chimes",
+        "width": 1600,
+        "height": 1200
+      }
+    ]
+  },
+  {
+    "id": "sports-day",
+    "title": "Sports day 2026",
+    "description": "Every pupil took part, with adapted races, a parachute game and the staff relay nobody wants to talk about.",
+    "date": "2026-07-08",
+    "images": [
+      {
+        "key": "gallery/sports-day/01.jpg",
+        "alt": "The start of the 50 metre race",
+        "caption": "The start of the 50 metre race",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/sports-day/02.jpg",
+        "alt": "Bunting across the school field",
+        "caption": "Bunting across the school field",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/sports-day/03.jpg",
+        "alt": "The parachute game with Class 4",
+        "caption": "The parachute game with Class 4",
+        "width": 1200,
+        "height": 1500
+      },
+      {
+        "key": "gallery/sports-day/04.jpg",
+        "alt": "Families cheering at the finish line",
+        "caption": "Families cheering at the finish line",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/sports-day/05.jpg",
+        "alt": "Medals for everyone",
+        "caption": "Medals for everyone",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/sports-day/06.jpg",
+        "alt": "The staff relay",
+        "caption": "The staff relay",
+        "width": 1600,
+        "height": 1200
+      }
+    ]
+  },
+  {
+    "id": "arts-week",
+    "title": "Arts week: rivers and bridges",
+    "description": "A week of painting, printmaking and clay, inspired by the Severn and Bewdley Bridge.",
+    "date": "2026-03-20",
+    "images": [
+      {
+        "key": "gallery/arts-week/01.jpg",
+        "alt": "A collaborative painting of the river",
+        "caption": "A collaborative painting of the river",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/arts-week/02.jpg",
+        "alt": "Clay bridges drying on the windowsill",
+        "caption": "Clay bridges drying on the windowsill",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/arts-week/03.jpg",
+        "alt": "Printmaking with leaves",
+        "caption": "Printmaking with leaves",
+        "width": 1200,
+        "height": 1500
+      },
+      {
+        "key": "gallery/arts-week/04.jpg",
+        "alt": "The finished exhibition in the hall",
+        "caption": "The finished exhibition in the hall",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/arts-week/05.jpg",
+        "alt": "Painting with sponges and rollers",
+        "caption": "Painting with sponges and rollers",
+        "width": 1600,
+        "height": 1200
+      }
+    ]
+  },
+  {
+    "id": "railway-trip",
+    "title": "A trip on the Severn Valley Railway",
+    "description": "Sixth formers planned the whole day, from buying tickets to choosing lunch at Highley.",
+    "date": "2026-05-14",
+    "images": [
+      {
+        "key": "gallery/railway-trip/01.jpg",
+        "alt": "The steam train arriving at Bewdley station",
+        "caption": "The steam train arriving at Bewdley station",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/railway-trip/02.jpg",
+        "alt": "Looking out across the valley",
+        "caption": "Looking out across the valley",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/railway-trip/03.jpg",
+        "alt": "Planning the route on the map",
+        "caption": "Planning the route on the map",
+        "width": 1200,
+        "height": 1500
+      },
+      {
+        "key": "gallery/railway-trip/04.jpg",
+        "alt": "Lunch at Highley",
+        "caption": "Lunch at Highley",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/railway-trip/05.jpg",
+        "alt": "Waving goodbye to the train",
+        "caption": "Waving goodbye to the train",
+        "width": 1600,
+        "height": 1200
+      }
+    ]
+  },
+  {
+    "id": "harvest",
+    "title": "Harvest celebration",
+    "description": "Our harvest assembly collected food for the Wyre Forest food bank.",
+    "date": "2026-10-16",
+    "images": [
+      {
+        "key": "gallery/harvest/01.jpg",
+        "alt": "Harvest boxes ready for the food bank",
+        "caption": "Harvest boxes ready for the food bank",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/harvest/02.jpg",
+        "alt": "Singing at the harvest assembly",
+        "caption": "Singing at the harvest assembly",
+        "width": 1600,
+        "height": 1200
+      },
+      {
+        "key": "gallery/harvest/03.jpg",
+        "alt": "Pupils sorting donated food",
+        "caption": "Pupils sorting donated food",
+        "width": 1200,
+        "height": 1500
+      },
+      {
+        "key": "gallery/harvest/04.jpg",
+        "alt": "Autumn fields on the walk to school",
+        "caption": "Autumn fields on the walk to school",
+        "width": 1600,
+        "height": 1200
+      }
+    ]
+  }
+]

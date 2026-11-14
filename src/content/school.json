@@ -1,0 +1,55 @@
+{
+  "name": "Wribbenhall School",
+  "shortDescription": "A special school in Bewdley for children and young people aged 4 to 19 with complex learning needs.",
+  "ageRange": "4 to 19",
+  "address": {
+    "lines": ["Wribbenhall School", "Kidderminster Road", "Bewdley", "Worcestershire"],
+    "postcode": "DY12 1AA",
+    "mapUrl": "https://www.openstreetmap.org/search?query=Wribbenhall%20Bewdley"
+  },
+  "phone": "01299 000000",
+  "email": "office@wribbenhall.example.sch.uk",
+  "admissionsEmail": "admissions@wribbenhall.example.sch.uk",
+  "recruitmentEmail": "recruitment@wribbenhall.example.sch.uk",
+  "officeHours": [
+    { "days": "Monday to Thursday", "hours": "8:15am to 4:30pm" },
+    { "days": "Friday", "hours": "8:15am to 3:30pm" }
+  ],
+  "headteacher": {
+    "name": "Mrs Clare Holloway",
+    "role": "Headteacher",
+    "portrait": {
+      "key": "site/headteacher.jpg",
+      "alt": "Portrait of the headteacher",
+      "width": 900,
+      "height": 1100
+    },
+    "welcome": [
+      "Every family finds us by a different route. Some of you have been looking for the right place for a long time; some of you are only just starting to think about what comes next.",
+      "Whichever it is, the best way to understand Wribbenhall is to come and see it. You'll meet staff who know each child well, classrooms set up around how pupils actually learn, and a lot of time spent outdoors by the river and in the woods.",
+      "We work closely with families, therapists and the local authority so that each pupil's plan is something we all recognise and can act on. If you'd like to talk about whether we could be the right school for your child, get in touch and we'll arrange a visit."
+    ]
+  },
+  "heroImage": {
+    "key": "site/hero.jpg",
+    "alt": "Illustration of Bewdley Bridge over the River Severn with houses along the bank",
+    "width": 1400,
+    "height": 1750
+  },
+  "pathways": [
+    {
+      "name": "Explorers",
+      "summary": "A sensory and play-based curriculum for pupils at the earliest stages of learning, with communication and physical development at its heart."
+    },
+    {
+      "name": "Discoverers",
+      "summary": "Topic-based learning that builds early literacy, number and independence, taught in small groups with lots of practical work."
+    },
+    {
+      "name": "Pathfinders",
+      "summary": "Accredited courses, work experience and life skills for older pupils, preparing them for college, supported employment and adult life."
+    }
+  ],
+  "localAuthority": "Worcestershire County Council",
+  "ofstedUrl": "https://reports.ofsted.gov.uk/"
+}

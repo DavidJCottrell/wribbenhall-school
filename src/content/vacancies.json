@@ -1,0 +1,89 @@
+[
+  {
+    "slug": "class-teacher-secondary",
+    "title": "Class teacher, secondary department",
+    "contract": "Permanent",
+    "hours": "Full time",
+    "salary": "MPS/UPS plus SEN allowance",
+    "closingDate": "2026-12-04",
+    "interviewDate": "2026-12-11",
+    "startDate": "April 2027",
+    "summary": "Lead a class of eight Key Stage 4 pupils on our Discoverers pathway, supported by an experienced team of three teaching assistants.",
+    "about": [
+      "We're looking for a teacher who enjoys planning practical, hands-on lessons and who sees each pupil's EHCP as a working document rather than paperwork.",
+      "You don't need to have worked in a special school before. We care more about how you build relationships with young people and how willing you are to learn from the therapists, families and support staff around you."
+    ],
+    "responsibilities": [
+      "Plan and teach a broad curriculum adapted to each pupil's communication and learning needs",
+      "Lead and deploy a team of teaching assistants",
+      "Write and review termly targets linked to pupils' EHCP outcomes",
+      "Contribute to annual reviews and keep families informed of progress",
+      "Work alongside speech and language and occupational therapists"
+    ],
+    "personSpecification": [
+      "Qualified teacher status",
+      "Experience of adapting teaching for pupils with additional needs",
+      "Calm, consistent approach to supporting behaviour",
+      "Willingness to complete Team Teach training",
+      "Commitment to safeguarding and promoting the welfare of children"
+    ],
+    "applicationPack": {
+      "key": "documents/vacancies/class-teacher-secondary.pdf",
+      "sizeBytes": 2320
+    }
+  },
+  {
+    "slug": "teaching-assistant-level-3",
+    "title": "Teaching assistant (level 3)",
+    "contract": "Permanent",
+    "hours": "32.5 hours a week, term time only",
+    "salary": "Grade 4, \u00a324,790 to \u00a325,584 pro rata",
+    "closingDate": "2026-11-27",
+    "interviewDate": "2026-12-03",
+    "startDate": "January 2027",
+    "summary": "Support pupils in our primary department with learning, communication and personal care.",
+    "about": [
+      "Our teaching assistants are at the centre of school life. You'll work closely with one class team and get to know each pupil well.",
+      "Full training is provided, including Makaton, moving and handling, and medical procedures where needed."
+    ],
+    "responsibilities": [
+      "Support small group and one-to-one learning planned by the class teacher",
+      "Help pupils with personal care, eating and mobility",
+      "Use visual supports, Makaton and communication aids",
+      "Record observations and progress towards targets"
+    ],
+    "personSpecification": [
+      "Level 3 qualification in supporting teaching and learning, or equivalent experience",
+      "Experience working with children or young people with additional needs",
+      "Patient, warm and good at staying calm",
+      "Commitment to safeguarding and promoting the welfare of children"
+    ],
+    "applicationPack": {
+      "key": "documents/vacancies/teaching-assistant-level-3.pdf",
+      "sizeBytes": 2244
+    }
+  },
+  {
+    "slug": "midday-supervisor",
+    "title": "Midday supervisor",
+    "contract": "Permanent",
+    "hours": "7.5 hours a week, 11:45am to 1:15pm, term time only",
+    "salary": "Grade 2, pro rata",
+    "closingDate": "2026-12-11",
+    "startDate": "As soon as possible",
+    "summary": "Help pupils enjoy a calm, sociable lunchtime, both in the dining hall and on the playground.",
+    "about": [
+      "A good role for someone who wants a few hours' work in the middle of the day. Lunchtimes are an important part of our pupils' day for social skills and independence."
+    ],
+    "responsibilities": [
+      "Support pupils at lunch, including those who need help with eating",
+      "Lead simple playground games and activities",
+      "Follow pupils' care and behaviour plans"
+    ],
+    "personSpecification": [
+      "Experience of caring for children, paid or unpaid",
+      "Kind, reliable and happy to be outdoors in all weathers",
+      "Commitment to safeguarding and promoting the welfare of children"
+    ]
+  }
+]

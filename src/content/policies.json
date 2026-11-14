@@ -1,0 +1,196 @@
+[
+  {
+    "id": "safeguarding-child-protection",
+    "title": "Safeguarding and child protection policy",
+    "category": "Safeguarding",
+    "summary": "How we keep pupils safe, who the designated safeguarding leads are, and what happens when a concern is raised.",
+    "file": {
+      "key": "documents/safeguarding-child-protection.pdf",
+      "format": "pdf",
+      "sizeBytes": 2250
+    },
+    "updated": "2026-09-01",
+    "reviewDue": "2027-09-01"
+  },
+  {
+    "id": "online-safety",
+    "title": "Online safety policy",
+    "category": "Safeguarding",
+    "summary": "How pupils use technology in school and how we teach them to stay safe online.",
+    "file": {
+      "key": "documents/online-safety.pdf",
+      "format": "pdf",
+      "sizeBytes": 2180
+    },
+    "updated": "2026-09-01"
+  },
+  {
+    "id": "intimate-care",
+    "title": "Intimate and personal care policy",
+    "category": "Safeguarding",
+    "summary": "How staff support personal care with dignity, and how we agree care plans with families.",
+    "file": {
+      "key": "documents/intimate-care.pdf",
+      "format": "pdf",
+      "sizeBytes": 2203
+    },
+    "updated": "2026-02-12"
+  },
+  {
+    "id": "send-information-report",
+    "title": "SEND information report",
+    "category": "SEND and inclusion",
+    "summary": "The needs we meet, the therapies we offer and how we involve families in planning and review.",
+    "file": {
+      "key": "documents/send-information-report.pdf",
+      "format": "pdf",
+      "sizeBytes": 2190
+    },
+    "updated": "2026-10-03"
+  },
+  {
+    "id": "accessibility-plan",
+    "title": "Accessibility plan",
+    "category": "SEND and inclusion",
+    "summary": "Our three-year plan for improving access to the building, the curriculum and written information.",
+    "file": {
+      "key": "documents/accessibility-plan.pdf",
+      "format": "pdf",
+      "sizeBytes": 2193
+    },
+    "updated": "2025-11-20",
+    "reviewDue": "2028-11-20"
+  },
+  {
+    "id": "supporting-medical-needs",
+    "title": "Supporting pupils with medical conditions",
+    "category": "SEND and inclusion",
+    "summary": "Individual healthcare plans, administering medicines and staff training.",
+    "file": {
+      "key": "documents/supporting-medical-needs.pdf",
+      "format": "pdf",
+      "sizeBytes": 2216
+    },
+    "updated": "2026-05-06"
+  },
+  {
+    "id": "curriculum-statement",
+    "title": "Curriculum statement",
+    "category": "Curriculum",
+    "summary": "What pupils learn in each pathway and how we assess progress.",
+    "file": {
+      "key": "documents/curriculum-statement.pdf",
+      "format": "pdf",
+      "sizeBytes": 2170
+    },
+    "updated": "2026-07-10"
+  },
+  {
+    "id": "rshe",
+    "title": "Relationships, sex and health education policy",
+    "category": "Curriculum",
+    "summary": "How RSHE is adapted for our pupils, and your right to request withdrawal from sex education.",
+    "file": {
+      "key": "documents/rshe.pdf",
+      "format": "pdf",
+      "sizeBytes": 2234
+    },
+    "updated": "2026-03-02"
+  },
+  {
+    "id": "positive-behaviour",
+    "title": "Positive behaviour support policy",
+    "category": "Behaviour and wellbeing",
+    "summary": "Our approach to understanding behaviour as communication, including the use of positive handling.",
+    "file": {
+      "key": "documents/positive-behaviour.pdf",
+      "format": "pdf",
+      "sizeBytes": 2231
+    },
+    "updated": "2026-09-01"
+  },
+  {
+    "id": "anti-bullying",
+    "title": "Anti-bullying policy",
+    "category": "Behaviour and wellbeing",
+    "summary": "How we prevent bullying, how to report it and how we respond.",
+    "file": {
+      "key": "documents/anti-bullying.pdf",
+      "format": "pdf",
+      "sizeBytes": 2168
+    },
+    "updated": "2026-01-15"
+  },
+  {
+    "id": "attendance",
+    "title": "Attendance policy",
+    "category": "Behaviour and wellbeing",
+    "summary": "Reporting absence, requesting leave and how we support pupils whose attendance is affected by health.",
+    "file": {
+      "key": "documents/attendance.pdf",
+      "format": "pdf",
+      "sizeBytes": 2203
+    },
+    "updated": "2026-08-28"
+  },
+  {
+    "id": "complaints",
+    "title": "Complaints procedure",
+    "category": "Governance",
+    "summary": "How to raise a concern or make a formal complaint, and the timescales we work to.",
+    "file": {
+      "key": "documents/complaints.pdf",
+      "format": "pdf",
+      "sizeBytes": 2183
+    },
+    "updated": "2025-12-04"
+  },
+  {
+    "id": "governing-body",
+    "title": "Governing body: members and register of interests",
+    "category": "Governance",
+    "summary": "Who our governors are, their terms of office and attendance at meetings.",
+    "file": {
+      "key": "documents/governing-body.pdf",
+      "format": "pdf",
+      "sizeBytes": 2224
+    },
+    "updated": "2026-10-01"
+  },
+  {
+    "id": "privacy-notice",
+    "title": "Privacy notice for pupils and families",
+    "category": "Statutory information",
+    "summary": "What information we hold, why we hold it and who we share it with.",
+    "file": {
+      "key": "documents/privacy-notice.pdf",
+      "format": "pdf",
+      "sizeBytes": 2199
+    },
+    "updated": "2026-04-22"
+  },
+  {
+    "id": "pupil-premium",
+    "title": "Pupil premium strategy statement",
+    "category": "Statutory information",
+    "summary": "How we spend pupil premium funding and the difference it makes.",
+    "file": {
+      "key": "documents/pupil-premium.pdf",
+      "format": "pdf",
+      "sizeBytes": 2185
+    },
+    "updated": "2026-11-02"
+  },
+  {
+    "id": "charging-remissions",
+    "title": "Charging and remissions policy",
+    "category": "Statutory information",
+    "summary": "Which activities we may ask for a contribution towards, and when charges are waived.",
+    "file": {
+      "key": "documents/charging-remissions.pdf",
+      "format": "pdf",
+      "sizeBytes": 2203
+    },
+    "updated": "2025-09-15"
+  }
+]
