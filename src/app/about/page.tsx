@@ -62,6 +62,7 @@ export default async function AboutPage() {
                 <div>
                   <h3 className="text-subheading">{member.name}</h3>
                   <p className="font-semibold text-severn">{member.role}</p>
+                  {member.roleNote && <p className="text-sm text-ink/70">{member.roleNote}</p>}
                   <p className="mt-3 text-ink/85">{member.bio}</p>
                 </div>
               </li>

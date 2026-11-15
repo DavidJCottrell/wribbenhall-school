@@ -81,6 +81,7 @@ export const schoolSchema = z.object({
     z.object({
       name: z.string(),
       role: z.string(),
+      roleNote: z.string().optional(),
       bio: z.string(),
       portrait: mediaAssetSchema,
     }),
