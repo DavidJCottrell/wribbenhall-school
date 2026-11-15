@@ -148,12 +148,14 @@
     {
       "name": "Ellis Wells",
       "role": "Proprietor and Headteacher",
+      "roleNote": "Co-owner of the school",
       "bio": "I am a qualified and experienced teacher and SENDCo. I have completed a Post Experience Diploma in Psychology. I have a passion to work with children with additional needs and understand that their environment, interactions and attachment with others has a big impact on their learning.",
       "portrait": { "key": "staff/ellis-wells.jpg", "alt": "Ellis Wells", "width": 192, "height": 192 }
     },
     {
       "name": "Sally Wells",
       "role": "Learning Support Assistant",
+      "roleNote": "Co-owner of the school",
       "bio": "I am a qualified Learning Support Assistant, experienced in SEN learning support. I have the patience to support children in their understanding and scaffold their learning.",
       "portrait": { "key": "staff/sally-wells.jpg", "alt": "Sally Wells", "width": 152, "height": 188 }
     },
