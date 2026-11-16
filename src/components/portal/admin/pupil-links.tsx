@@ -6,12 +6,13 @@ import { useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { assignStaff, linkGuardian, unassignStaff, unlinkGuardian, type AdminResult } from "@/app/actions/admin"
+import { linkGuardian, unlinkGuardian } from "@/app/actions/pupils"
+import type { ActionResult } from "@/lib/action-result"
 import { applyServerErrors } from "@/components/forms/apply-server-errors"
 import { SelectField, TextField } from "@/components/forms/fields"
 import { Button } from "@/components/ui/button"
 import { FieldGroup } from "@/components/ui/field"
-import { assignStaffSchema, linkGuardianSchema, type AssignStaffValues, type LinkGuardianValues } from "@/lib/forms/schemas"
+import { linkGuardianSchema, type LinkGuardianValues } from "@/lib/forms/schemas"
 import type { PersonOption } from "@/lib/admin/queries"
 
 const toOption = (person: PersonOption) => ({ value: person.id, label: `${person.name} (${person.email})` })
@@ -20,7 +21,7 @@ function useRefreshingAction() {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
-  function run(action: () => Promise<AdminResult>, onFailure?: (result: Extract<AdminResult, { ok: false }>) => void) {
+  function run(action: () => Promise<ActionResult>, onFailure?: (result: Extract<ActionResult, { ok: false }>) => void) {
     startTransition(async () => {
       const result = await action()
       if (result.ok) {
@@ -114,50 +115,6 @@ export function GuardianManager({
             <div>
               <Button type="submit" disabled={pending}>
                 Link to this pupil
-              </Button>
-            </div>
-          </FieldGroup>
-        </form>
-      )}
-    </div>
-  )
-}
-
-export function StaffManager({ childId, linked, available }: { childId: string; linked: PersonOption[]; available: PersonOption[] }) {
-  const { run, pending } = useRefreshingAction()
-  const form = useForm<AssignStaffValues>({
-    resolver: zodResolver(assignStaffSchema),
-    defaultValues: { userId: "" },
-  })
-
-  const onSubmit = form.handleSubmit((values) =>
-    run(
-      async () => {
-        const result = await assignStaff(childId, values)
-        if (result.ok) form.reset({ userId: "" })
-        return result
-      },
-      (failure) => applyServerErrors(form.setError, failure.fieldErrors),
-    ),
-  )
-
-  return (
-    <div className="space-y-6">
-      <LinkedPeople
-        people={linked}
-        emptyText="No staff are assigned yet."
-        pending={pending}
-        onRemove={(person) => run(() => unassignStaff(childId, person.id))}
-      />
-      {available.length === 0 ? (
-        <p className="text-muted-foreground">Every staff login is already assigned, or none exist yet. Create one under Logins.</p>
-      ) : (
-        <form onSubmit={onSubmit} noValidate>
-          <FieldGroup>
-            <SelectField control={form.control} name="userId" label="Member of staff" options={available.map(toOption)} />
-            <div>
-              <Button type="submit" disabled={pending}>
-                Assign to this pupil
               </Button>
             </div>
           </FieldGroup>

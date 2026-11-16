@@ -2,7 +2,7 @@ import { get } from "@vercel/blob"
 import { z } from "zod"
 
 import { getCurrentUser } from "@/lib/auth/session"
-import { getAttachmentFor } from "@/lib/portal/children"
+import { getAttachmentFor } from "@/lib/portal/updates"
 import { isInlineType } from "@/lib/uploads"
 
 const notFound = () => new Response("Not found", { status: 404 })

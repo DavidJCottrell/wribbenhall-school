@@ -81,9 +81,13 @@ function createAuth() {
       additionalFields: {
         // Never settable by the client. Only server code changes it.
         mustChangePassword: { type: "boolean", defaultValue: false, input: false },
+        // What a staff member may do. Read through normalizePermissions() before use.
+        permissions: { type: "string[]", defaultValue: [], input: false },
       },
     },
     plugins: [
+      // Used for creating logins from server code. Nobody holds the plugin's own "admin" role,
+      // so its HTTP admin endpoints are closed. The school's permissions are checked by our own code.
       admin({ defaultRole: "parent", adminRoles: ["admin"] }),
       // Must stay last so server actions can set cookies.
       nextCookies(),

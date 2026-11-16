@@ -6,7 +6,7 @@ import { useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { createPupil } from "@/app/actions/admin"
+import { createPupil } from "@/app/actions/pupils"
 import { applyServerErrors } from "@/components/forms/apply-server-errors"
 import { SelectField, TextField } from "@/components/forms/fields"
 import { Button } from "@/components/ui/button"

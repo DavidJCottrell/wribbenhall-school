@@ -3,7 +3,7 @@ import { PaperclipIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { CurrentUser } from "@/lib/auth/session"
 import { formatLong } from "@/lib/dates"
-import { canManageUpdate, type ChildUpdateView } from "@/lib/portal/children"
+import { canManageUpdate, type ChildUpdateView } from "@/lib/portal/updates"
 import { formatBytes } from "@/lib/uploads"
 
 import { UpdateActions } from "./update-actions"
@@ -11,7 +11,7 @@ import { UpdateActions } from "./update-actions"
 type Props = { updates: ChildUpdateView[]; childId: string; user: CurrentUser }
 
 export function UpdateList({ updates, childId, user }: Props) {
-  const showVisibility = user.role !== "parent"
+  const showVisibility = user.kind === "staff"
 
   if (updates.length === 0) {
     return <p className="text-muted-foreground">There are no updates yet.</p>

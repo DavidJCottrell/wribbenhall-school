@@ -10,7 +10,7 @@ import { count, sql } from "drizzle-orm"
 
 import { getDb } from "../../src/db"
 import { child, childUpdate, user } from "../../src/db/schema"
-import { DEV_PASSWORD, assertOnlyTestUsers, seedDevData, seededAccounts } from "./seed-data.mjs"
+import { DEV_PASSWORD, appTables, assertOnlyTestUsers, seedDevData, seededAccounts } from "./seed-data.mjs"
 
 if (process.env.ALLOW_DEV_SEED !== "true") {
   throw new Error("Refusing to reset. Set ALLOW_DEV_SEED=true, and only for a development or preview database.")
@@ -40,9 +40,7 @@ if (process.env.CONFIRM_RESET_HOST !== host) {
 }
 
 // Only app data. The migration history is kept, so the schema stays as it is.
-await db.execute(
-  sql`TRUNCATE TABLE "child_update_attachment", "child_update", "guardianship", "staff_assignment", "child", "session", "account", "verification", "rate_limit", "user" CASCADE`,
-)
+await db.execute(sql.raw(`TRUNCATE TABLE ${appTables.map((table) => `"${table}"`).join(", ")} CASCADE`))
 
 let removedFiles = 0
 if (wipeFiles) {

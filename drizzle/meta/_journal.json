@@ -29,6 +29,20 @@
       "when": 1794857483980,
       "tag": "0003_author_optional",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794861655066,
+      "tag": "0004_drop_staff_assignment",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794861655878,
+      "tag": "0005_permissions_profile_contacts_audit",
+      "breakpoints": true
     }
   ]
 }

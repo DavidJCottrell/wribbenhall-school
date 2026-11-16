@@ -3,21 +3,21 @@ import Link from "next/link"
 
 import { CreatePupilForm } from "@/components/portal/admin/create-pupil-form"
 import { PageHeader } from "@/components/site/page-header"
-import { listPupilsWithCounts } from "@/lib/admin/queries"
+import { Badge } from "@/components/ui/badge"
+import { listPupilsForAdmin } from "@/lib/admin/queries"
 import { requireUser } from "@/lib/auth/session"
+import { pupilDisplayName } from "@/lib/portal/pupils"
 
 export const metadata: Metadata = { title: "Pupils" }
 
-const plural = (count: number, singular: string, pluralForm: string) => `${count} ${count === 1 ? singular : pluralForm}`
-
 export default async function AdminPupilsPage() {
-  const admin = await requireUser(["admin"])
-  const pupils = await listPupilsWithCounts(admin)
+  const admin = await requireUser({ permission: "pupils.manage" })
+  const pupils = await listPupilsForAdmin(admin)
 
   return (
     <>
       <PageHeader title="Pupils">
-        <p>Choose a pupil to link their parents and carers and assign staff.</p>
+        <p>Add pupils, then open one to complete their profile, contacts and parent logins.</p>
       </PageHeader>
 
       <div className="container-page space-y-14 py-12 md:py-16">
@@ -42,12 +42,11 @@ export default async function AdminPupilsPage() {
                     href={`/portal/admin/pupils/${pupil.id}`}
                     className="block h-full rounded-xl border border-border bg-card p-6 transition-colors hover:border-severn"
                   >
-                    <h3 className="text-lg font-semibold">
-                      {pupil.firstName} {pupil.lastName}
-                    </h3>
+                    <h3 className="text-lg font-semibold">{pupilDisplayName(pupil)}</h3>
                     <p className="mt-1 text-muted-foreground">{pupil.yearGroup}</p>
-                    <p className="mt-3 text-sm text-muted-foreground">
-                      {plural(pupil.guardianCount, "parent or carer", "parents and carers")}, {plural(pupil.staffCount, "member of staff", "staff")}
+                    <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                      <span>{pupil.guardianCount === 1 ? "1 parent login" : `${pupil.guardianCount} parent logins`}</span>
+                      {pupil.archived ? <Badge variant="outline">Archived</Badge> : null}
                     </p>
                   </Link>
                 </li>

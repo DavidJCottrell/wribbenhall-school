@@ -6,9 +6,8 @@ import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { deleteUser, resetPassword, setUserDisabled, updateUser, type TemporaryCredentials } from "@/app/actions/admin"
+import { deleteUser, resetPassword, setUserDisabled, updateUser, type TemporaryCredentials } from "@/app/actions/logins"
 import { applyServerErrors } from "@/components/forms/apply-server-errors"
-import { SelectField, TextField } from "@/components/forms/fields"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { FieldGroup } from "@/components/ui/field"
@@ -17,24 +16,17 @@ import type { AdminUser } from "@/lib/admin/queries"
 import { createUserSchema, type CreateUserValues } from "@/lib/forms/schemas"
 
 import { ConfirmByTyping } from "./confirm-by-typing"
+import { LoginFields } from "./login-fields"
 import { TemporaryPassword } from "./temporary-password"
-
-export const roleOptions = [
-  { value: "parent", label: "Parent or carer" },
-  { value: "staff", label: "Staff" },
-  { value: "admin", label: "Administrator" },
-]
 
 function EditUserForm({ person, isSelf, onSaved }: { person: AdminUser; isSelf: boolean; onSaved: () => void }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const form = useForm<CreateUserValues>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: { name: person.name, email: person.email, role: person.role },
+    defaultValues: { name: person.name, email: person.email, kind: person.kind, permissions: person.permissions },
     mode: "onTouched",
   })
-  const prefix = `edit-${person.id}-`
-
   const onSubmit = form.handleSubmit((values) => {
     startTransition(async () => {
       const result = await updateUser(person.id, values)
@@ -52,20 +44,7 @@ function EditUserForm({ person, isSelf, onSaved }: { person: AdminUser; isSelf: 
   return (
     <form onSubmit={onSubmit} noValidate>
       <FieldGroup>
-        <TextField control={form.control} id={`${prefix}name`} name="name" label="Full name" autoComplete="off" />
-        <TextField control={form.control} id={`${prefix}email`} name="email" label="Email address" type="email" autoComplete="off" />
-        {isSelf ? (
-          <p className="text-muted-foreground">You can&apos;t change your own role.</p>
-        ) : (
-          <SelectField
-            control={form.control}
-            id={`${prefix}role`}
-            name="role"
-            label="Role"
-            description="Changing role removes their links to pupils. Add the right ones again afterwards."
-            options={roleOptions}
-          />
-        )}
+        <LoginFields control={form.control} idPrefix={`edit-${person.id}-`} lockKind={isSelf} />
         <div>
           <Button type="submit" disabled={pending}>
             {pending ? <Spinner /> : null}
@@ -138,7 +117,7 @@ export function UserRowActions({ person, isSelf }: { person: AdminUser; isSelf: 
       )}
 
       <Dialog open={editing} onOpenChange={setEditing}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit {person.name}</DialogTitle>
             <DialogDescription>Their password and sessions are not affected.</DialogDescription>

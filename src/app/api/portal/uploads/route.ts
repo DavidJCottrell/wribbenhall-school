@@ -2,8 +2,8 @@ import { handleUpload, type HandleUploadBody } from "@vercel/blob/client"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-import { getCurrentUser } from "@/lib/auth/session"
-import { getChildFor } from "@/lib/portal/children"
+import { getActionUser } from "@/lib/auth/session"
+import { getPupilFor } from "@/lib/portal/pupils"
 import {
   ALLOWED_ATTACHMENT_TYPES,
   MAX_ATTACHMENT_BYTES,
@@ -21,14 +21,15 @@ export async function POST(request: Request) {
       body,
       request,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
-        const user = await getCurrentUser()
-        if (!user || user.mustChangePassword || user.role === "parent") throw new Error("Not allowed")
+        const gate = await getActionUser("reports.write")
+        if (!gate.ok) throw new Error("Not allowed")
+        const user = gate.user
 
         const payload = payloadSchema.safeParse(JSON.parse(clientPayload ?? "null"))
         if (!payload.success) throw new Error("Bad request")
 
         const { childId } = payload.data
-        if (!isAttachmentPathFor(childId, pathname) || !(await getChildFor(user, childId))) {
+        if (!isAttachmentPathFor(childId, pathname) || !(await getPupilFor(user, childId))) {
           throw new Error("Not allowed")
         }
 

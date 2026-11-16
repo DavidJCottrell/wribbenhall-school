@@ -8,7 +8,7 @@ import { requireUser } from "@/lib/auth/session"
 export const metadata: Metadata = { title: "Account" }
 
 export default async function AccountPage() {
-  const user = await requireUser(undefined, { allowPendingPasswordChange: true })
+  const user = await requireUser({ allowPendingPasswordChange: true })
 
   return (
     <>

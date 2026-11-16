@@ -15,7 +15,7 @@ import { FieldGroup } from "@/components/ui/field"
 import { Spinner } from "@/components/ui/spinner"
 import { useToday } from "@/hooks/use-today"
 import { childUpdateSchema, type ChildUpdateValues } from "@/lib/forms/schemas"
-import type { ChildUpdateView } from "@/lib/portal/children"
+import type { ChildUpdateView } from "@/lib/portal/updates"
 import { MAX_ATTACHMENTS_PER_UPDATE, attachmentPrefix, formatBytes, safeStorageName, type UploadedAttachment } from "@/lib/uploads"
 
 import { AttachmentPicker } from "./attachment-picker"

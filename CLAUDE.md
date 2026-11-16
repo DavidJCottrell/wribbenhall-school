@@ -16,13 +16,16 @@ Public website for Wribbenhall School, a special education school in Bewdley. Ne
 
 ## Before pushing
 
-Run all three and fix anything they report:
+Run all four and fix anything they report:
 
 ```bash
 npm run lint
 npm run typecheck
+npm test
 npm run build
 ```
+
+Changes to the portal's permissions or data access also need the permission matrix to pass. See `tests/e2e/permissions.mjs` for how to run it.
 
 ## Project layout
 
@@ -31,6 +34,11 @@ npm run build
 - `src/content/*.json` all site content (school details, events, policies, gallery, vacancies)
 - `src/lib/content` content providers and zod schemas
 - `src/lib/forms/schemas.ts` form schemas shared by client and server
+- `src/lib/auth/permissions.ts` the one catalogue of staff permissions and `can()`. Never check a role or kind to decide what someone may do. Check a permission here.
+- `src/lib/portal/` data access for the portal. Every function takes the current user and applies who may see what. Parent-facing queries select only parent-safe columns.
+- `src/db/schema.ts` and `drizzle/` the database and its migrations (`npm run db:generate`, `npm run db:migrate`)
+- `scripts/db/` seed fixtures and the test-database reset. `reset-preview.sql` is generated, so edit `fixtures.mts` and run `npm run db:generate-reset-sql`
+- `tests/e2e/` the permission matrix, run against a local build and a test database
 - `public/media` images
 
 ## Content

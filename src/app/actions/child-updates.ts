@@ -7,9 +7,11 @@ import { z } from "zod"
 
 import { getDb } from "@/db"
 import { childUpdate, childUpdateAttachment } from "@/db/schema"
-import { getCurrentUser } from "@/lib/auth/session"
+import { recordAudit } from "@/lib/audit"
+import { getActionUser, type CurrentUser } from "@/lib/auth/session"
 import { childUpdateSchema } from "@/lib/forms/schemas"
-import { canManageUpdate, getChildFor } from "@/lib/portal/children"
+import { canManageUpdate } from "@/lib/portal/updates"
+import { getPupilFor } from "@/lib/portal/pupils"
 import { MAX_ATTACHMENTS_PER_UPDATE, MAX_ATTACHMENT_BYTES, isAllowedAttachmentType, isAttachmentPathFor } from "@/lib/uploads"
 
 const attachmentsSchema = z
@@ -52,13 +54,12 @@ export type AddChildUpdateResult =
   | { ok: false; message: string; fieldErrors?: Record<string, string[] | undefined> }
 
 export async function addChildUpdate(childId: unknown, values: unknown, attachments?: unknown): Promise<AddChildUpdateResult> {
-  const user = await getCurrentUser()
-  if (!user) return { ok: false, message: "Your session has ended. Please log in again." }
-  if (user.mustChangePassword) return { ok: false, message: "Please choose your own password first." }
-  if (user.role === "parent") return { ok: false, message: "Only staff can add updates." }
+  const gate = await getActionUser("reports.write")
+  if (!gate.ok) return gate
+  const user = gate.user
 
   const parsedChildId = z.uuid().safeParse(childId)
-  if (!parsedChildId.success || !(await getChildFor(user, parsedChildId.data))) {
+  if (!parsedChildId.success || !(await getPupilFor(user, parsedChildId.data))) {
     return { ok: false, message: "That pupil could not be found." }
   }
 
@@ -93,6 +94,7 @@ export async function addChildUpdate(childId: unknown, values: unknown, attachme
     } else {
       await saveUpdate
     }
+    await recordAudit(user, { action: "create", subject: "report", subjectId: updateId, childId: parsedChildId.data, summary: "Added a daily report" })
     return { ok: true }
   } catch (error) {
     console.error("[portal] failed to save child update", error)
@@ -102,14 +104,14 @@ export async function addChildUpdate(childId: unknown, values: unknown, attachme
 }
 
 type ManageableUpdate =
-  | { ok: true; update: { id: string; childId: string; authorId: string | null } }
+  | { ok: true; user: CurrentUser; update: { id: string; childId: string; authorId: string | null } }
   | { ok: false; message: string }
 
 // Finds an update the current user may change, or says why not. Parents never can.
 async function manageableUpdate(updateId: unknown): Promise<ManageableUpdate> {
-  const user = await getCurrentUser()
-  if (!user) return { ok: false, message: "Your session has ended. Please log in again." }
-  if (user.mustChangePassword) return { ok: false, message: "Please choose your own password first." }
+  const gate = await getActionUser("reports.write")
+  if (!gate.ok) return gate
+  const user = gate.user
 
   const parsedId = z.uuid().safeParse(updateId)
   if (!parsedId.success) return { ok: false, message: "That update could not be found." }
@@ -120,10 +122,10 @@ async function manageableUpdate(updateId: unknown): Promise<ManageableUpdate> {
     .where(eq(childUpdate.id, parsedId.data))
 
   // Same message whether it is missing or not theirs, so ids can't be probed.
-  if (!row || !canManageUpdate(user, row) || !(await getChildFor(user, row.childId))) {
+  if (!row || !canManageUpdate(user, row) || !(await getPupilFor(user, row.childId))) {
     return { ok: false, message: "That update could not be found." }
   }
-  return { ok: true, update: row }
+  return { ok: true, user, update: row }
 }
 
 export async function updateChildUpdate(
@@ -192,6 +194,7 @@ export async function updateChildUpdate(
   }
 
   await discardBlobs(removing.map((file) => file.pathname))
+  await recordAudit(found.user, { action: "update", subject: "report", subjectId: update.id, childId: update.childId, summary: "Edited a daily report" })
   return { ok: true }
 }
 
@@ -214,5 +217,6 @@ export async function deleteChildUpdate(updateId: unknown): Promise<AddChildUpda
   }
 
   await discardBlobs(files.map((file) => file.pathname))
+  await recordAudit(found.user, { action: "delete", subject: "report", subjectId: found.update.id, childId: found.update.childId, summary: "Deleted a daily report" })
   return { ok: true }
 }

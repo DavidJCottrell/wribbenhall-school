@@ -3,54 +3,11 @@ import "server-only"
 import { and, asc, desc, eq, inArray } from "drizzle-orm"
 
 import { getDb } from "@/db"
-import { child, childUpdate, childUpdateAttachment, guardianship, staffAssignment, user as userTable } from "@/db/schema"
+import { childUpdate, childUpdateAttachment, user as userTable } from "@/db/schema"
+import { can } from "@/lib/auth/permissions"
 import type { CurrentUser } from "@/lib/auth/session"
 
-export type ChildSummary = {
-  id: string
-  firstName: string
-  lastName: string
-  yearGroup: string
-}
-
-const childColumns = {
-  id: child.id,
-  firstName: child.firstName,
-  lastName: child.lastName,
-  yearGroup: child.yearGroup,
-}
-
-const byName = [asc(child.lastName), asc(child.firstName)]
-
-// The single place that decides which children a user may see.
-export async function listChildrenFor(user: CurrentUser): Promise<ChildSummary[]> {
-  const db = getDb()
-
-  switch (user.role) {
-    case "admin":
-      return db.select(childColumns).from(child).orderBy(...byName)
-    case "staff":
-      return db
-        .select(childColumns)
-        .from(child)
-        .innerJoin(staffAssignment, eq(staffAssignment.childId, child.id))
-        .where(eq(staffAssignment.userId, user.id))
-        .orderBy(...byName)
-    case "parent":
-      return db
-        .select(childColumns)
-        .from(child)
-        .innerJoin(guardianship, eq(guardianship.childId, child.id))
-        .where(eq(guardianship.userId, user.id))
-        .orderBy(...byName)
-  }
-}
-
-// Returns null for a child the user may not see, so callers can't tell "missing" from "forbidden".
-export async function getChildFor(user: CurrentUser, childId: string): Promise<ChildSummary | null> {
-  const children = await listChildrenFor(user)
-  return children.find((candidate) => candidate.id === childId) ?? null
-}
+import { getPupilFor } from "./pupils"
 
 export type AttachmentView = {
   id: string
@@ -70,19 +27,20 @@ export type ChildUpdateView = {
   attachments: AttachmentView[]
 }
 
-// Staff can change their own updates. Administrators can change any.
+// Staff can change their own reports. Anyone who manages reports can change any.
 export function canManageUpdate(user: CurrentUser, update: { authorId: string | null }) {
-  if (user.role === "admin") return true
-  return user.role === "staff" && update.authorId === user.id
+  if (can(user, "reports.manage")) return true
+  return can(user, "reports.write") && update.authorId === user.id
 }
 
-export async function listUpdatesFor(user: CurrentUser, childId: string): Promise<ChildUpdateView[]> {
-  if (!(await getChildFor(user, childId))) return []
+// Every member of staff can read reports. Parents only get the ones marked for them.
+export async function listUpdatesFor(user: CurrentUser, childId: string, { limit }: { limit?: number } = {}): Promise<ChildUpdateView[]> {
+  if (!(await getPupilFor(user, childId))) return []
 
-  const visibility = user.role === "parent" ? eq(childUpdate.visibleToParents, true) : undefined
+  const visibility = user.kind === "parent" ? eq(childUpdate.visibleToParents, true) : undefined
 
   const db = getDb()
-  const updates = await db
+  const query = db
     .select({
       id: childUpdate.id,
       title: childUpdate.title,
@@ -96,6 +54,7 @@ export async function listUpdatesFor(user: CurrentUser, childId: string): Promis
     .leftJoin(userTable, eq(userTable.id, childUpdate.authorId))
     .where(and(eq(childUpdate.childId, childId), visibility))
     .orderBy(desc(childUpdate.occurredOn), desc(childUpdate.createdAt))
+  const updates = await (limit ? query.limit(limit) : query)
 
   if (updates.length === 0) return []
 
@@ -119,7 +78,7 @@ export async function listUpdatesFor(user: CurrentUser, childId: string): Promis
 
 export type AttachmentFile = AttachmentView & { pathname: string }
 
-// Same rules as the update list: the child must be visible to the user, and parents only get parent-visible updates.
+// Same rules as the report list: the pupil must be visible to the user, and parents only get parent-visible reports.
 export async function getAttachmentFor(user: CurrentUser, attachmentId: string): Promise<AttachmentFile | null> {
   const [row] = await getDb()
     .select({
@@ -136,8 +95,8 @@ export async function getAttachmentFor(user: CurrentUser, attachmentId: string):
     .where(eq(childUpdateAttachment.id, attachmentId))
   if (!row) return null
 
-  if (user.role === "parent" && !row.visibleToParents) return null
-  if (!(await getChildFor(user, row.childId))) return null
+  if (user.kind === "parent" && !row.visibleToParents) return null
+  if (!(await getPupilFor(user, row.childId))) return null
 
   return {
     id: row.id,

@@ -4,17 +4,19 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { z } from "zod"
 
-import { GuardianManager, StaffManager } from "@/components/portal/admin/pupil-links"
-import { PupilSettings } from "@/components/portal/admin/pupil-settings"
+import { ContactsManager } from "@/components/portal/admin/contacts-manager"
+import { GuardianManager } from "@/components/portal/admin/pupil-links"
+import { PupilDangerZone, PupilProfileForm } from "@/components/portal/admin/pupil-settings"
 import { PageHeader } from "@/components/site/page-header"
 import { getPupilAdminDetail } from "@/lib/admin/queries"
 import { requireUser } from "@/lib/auth/session"
+import { pupilDisplayName } from "@/lib/portal/pupils"
 
-export const metadata: Metadata = { title: "Pupil access" }
+export const metadata: Metadata = { title: "Pupil details" }
 
 export default async function AdminPupilPage({ params }: PageProps<"/portal/admin/pupils/[id]">) {
   const { id } = await params
-  const admin = await requireUser(["admin"])
+  const admin = await requireUser({ permission: "pupils.manage" })
 
   const childId = z.uuid().safeParse(id)
   const detail = childId.success ? await getPupilAdminDetail(admin, childId.data) : null
@@ -24,38 +26,50 @@ export default async function AdminPupilPage({ params }: PageProps<"/portal/admi
 
   return (
     <>
-      <PageHeader title={`${pupil.firstName} ${pupil.lastName}`}>
-        <p>{pupil.yearGroup}</p>
+      <PageHeader title={pupilDisplayName(pupil)}>
+        <p>
+          {pupil.yearGroup}
+          {pupil.archived ? " · Archived" : ""}
+        </p>
       </PageHeader>
 
-      <div className="container-page space-y-12 py-12 md:py-16">
+      <div className="container-page space-y-14 py-12 md:py-16">
         <div className="flex flex-wrap gap-x-8 gap-y-3">
           <Link href="/portal/admin/pupils" className="inline-flex items-center gap-2 underline underline-offset-4">
             <ArrowLeftIcon aria-hidden="true" className="size-4" />
             All pupils
           </Link>
-          <Link href={`/portal/children/${pupil.id}`} className="underline underline-offset-4">
-            View their updates
+          <Link href={`/portal/pupils/${pupil.id}`} className="underline underline-offset-4">
+            Open their dashboard
           </Link>
         </div>
 
+        <section aria-labelledby="pupil-details" className="max-w-4xl">
+          <h2 id="pupil-details" className="text-heading mb-6">
+            Details
+          </h2>
+          <PupilProfileForm pupil={pupil} staff={detail.staffOptions} />
+        </section>
+
+        <section aria-labelledby="contacts" className="max-w-3xl">
+          <h2 id="contacts" className="text-heading mb-2">
+            Contacts
+          </h2>
+          <p className="mb-6 text-muted-foreground">Emergency contacts and people authorised to collect. All staff can see these.</p>
+          <ContactsManager childId={pupil.id} contacts={detail.contacts} parents={detail.parentOptions} />
+        </section>
+
         <section aria-labelledby="guardians" className="max-w-3xl">
           <h2 id="guardians" className="text-heading mb-2">
-            Parents and carers
+            Parent logins
           </h2>
-          <p className="mb-6 text-muted-foreground">They can see this pupil&apos;s updates that are marked as visible to parents.</p>
+          <p className="mb-6 text-muted-foreground">
+            Parents and carers with a login to the portal. They see this pupil&apos;s dashboard and anything marked as visible to parents.
+          </p>
           <GuardianManager childId={pupil.id} linked={detail.guardians} available={detail.availableParents} />
         </section>
 
-        <section aria-labelledby="staff" className="max-w-3xl">
-          <h2 id="staff" className="text-heading mb-2">
-            Staff
-          </h2>
-          <p className="mb-6 text-muted-foreground">They can see all of this pupil&apos;s updates and add new ones.</p>
-          <StaffManager childId={pupil.id} linked={detail.staff} available={detail.availableStaff} />
-        </section>
-
-        <PupilSettings pupil={pupil} updateCount={detail.updateCount} />
+        <PupilDangerZone pupil={pupil} updateCount={detail.updateCount} />
       </div>
     </>
   )

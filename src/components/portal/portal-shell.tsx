@@ -1,18 +1,13 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
 
+import { canAny } from "@/lib/auth/permissions"
 import { requireUser } from "@/lib/auth/session"
-import type { UserRole } from "@/lib/auth/roles"
-
-const roleLabels: Record<UserRole, string> = {
-  parent: "Parent or carer",
-  staff: "Staff",
-  admin: "Administrator",
-}
 
 export async function PortalShell({ children }: { children: ReactNode }) {
   // Pages do their own check. The shell must render for the account page while a password change is pending.
-  const user = await requireUser(undefined, { allowPendingPasswordChange: true })
+  const user = await requireUser({ allowPendingPasswordChange: true })
+  const showAdministration = canAny(user, ["users.manage", "pupils.manage", "audit.view"])
 
   return (
     <>
@@ -20,16 +15,16 @@ export async function PortalShell({ children }: { children: ReactNode }) {
         <div className="container-page flex flex-wrap items-center justify-between gap-3 py-3">
           <p>
             Logged in as <span className="font-semibold">{user.name}</span>
-            <span className="text-muted-foreground"> ({roleLabels[user.role]})</span>
+            <span className="text-muted-foreground"> ({user.kind === "parent" ? "Parent or carer" : "Staff"})</span>
           </p>
           <nav aria-label="Portal" className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <Link href="/portal" className="underline underline-offset-4">
-              {user.role === "parent" ? "Your children" : "Pupils"}
+              {user.kind === "parent" ? "Your children" : "Pupils"}
             </Link>
             <Link href="/portal/account" className="underline underline-offset-4">
               Account
             </Link>
-            {user.role === "admin" ? (
+            {showAdministration ? (
               <Link href="/portal/admin" className="underline underline-offset-4">
                 Administration
               </Link>
