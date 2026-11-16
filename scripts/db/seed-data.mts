@@ -1,8 +1,11 @@
 // Fills a development or preview database from fixtures.mts. Shared by db:seed and db:reset-preview.
+import { sql } from "drizzle-orm"
+
 import { getDb } from "../../src/db"
 import * as schema from "../../src/db/schema"
-import { child, childUpdate, guardianship, pupilContact, user } from "../../src/db/schema"
+import { attendanceMark, child, childUpdate, guardianship, pupilContact, user } from "../../src/db/schema"
 export { appTables } from "./app-tables.mjs"
+import { attendanceSeedStatements } from "./build-reset-sql.mjs"
 import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, contacts, guardianships, pupils, reports, users } from "./fixtures.mjs"
 
 export { DEV_PASSWORD }
@@ -50,5 +53,11 @@ export async function seedDevData() {
     await db
       .insert(childUpdate)
       .values(reports.map(({ pupilId, daysAgo: days, ...report }) => ({ ...report, childId: pupilId, occurredOn: daysAgo(days) })))
+  }
+
+  const [existingMark] = await db.select({ childId: attendanceMark.childId }).from(attendanceMark).limit(1)
+  if (!existingMark) {
+    // Written as SQL so it matches the reset script exactly. Run one statement at a time.
+    for (const statement of attendanceSeedStatements()) await db.execute(sql.raw(statement))
   }
 }

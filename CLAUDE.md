@@ -38,6 +38,8 @@ Changes to the portal's permissions or data access also need the permission matr
 - `src/lib/portal/` data access for the portal. Every function takes the current user and applies who may see what. Parent-facing queries select only parent-safe columns.
 - `src/db/schema.ts` and `drizzle/` the database and its migrations (`npm run db:generate`, `npm run db:migrate`)
 - `scripts/db/` seed fixtures and the test-database reset. `reset-preview.sql` is generated, so edit `fixtures.mts` and run `npm run db:generate-reset-sql`
+- `src/lib/attendance/` attendance codes, statistics and editing rules as plain functions with unit tests. Keep the arithmetic here, never in components.
+- `src/components/charts/` hand-built SVG charts. Colours come from the `--chart-*` tokens in `globals.css`, which were checked with the data-viz palette validator. Re-run the validator before changing them. Every chart needs a "view as a table" alternative and must work in the high-contrast scheme.
 - `tests/e2e/` the permission matrix, run against a local build and a test database
 - `public/media` images
 

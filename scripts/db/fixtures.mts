@@ -95,3 +95,24 @@ export const reports: FixtureReport[] = [
   { pupilId: pupils[2].id, authorId: "seed-staff-alex", title: "Garden visit", body: note, daysAgo: 4, visibleToParents: true },
   { pupilId: pupils[3].id, authorId: "seed-staff-jo", title: "Work experience planning", body: note, daysAgo: 5, visibleToParents: true },
 ]
+
+// How often each pupil is marked each way, out of 100 sessions. The marks are picked by a repeatable hash of
+// pupil, day and session, so every run produces the same pattern. Unauthorised absence fills the remainder.
+export type AttendanceProfile = { pupilId: string; present: number; late: number; illness: number; medical: number; authorisedOther: number }
+
+export const attendanceProfiles: AttendanceProfile[] = [
+  { pupilId: pupils[0].id, present: 88, late: 4, illness: 4, medical: 2, authorisedOther: 1 }, // about 92%
+  { pupilId: pupils[1].id, present: 80, late: 5, illness: 6, medical: 3, authorisedOther: 2 }, // about 85%, below the 90% line
+  { pupilId: pupils[2].id, present: 94, late: 3, illness: 2, medical: 1, authorisedOther: 0 }, // about 97%
+  { pupilId: pupils[3].id, present: 62, late: 4, illness: 12, medical: 4, authorisedOther: 8 }, // about 66%, a school-refusal pattern
+]
+
+// Today's register, partly taken: the morning for everyone, with one absence nobody has heard about yet.
+export const todaysMorning = [
+  { pupilId: pupils[0].id, code: "present", note: null },
+  { pupilId: pupils[1].id, code: "late", note: null },
+  { pupilId: pupils[2].id, code: "present", note: null },
+  { pupilId: pupils[3].id, code: "no_reason", note: "Parent has not been in touch yet. This is fictional text." },
+]
+
+export const ATTENDANCE_SEED_WEEKDAYS_BACK = 70

@@ -3,16 +3,31 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { z } from "zod"
 
+import { AttendanceMeter } from "@/components/charts/attendance-meter"
 import { DashboardCard, Facts } from "@/components/portal/dashboard-card"
 import { recordAuditAfterResponse } from "@/lib/audit"
 import { requireUser } from "@/lib/auth/session"
-import { formatMedium } from "@/lib/dates"
+import { formatMedium, ukToday } from "@/lib/dates"
+import { getAttendanceFor, type AttendanceView } from "@/lib/portal/attendance"
 import { getParentPupilView, getPupilProfile, listContactsFor, type ContactView } from "@/lib/portal/pupils"
 import { listUpdatesFor, type ChildUpdateView } from "@/lib/portal/updates"
 
 export const metadata: Metadata = { title: "Pupil overview" }
 
 const telHref = (phone: string) => `tel:${phone.replace(/\s/g, "")}`
+
+function AttendanceSummaryCard({ view, href }: { view: AttendanceView | null; href: string }) {
+  if (!view) return null
+  const { year, recent } = view
+  return (
+    <DashboardCard title="Attendance" href={href} hrefLabel="See attendance">
+      <p className="text-4xl font-semibold">{year.percentage === null ? "No data" : `${year.percentage}%`}</p>
+      <p className="mb-4 text-sm text-muted-foreground">{year.sessions === 0 ? "No registers yet this school year" : `This school year, ${year.attended} of ${year.sessions} sessions`}</p>
+      <AttendanceMeter percentage={year.percentage} label="Attendance this school year" />
+      {recent.percentage !== null ? <p className="mt-2 text-sm">Last 4 weeks: <span className="font-medium">{recent.percentage}%</span></p> : null}
+    </DashboardCard>
+  )
+}
 
 function RecentReports({ reports, base }: { reports: ChildUpdateView[]; base: string }) {
   if (reports.length === 0) return <p className="text-muted-foreground">There are no daily reports yet.</p>
@@ -66,10 +81,15 @@ export default async function PupilOverviewPage({ params }: PageProps<"/portal/p
   if (user.kind === "parent") {
     const pupil = await getParentPupilView(user, pupilId.data)
     if (!pupil) notFound()
-    const [reports, contacts] = await Promise.all([listUpdatesFor(user, pupil.id, { limit: 3 }), listContactsFor(user, pupil.id)])
+    const [reports, contacts, attendance] = await Promise.all([
+      listUpdatesFor(user, pupil.id, { limit: 3 }),
+      listContactsFor(user, pupil.id),
+      getAttendanceFor(user, pupil.id, ukToday()),
+    ])
 
     return (
       <div className="container-page grid gap-6 py-10 lg:grid-cols-2">
+        <AttendanceSummaryCard view={attendance} href={`${base}/attendance`} />
         <DashboardCard title="Recent daily reports" href={`${base}/reports`}>
           <RecentReports reports={reports} base={base} />
         </DashboardCard>
@@ -91,7 +111,11 @@ export default async function PupilOverviewPage({ params }: PageProps<"/portal/p
 
   const pupil = await getPupilProfile(user, pupilId.data)
   if (!pupil) notFound()
-  const [reports, contacts] = await Promise.all([listUpdatesFor(user, pupil.id, { limit: 3 }), listContactsFor(user, pupil.id)])
+  const [reports, contacts, attendance] = await Promise.all([
+    listUpdatesFor(user, pupil.id, { limit: 3 }),
+    listContactsFor(user, pupil.id),
+    getAttendanceFor(user, pupil.id, ukToday()),
+  ])
 
   recordAuditAfterResponse(user, {
     action: "view",
@@ -103,6 +127,7 @@ export default async function PupilOverviewPage({ params }: PageProps<"/portal/p
 
   return (
     <div className="container-page grid gap-6 py-10 lg:grid-cols-2">
+      <AttendanceSummaryCard view={attendance} href={`${base}/attendance`} />
       <DashboardCard title="Recent daily reports" href={`${base}/reports`}>
         <RecentReports reports={reports} base={base} />
       </DashboardCard>

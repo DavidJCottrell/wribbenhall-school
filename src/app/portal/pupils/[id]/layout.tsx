@@ -22,6 +22,7 @@ export default async function PupilLayout({ children, params }: LayoutProps<"/po
   const base = `/portal/pupils/${pupil.id}`
   const tabs: PupilTab[] = [
     { href: base, label: "Overview" },
+    { href: `${base}/attendance`, label: "Attendance" },
     { href: `${base}/reports`, label: "Daily reports" },
     { href: `${base}/profile`, label: user.kind === "staff" ? "Profile and contacts" : "About your child" },
   ]

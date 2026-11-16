@@ -1,5 +1,5 @@
-import { relations } from "drizzle-orm"
-import { bigint, boolean, date, index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import { relations, sql } from "drizzle-orm"
+import { bigint, boolean, check, date, index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core"
 
 // Tables from user to rateLimit are owned by Better Auth. Keep their column names as they are.
 
@@ -187,6 +187,29 @@ export const childUpdateAttachment = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [index("child_update_attachment_update_id_idx").on(table.updateId)],
+)
+
+// One row per pupil per session. Closed days are marks too, with the "closed" code.
+export const attendanceMark = pgTable(
+  "attendance_mark",
+  {
+    childId: uuid("child_id")
+      .notNull()
+      .references(() => child.id, { onDelete: "cascade" }),
+    markDate: date("mark_date").notNull(),
+    session: text("session").notNull(),
+    code: text("code").notNull(),
+    note: text("note"),
+    // Cleared if the person's login is deleted, so the register stays complete.
+    recordedBy: text("recorded_by").references(() => user.id, { onDelete: "set null" }),
+    recordedAt: timestamp("recorded_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.childId, table.markDate, table.session] }),
+    index("attendance_mark_date_idx").on(table.markDate),
+    check("attendance_mark_session_check", sql`${table.session} in ('am', 'pm')`),
+  ],
 )
 
 export const childRelations = relations(child, ({ many }) => ({
