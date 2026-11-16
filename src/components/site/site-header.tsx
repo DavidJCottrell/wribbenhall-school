@@ -1,6 +1,6 @@
 "use client"
 
-import { LogInIcon, MenuIcon } from "lucide-react"
+import { MenuIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { cn } from "@/lib/utils"
 
 import { DisplaySettings } from "./display-settings"
+import { HeaderAccountButtons, MobileAccountItems } from "./header-account"
 import { Logo } from "./logo"
 import { isActivePath, mainNavigation } from "./navigation"
 
@@ -57,12 +58,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-        <Button asChild variant="ghost" className="max-sm:hidden">
-          <Link href="/login">
-            <LogInIcon aria-hidden="true" />
-            Log in
-          </Link>
-        </Button>
+        <HeaderAccountButtons />
         <DisplaySettings />
         <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
           <SheetTrigger asChild>
@@ -99,12 +95,7 @@ export function SiteHeader() {
                     </li>
                   )
                 })}
-                <li className="border-t border-border">
-                  <Link href="/login" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-4 text-lg text-ink/80">
-                    <span aria-hidden="true" className="h-5 w-1 rounded-full bg-transparent" />
-                    Parent and staff log in
-                  </Link>
-                </li>
+                <MobileAccountItems onNavigate={() => setMenuOpen(false)} />
               </ul>
             </nav>
           </SheetContent>
