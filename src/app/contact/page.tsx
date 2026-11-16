@@ -47,16 +47,16 @@ export default async function ContactPage() {
                 <MapPinIcon aria-hidden="true" className="mt-1 size-5 shrink-0 text-severn" />
                 <div>
                   <address className="not-italic">
-                    {school.address.lines.join(", ")}, {school.address.postcode}
+                    <a
+                      href={school.address.mapUrl}
+                      target="_blank"
+                      rel="noopener"
+                      className="underline underline-offset-4"
+                    >
+                      {school.address.lines.join(", ")}, {school.address.postcode}
+                      <span className="sr-only"> (opens in a map)</span>
+                    </a>
                   </address>
-                  <a
-                    href={school.address.mapUrl}
-                    target="_blank"
-                    rel="noopener"
-                    className="mt-1 inline-block text-severn underline underline-offset-4"
-                  >
-                    Open in a map
-                  </a>
                 </div>
               </li>
             </ul>

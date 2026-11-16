@@ -24,21 +24,21 @@ export async function SiteFooter() {
         <div className="md:col-span-4">
           <h2 className="font-sans text-base font-semibold">Find us</h2>
           <address className="mt-3 not-italic text-panel-foreground/85">
-            {school.address.lines.map((line) => (
-              <span key={line} className="block">
-                {line}
-              </span>
-            ))}
-            <span className="block">{school.address.postcode}</span>
+            <a
+              href={school.address.mapUrl}
+              target="_blank"
+              rel="noopener"
+              className="underline decoration-buttercup decoration-2 underline-offset-4 hover:text-panel-foreground"
+            >
+              {school.address.lines.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+              <span className="block">{school.address.postcode}</span>
+              <span className="sr-only"> (opens in a map)</span>
+            </a>
           </address>
-          <a
-            href={school.address.mapUrl}
-            target="_blank"
-            rel="noopener"
-            className="mt-2 inline-block underline decoration-buttercup decoration-2 underline-offset-4"
-          >
-            Open in a map
-          </a>
           <p className="mt-4">
             <a className="underline decoration-buttercup decoration-2 underline-offset-4" href={`tel:${school.phone.replace(/\s/g, "")}`}>
               {school.phone}
