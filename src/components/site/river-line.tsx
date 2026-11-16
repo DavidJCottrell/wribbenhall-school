@@ -5,7 +5,8 @@ const RIVER_PATH =
 
 type RiverDraw = "none" | "load" | "scroll"
 
-// The river draws itself in: on load, or progressively as it scrolls into view.
+// The river is revealed left to right: on load, or progressively as it scrolls into view.
+// A clip is used rather than a stroke dash because dash lengths drift with non-scaling strokes on a stretched SVG.
 export function RiverLine({ className, draw = "none", quiet = false }: { className?: string; draw?: RiverDraw; quiet?: boolean }) {
   return (
     <svg
@@ -14,23 +15,18 @@ export function RiverLine({ className, draw = "none", quiet = false }: { classNa
       aria-hidden="true"
       className={cn("pointer-events-none", draw === "scroll" && "river-scroll", className)}
       fill="none"
+      style={
+        draw === "load"
+          ? { animation: "river-draw 1.8s cubic-bezier(0.65, 0, 0.35, 1) 0.2s backwards" }
+          : undefined
+      }
     >
       <path
         d={RIVER_PATH}
-        pathLength={1}
         stroke="currentColor"
         strokeWidth={quiet ? 2 : 5}
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        style={
-          draw === "load"
-            ? {
-                strokeDasharray: 1,
-                strokeDashoffset: 1,
-                animation: "river-draw 1.8s cubic-bezier(0.65, 0, 0.35, 1) 0.2s forwards",
-              }
-            : undefined
-        }
       />
     </svg>
   )
