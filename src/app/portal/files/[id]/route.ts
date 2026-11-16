@@ -1,0 +1,40 @@
+import { get } from "@vercel/blob"
+import { z } from "zod"
+
+import { getCurrentUser } from "@/lib/auth/session"
+import { getAttachmentFor } from "@/lib/portal/children"
+import { isInlineType } from "@/lib/uploads"
+
+const notFound = () => new Response("Not found", { status: 404 })
+
+function contentDisposition(filename: string, inline: boolean) {
+  const asciiFallback = filename.replace(/[^\x20-\x7e]|["\\]/g, "_")
+  return `${inline ? "inline" : "attachment"}; filename="${asciiFallback}"; filename*=UTF-8''${encodeURIComponent(filename)}`
+}
+
+export async function GET(_request: Request, context: RouteContext<"/portal/files/[id]">) {
+  const user = await getCurrentUser()
+  if (!user) return new Response("Please log in", { status: 401 })
+  if (user.mustChangePassword) return new Response("Please choose your own password first", { status: 403 })
+
+  const { id } = await context.params
+  if (!z.uuid().safeParse(id).success) return notFound()
+
+  const attachment = await getAttachmentFor(user, id)
+  if (!attachment) return notFound()
+
+  const blob = await get(attachment.pathname, { access: "private" })
+  if (!blob || blob.statusCode !== 200) return notFound()
+
+  return new Response(blob.stream, {
+    headers: {
+      "Content-Type": attachment.contentType,
+      "Content-Length": String(attachment.sizeBytes),
+      // Only images open in the browser. Everything else downloads, so uploaded documents never run on this site.
+      "Content-Disposition": contentDisposition(attachment.filename, isInlineType(attachment.contentType)),
+      "X-Content-Type-Options": "nosniff",
+      "Content-Security-Policy": "default-src 'none'; sandbox",
+      "Cache-Control": "private, no-store",
+    },
+  })
+}

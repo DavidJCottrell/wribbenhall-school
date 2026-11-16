@@ -1,6 +1,9 @@
+import { PaperclipIcon } from "lucide-react"
+
 import { Badge } from "@/components/ui/badge"
 import { formatLong } from "@/lib/dates"
 import type { ChildUpdateView } from "@/lib/portal/children"
+import { formatBytes } from "@/lib/uploads"
 
 export function UpdateList({ updates, showVisibility }: { updates: ChildUpdateView[]; showVisibility: boolean }) {
   if (updates.length === 0) {
@@ -18,6 +21,19 @@ export function UpdateList({ updates, showVisibility }: { updates: ChildUpdateVi
             </time>
           </div>
           <p className="mt-3 max-w-prose whitespace-pre-line">{update.body}</p>
+          {update.attachments.length > 0 ? (
+            <ul aria-label="Attachments" className="mt-4 space-y-2">
+              {update.attachments.map((attachment) => (
+                <li key={attachment.id}>
+                  <a href={`/portal/files/${attachment.id}`} className="inline-flex items-center gap-2 underline underline-offset-4">
+                    <PaperclipIcon aria-hidden="true" className="size-4 shrink-0 text-severn" />
+                    {attachment.filename}
+                    <span className="text-sm text-muted-foreground no-underline">({formatBytes(attachment.sizeBytes)})</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <p className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <span>Added by {update.authorName}</span>
             {showVisibility && !update.visibleToParents ? <Badge variant="outline">Staff only</Badge> : null}

@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm"
-import { bigint, boolean, date, index, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import { bigint, boolean, date, index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core"
 
 // Tables from user to rateLimit are owned by Better Auth. Keep their column names as they are.
 
@@ -133,6 +133,23 @@ export const childUpdate = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
   (table) => [index("child_update_child_id_occurred_on_idx").on(table.childId, table.occurredOn)],
+)
+
+// The file itself lives in the private Blob store. Downloads always go through /portal/files/[id].
+export const childUpdateAttachment = pgTable(
+  "child_update_attachment",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    updateId: uuid("update_id")
+      .notNull()
+      .references(() => childUpdate.id, { onDelete: "cascade" }),
+    pathname: text("pathname").notNull().unique(),
+    filename: text("filename").notNull(),
+    contentType: text("content_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [index("child_update_attachment_update_id_idx").on(table.updateId)],
 )
 
 export const childRelations = relations(child, ({ many }) => ({
