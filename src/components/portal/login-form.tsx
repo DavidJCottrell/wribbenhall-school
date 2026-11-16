@@ -1,6 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
@@ -56,11 +57,14 @@ export function LoginForm({ destination }: { destination: string }) {
         ) : null}
         <TextField control={form.control} name="email" label="Email address" type="email" autoComplete="username" inputMode="email" />
         <TextField control={form.control} name="password" label="Password" type="password" autoComplete="current-password" />
-        <div>
+        <div className="flex flex-wrap items-center gap-6">
           <Button type="submit" size="lg" disabled={pending}>
             {pending ? <Spinner /> : null}
             {pending ? "Logging in" : "Log in"}
           </Button>
+          <Link href="/forgot-password" className="underline underline-offset-4">
+            Forgot your password?
+          </Link>
         </div>
       </FieldGroup>
     </form>
