@@ -15,7 +15,7 @@ END $$;
 
 -- App data only. The migration history is left alone.
 TRUNCATE TABLE
-  "account", "attendance_mark", "audit_event", "child", "day_report", "guardianship", "pupil_contact", "rate_limit", "record_file", "session", "user", "verification"
+  "account", "attendance_mark", "audit_event", "child", "day_report", "guardianship", "incident", "incident_pupil", "pupil_contact", "rate_limit", "record_file", "session", "user", "verification"
 CASCADE;
 
 INSERT INTO "user" (id, name, email, email_verified, role, permissions, must_change_password, banned) VALUES
@@ -67,6 +67,16 @@ INSERT INTO "day_report" (child_id, author_id, title, body, report_date, session
   ('22222222-2222-4222-8222-222222222222', 'seed-staff-jo', 'Staff note: lunchtime routine', 'This is fictional text for development.', current_date - 6, NULL, NULL, false),
   ('33333333-3333-4333-8333-333333333333', 'seed-staff-alex', 'Garden visit', 'This is fictional text for development.', current_date - 4, 'morning', 'Science', true),
   ('44444444-4444-4444-8444-444444444444', 'seed-staff-jo', 'Work experience planning', 'This is fictional text for development.', current_date - 5, 'morning', 'Careers', true);
+
+INSERT INTO "incident" (id, child_id, created_by, occurred_on, occurred_time, type, severity, location, summary, description, injury, first_aid, intervention_technique, intervention_minutes, intervention_staff, intervention_debrief, parents_informed_on, parents_informed_by, parents_informed_how, status, reviewed_by, reviewed_at, review_notes, share_with_parents, parent_summary) VALUES
+  ('a1111111-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111', 'seed-staff-alex', current_date - 2, '10:15', 'behaviour', 'medium', 'Classroom', 'Difficult start to the morning', 'FICTIONAL-STAFF-ONLY-DETAIL This is fictional text for development.', NULL, NULL, NULL, NULL, NULL, NULL, current_date - 2, 'Alex Teacher', 'phone', 'closed', 'seed-admin', now(), 'Followed the agreed plan. Nothing further needed.', true, 'FICTIONAL-PARENT-SUMMARY River found the start of the day hard. A member of staff sat with them and they were back in class within twenty minutes.'),
+  ('a2222222-2222-4222-8222-222222222222', '11111111-1111-4111-8111-111111111111', 'seed-staff-jo', current_date - 9, '13:40', 'accident_injury', 'low', 'Playground', 'Grazed knee at break', 'FICTIONAL-STAFF-ONLY-DETAIL This is fictional text for development.', 'Small graze to the left knee.', 'Cleaned and a plaster applied.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'closed', 'seed-admin', now(), NULL, false, NULL),
+  ('a3333333-3333-4333-8333-333333333333', '22222222-2222-4222-8222-222222222222', 'seed-staff-alex', current_date - 4, '11:05', 'physical_intervention', 'high', 'Corridor', 'Needed support to stay safe', 'FICTIONAL-STAFF-ONLY-DETAIL This is fictional text for development.', NULL, NULL, 'Fictional technique', 4, 'Alex Teacher, Jo Support', 'Fictional debrief with the pupil and staff.', current_date - 4, 'Alex Teacher', 'in_person', 'under_review', NULL, NULL, NULL, false, 'FICTIONAL-PARENT-SUMMARY Draft, not yet shared.'),
+  ('a4444444-4444-4444-8444-444444444444', '33333333-3333-4333-8333-333333333333', 'seed-staff-alex', current_date - 1, '12:20', 'bullying', 'medium', 'Dining room', 'Unkind comments at lunch', 'FICTIONAL-STAFF-ONLY-DETAIL This is fictional text for development.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'open', NULL, NULL, NULL, false, NULL);
+
+INSERT INTO "incident_pupil" (incident_id, child_id, role) VALUES
+  ('a3333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', 'witness'),
+  ('a4444444-4444-4444-8444-444444444444', '22222222-2222-4222-8222-222222222222', 'involved');
 
 -- Ten weeks of attendance, each pupil with their own pattern, one closed day, and a partly taken register for today.
 INSERT INTO "attendance_mark" (child_id, mark_date, session, code, recorded_by)

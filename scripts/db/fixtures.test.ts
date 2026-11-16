@@ -7,7 +7,7 @@ import { isAttendanceCode } from "../../src/lib/attendance/codes"
 import { allPermissions, normalizePermissions } from "../../src/lib/auth/permissions"
 import { appTables } from "./app-tables.mjs"
 import { buildResetSql } from "./build-reset-sql.mjs"
-import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, attendanceProfiles, contacts, todaysMorning, guardianships, pupils, reports, users } from "./fixtures.mjs"
+import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, attendanceProfiles, contacts, todaysMorning, guardianships, incidents, pupils, reports, users } from "./fixtures.mjs"
 
 const userById = new Map(users.map((fixture) => [fixture.id, fixture]))
 const pupilIds = new Set(pupils.map((pupil) => pupil.id))
@@ -49,6 +49,27 @@ describe("fixtures", () => {
     for (const report of reports) {
       expect(pupilIds.has(report.pupilId)).toBe(true)
       expect(userById.get(report.authorId)?.kind).toBe("staff")
+    }
+  })
+})
+
+describe("incident fixtures", () => {
+  it("point at real pupils and staff, and never list the pupil as involved in their own incident", () => {
+    for (const incident of incidents) {
+      expect(pupilIds.has(incident.pupilId)).toBe(true)
+      expect(userById.get(incident.createdBy)?.kind).toBe("staff")
+      if (incident.reviewedBy) expect(userById.get(incident.reviewedBy)?.kind).toBe("staff")
+      for (const other of incident.involved) {
+        expect(pupilIds.has(other.pupilId)).toBe(true)
+        expect(other.pupilId).not.toBe(incident.pupilId)
+      }
+    }
+  })
+
+  it("only shares an incident that has a summary, and only describes interventions that were physical", () => {
+    for (const incident of incidents) {
+      if (incident.shareWithParents) expect(incident.parentSummary?.trim()).toBeTruthy()
+      expect(incident.intervention !== null).toBe(incident.type === "physical_intervention")
     }
   })
 })

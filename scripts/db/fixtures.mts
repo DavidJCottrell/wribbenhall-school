@@ -106,6 +106,124 @@ export const reports: FixtureReport[] = [
   { pupilId: pupils[3].id, authorId: "seed-staff-jo", title: "Work experience planning", body: note, daysAgo: 5, session: "morning", subject: "Careers", visibleToParents: true },
 ]
 
+// Plain markers in the text let the permission tests prove what a parent can and can't see.
+export const PARENT_SAFE_MARKER = "FICTIONAL-PARENT-SUMMARY"
+export const STAFF_ONLY_MARKER = "FICTIONAL-STAFF-ONLY-DETAIL"
+
+export type FixtureIncident = {
+  id: string
+  pupilId: string
+  createdBy: string
+  daysAgo: number
+  time: string
+  type: "behaviour" | "accident_injury" | "physical_intervention" | "bullying" | "other"
+  severity: "low" | "medium" | "high"
+  location: string | null
+  summary: string
+  description: string
+  status: "open" | "under_review" | "closed"
+  reviewedBy: string | null
+  reviewNotes: string | null
+  shareWithParents: boolean
+  parentSummary: string | null
+  injury: string | null
+  firstAid: string | null
+  intervention: { technique: string; minutes: number; staff: string; debrief: string } | null
+  parentsInformed: { daysAgo: number; by: string; how: "phone" | "in_person" | "email" | "message" | "letter" } | null
+  involved: { pupilId: string; role: "involved" | "witness" }[]
+}
+
+export const incidents: FixtureIncident[] = [
+  {
+    id: "a1111111-1111-4111-8111-111111111111",
+    pupilId: pupils[0].id,
+    createdBy: "seed-staff-alex",
+    daysAgo: 2,
+    time: "10:15",
+    type: "behaviour",
+    severity: "medium",
+    location: "Classroom",
+    summary: "Difficult start to the morning",
+    description: `${STAFF_ONLY_MARKER} ${note}`,
+    status: "closed",
+    reviewedBy: "seed-admin",
+    reviewNotes: "Followed the agreed plan. Nothing further needed.",
+    shareWithParents: true,
+    parentSummary: `${PARENT_SAFE_MARKER} River found the start of the day hard. A member of staff sat with them and they were back in class within twenty minutes.`,
+    injury: null,
+    firstAid: null,
+    intervention: null,
+    parentsInformed: { daysAgo: 2, by: "Alex Teacher", how: "phone" },
+    involved: [],
+  },
+  {
+    id: "a2222222-2222-4222-8222-222222222222",
+    pupilId: pupils[0].id,
+    createdBy: "seed-staff-jo",
+    daysAgo: 9,
+    time: "13:40",
+    type: "accident_injury",
+    severity: "low",
+    location: "Playground",
+    summary: "Grazed knee at break",
+    description: `${STAFF_ONLY_MARKER} ${note}`,
+    status: "closed",
+    reviewedBy: "seed-admin",
+    reviewNotes: null,
+    shareWithParents: false,
+    parentSummary: null,
+    injury: "Small graze to the left knee.",
+    firstAid: "Cleaned and a plaster applied.",
+    intervention: null,
+    parentsInformed: null,
+    involved: [],
+  },
+  {
+    id: "a3333333-3333-4333-8333-333333333333",
+    pupilId: pupils[1].id,
+    createdBy: "seed-staff-alex",
+    daysAgo: 4,
+    time: "11:05",
+    type: "physical_intervention",
+    severity: "high",
+    location: "Corridor",
+    summary: "Needed support to stay safe",
+    description: `${STAFF_ONLY_MARKER} ${note}`,
+    status: "under_review",
+    reviewedBy: null,
+    reviewNotes: null,
+    shareWithParents: false,
+    parentSummary: `${PARENT_SAFE_MARKER} Draft, not yet shared.`,
+    injury: null,
+    firstAid: null,
+    intervention: { technique: "Fictional technique", minutes: 4, staff: "Alex Teacher, Jo Support", debrief: "Fictional debrief with the pupil and staff." },
+    parentsInformed: { daysAgo: 4, by: "Alex Teacher", how: "in_person" },
+    involved: [{ pupilId: pupils[2].id, role: "witness" }],
+  },
+  {
+    id: "a4444444-4444-4444-8444-444444444444",
+    pupilId: pupils[2].id,
+    createdBy: "seed-staff-alex",
+    daysAgo: 1,
+    time: "12:20",
+    type: "bullying",
+    severity: "medium",
+    location: "Dining room",
+    summary: "Unkind comments at lunch",
+    description: `${STAFF_ONLY_MARKER} ${note}`,
+    status: "open",
+    reviewedBy: null,
+    reviewNotes: null,
+    shareWithParents: false,
+    parentSummary: null,
+    injury: null,
+    firstAid: null,
+    intervention: null,
+    parentsInformed: null,
+    involved: [{ pupilId: pupils[1].id, role: "involved" }],
+  },
+]
+
 // How often each pupil is marked each way, out of 100 sessions. The marks are picked by a repeatable hash of
 // pupil, day and session, so every run produces the same pattern. Unauthorised absence fills the remainder.
 export type AttendanceProfile = { pupilId: string; present: number; late: number; illness: number; medical: number; authorisedOther: number }

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { z } from "zod"
 
 import { PupilTabs, type PupilTab } from "@/components/portal/pupil-tabs"
+import { can } from "@/lib/auth/permissions"
 import { requireUser } from "@/lib/auth/session"
 import { ageOn, toIsoDate } from "@/lib/dates"
 import { getParentPupilView, getPupilProfile, pupilDisplayName } from "@/lib/portal/pupils"
@@ -24,6 +25,11 @@ export default async function PupilLayout({ children, params }: LayoutProps<"/po
     { href: base, label: "Overview" },
     { href: `${base}/attendance`, label: "Attendance" },
     { href: `${base}/reports`, label: "Daily reports" },
+    ...(user.kind === "parent"
+      ? [{ href: `${base}/incidents`, label: "Incident notices" }]
+      : can(user, "incidents.view")
+        ? [{ href: `${base}/incidents`, label: "Incidents" }]
+        : []),
     { href: `${base}/profile`, label: user.kind === "staff" ? "Profile and contacts" : "About your child" },
   ]
 

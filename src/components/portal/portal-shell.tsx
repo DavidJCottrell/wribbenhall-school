@@ -1,7 +1,7 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
 
-import { canAny } from "@/lib/auth/permissions"
+import { can, canAny } from "@/lib/auth/permissions"
 import { requireUser } from "@/lib/auth/session"
 
 export async function PortalShell({ children }: { children: ReactNode }) {
@@ -24,6 +24,11 @@ export async function PortalShell({ children }: { children: ReactNode }) {
             {user.kind === "staff" ? (
               <Link href="/portal/register" className="underline underline-offset-4">
                 Register
+              </Link>
+            ) : null}
+            {can(user, "incidents.view") ? (
+              <Link href="/portal/incidents" className="underline underline-offset-4">
+                Incidents
               </Link>
             ) : null}
             <Link href="/portal/account" className="underline underline-offset-4">

@@ -7,6 +7,7 @@ import { can } from "@/lib/auth/permissions"
 import { requireUser } from "@/lib/auth/session"
 import { formatLong, ukToday } from "@/lib/dates"
 import { getTodayOverview } from "@/lib/portal/attendance"
+import { countUnclosedIncidents } from "@/lib/portal/incidents"
 import { listPupilsFor, pupilDisplayName } from "@/lib/portal/pupils"
 
 export const metadata: Metadata = { title: "Home" }
@@ -14,7 +15,7 @@ export const metadata: Metadata = { title: "Home" }
 export default async function PortalHomePage() {
   const user = await requireUser()
   const today = ukToday()
-  const [pupils, overview] = await Promise.all([listPupilsFor(user), getTodayOverview(user, today)])
+  const [pupils, overview, incidentCounts] = await Promise.all([listPupilsFor(user), getTodayOverview(user, today), countUnclosedIncidents(user)])
 
   const isParent = user.kind === "parent"
   const empty = isParent
@@ -61,6 +62,19 @@ export default async function PortalHomePage() {
                   </ul>
                 )}
               </DashboardCard>
+              {incidentCounts ? (
+                <DashboardCard title="Incidents" href="/portal/incidents" hrefLabel="See incidents">
+                  {incidentCounts.open + incidentCounts.underReview === 0 ? (
+                    <p className="text-muted-foreground">Nothing is waiting for review.</p>
+                  ) : (
+                    <p>
+                      <span className="text-3xl font-semibold">{incidentCounts.open}</span> <span className="text-muted-foreground">open</span>
+                      {" · "}
+                      <span className="text-3xl font-semibold">{incidentCounts.underReview}</span> <span className="text-muted-foreground">under review</span>
+                    </p>
+                  )}
+                </DashboardCard>
+              ) : null}
               <DashboardCard title="Attendance below 90%">
                 {overview.lowAttendance.length === 0 ? (
                   <p className="text-muted-foreground">Everyone is at 90% or more this school year.</p>

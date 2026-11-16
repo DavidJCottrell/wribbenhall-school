@@ -180,6 +180,75 @@ export const dayReport = pgTable(
   ],
 )
 
+// A write-up of something that happened. Staff only, except the summary written for parents once it has been shared.
+export const incident = pgTable(
+  "incident",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    childId: uuid("child_id")
+      .notNull()
+      .references(() => child.id, { onDelete: "cascade" }),
+    // Cleared when the author's login is deleted, so the record stays.
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    occurredOn: date("occurred_on").notNull(),
+    // UK local time as HH:MM.
+    occurredTime: text("occurred_time").notNull(),
+    type: text("type").notNull(),
+    severity: text("severity").notNull(),
+    location: text("location"),
+    summary: text("summary").notNull(),
+    description: text("description").notNull(),
+    antecedent: text("antecedent"),
+    behaviour: text("behaviour"),
+    response: text("response"),
+    outcome: text("outcome"),
+    injury: text("injury"),
+    firstAid: text("first_aid"),
+    interventionTechnique: text("intervention_technique"),
+    interventionMinutes: integer("intervention_minutes"),
+    interventionStaff: text("intervention_staff"),
+    interventionDebrief: text("intervention_debrief"),
+    parentsInformedOn: date("parents_informed_on"),
+    parentsInformedBy: text("parents_informed_by"),
+    parentsInformedHow: text("parents_informed_how"),
+    status: text("status").notNull().default("open"),
+    reviewedBy: text("reviewed_by").references(() => user.id, { onDelete: "set null" }),
+    reviewedAt: timestamp("reviewed_at"),
+    reviewNotes: text("review_notes"),
+    shareWithParents: boolean("share_with_parents").notNull().default(false),
+    parentSummary: text("parent_summary"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("incident_child_id_occurred_on_idx").on(table.childId, table.occurredOn),
+    index("incident_status_idx").on(table.status),
+    check("incident_type_check", sql`${table.type} in ('behaviour', 'accident_injury', 'physical_intervention', 'bullying', 'other')`),
+    check("incident_severity_check", sql`${table.severity} in ('low', 'medium', 'high')`),
+    check("incident_status_check", sql`${table.status} in ('open', 'under_review', 'closed')`),
+    check("incident_intervention_minutes_check", sql`${table.interventionMinutes} is null or ${table.interventionMinutes} >= 0`),
+  ],
+)
+
+// Other pupils who were involved or saw it. Never shown to parents.
+export const incidentPupil = pgTable(
+  "incident_pupil",
+  {
+    incidentId: uuid("incident_id")
+      .notNull()
+      .references(() => incident.id, { onDelete: "cascade" }),
+    childId: uuid("child_id")
+      .notNull()
+      .references(() => child.id, { onDelete: "cascade" }),
+    role: text("role").notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.incidentId, table.childId] }),
+    index("incident_pupil_child_id_idx").on(table.childId),
+    check("incident_pupil_role_check", sql`${table.role} in ('involved', 'witness')`),
+  ],
+)
+
 // The file itself lives in the private Blob store. Downloads always go through /portal/files/[id].
 // A file belongs to one record. Later record types add their own nullable key here.
 export const recordFile = pgTable(
@@ -190,6 +259,7 @@ export const recordFile = pgTable(
       .notNull()
       .references(() => child.id, { onDelete: "cascade" }),
     dayReportId: uuid("day_report_id").references(() => dayReport.id, { onDelete: "cascade" }),
+    incidentId: uuid("incident_id").references(() => incident.id, { onDelete: "cascade" }),
     pathname: text("pathname").notNull().unique(),
     filename: text("filename").notNull(),
     contentType: text("content_type").notNull(),
@@ -200,7 +270,8 @@ export const recordFile = pgTable(
   (table) => [
     index("record_file_child_id_idx").on(table.childId),
     index("record_file_day_report_id_idx").on(table.dayReportId),
-    check("record_file_one_owner_check", sql`num_nonnulls(${table.dayReportId}) = 1`),
+    index("record_file_incident_id_idx").on(table.incidentId),
+    check("record_file_one_owner_check", sql`num_nonnulls(${table.dayReportId}, ${table.incidentId}) = 1`),
   ],
 )
 
