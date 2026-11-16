@@ -141,3 +141,10 @@ export const jobApplicationSchema = z.object({
 export type EnquiryValues = z.infer<typeof enquirySchema>
 export type PlaceApplicationValues = z.infer<typeof placeApplicationSchema>
 export type JobApplicationValues = z.input<typeof jobApplicationSchema>
+
+export const loginSchema = z.object({
+  email,
+  password: z.string().min(1, "Enter your password"),
+})
+
+export type LoginValues = z.infer<typeof loginSchema>
