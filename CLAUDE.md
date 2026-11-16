@@ -30,6 +30,8 @@ GitHub Actions runs the same four on every PR (`.github/workflows/ci.yml`) with 
 
 Changes to the portal's permissions or data access also need the permission matrix to pass. See `tests/e2e/permissions.mjs` for how to run it.
 
+Changes to layout, forms or dialogs also need `tests/e2e/overflow.mjs` to pass. It opens every page and form dialog at phone widths and fails if anything is wider than the screen. See the top of that file for how to run it.
+
 ## Services and how they connect
 
 | Service | What it does here | How it is set up |
@@ -140,6 +142,9 @@ Settings the owner has had to add by hand so far: the Production database and Bl
 - Forms use react-hook-form with zod. Reuse the shared schema on both client and server. Keep the honeypot field on public forms.
 - Use existing shadcn components in `src/components/ui` before adding new ones.
 - Keep the established design: Severn palette tokens and fonts from `globals.css`. Do not introduce new colours or fonts casually.
+- Portal navigation is `src/components/portal/portal-nav.tsx` (top bar on desktop, bottom bar and a More menu on phones) and `pupil-tabs.tsx`. Add a page to the menu in `portal-shell.tsx`, and give a new pupil section a tab in the pupil layout.
+- Links inside the portal use `PendingLink` so they show progress. Every portal route group needs a `loading.tsx` so navigation shows a skeleton straight away. Entrance effects are the `stagger` and `rise` classes in `globals.css`, which are off for reduced motion.
+- Phones: no horizontal scroll, ever. Give a grid its columns with `grid-cols-*`, put wide tables in an `overflow-x-auto` wrapper, keep button labels short, and size dialogs to `dvh`, not `vh`. Form controls are at least 16px, or iOS zooms the page when they are focused.
 - Accessibility matters here: keep the skip link, visible focus rings, alt text, and reduced-motion support. Layouts must work at phone width with no sideways page scroll.
 - Prefer clear names and simple code. Comment only where the reason is not obvious.
 - Preview deployments must not send form submissions or emails to real people. Leave `FORMS_WEBHOOK_URL`, `RESEND_API_KEY` and `EMAIL_FROM` unset outside Production.

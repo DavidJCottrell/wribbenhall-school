@@ -40,7 +40,7 @@ export function MedicalPanel({ pupil, record, user, today, witnesses }: Props) {
   const canRecord = can(user, "medical.record")
 
   return (
-    <div className="space-y-12">
+    <div className="stagger space-y-12">
       <section aria-labelledby="conditions" className="space-y-4">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <h2 id="conditions" className="text-heading">
@@ -51,7 +51,7 @@ export function MedicalPanel({ pupil, record, user, today, witnesses }: Props) {
           </Button>
         </div>
         {record.conditions.length === 0 ? <p className="text-muted-foreground">Nothing has been recorded.</p> : null}
-        <ul className="space-y-4">
+        <ul className="stagger space-y-4">
           {record.conditions.map((condition) => (
             <li key={condition.id} className="rounded-xl border border-border bg-card p-6">
               <p className="flex flex-wrap items-center gap-2 text-lg font-semibold">
@@ -92,7 +92,7 @@ export function MedicalPanel({ pupil, record, user, today, witnesses }: Props) {
           Medication
         </h2>
         {record.medications.length === 0 ? <p className="text-muted-foreground">No medication has been recorded.</p> : null}
-        <ul className="space-y-4">
+        <ul className="stagger space-y-4">
           {record.medications.map((medication) => {
             const check = canAdminister(medication, today)
             return (

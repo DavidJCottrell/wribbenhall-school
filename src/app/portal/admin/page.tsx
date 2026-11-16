@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 
+import { PendingLink } from "@/components/portal/pending-link"
 import { PageHeader } from "@/components/site/page-header"
 import { can, type Permission } from "@/lib/auth/permissions"
 import { requireUser } from "@/lib/auth/session"
@@ -21,13 +21,13 @@ export default async function AdminHomePage() {
     <>
       <PageHeader title="Administration" />
       <div className="container-page py-12 md:py-16">
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul className="stagger grid gap-4 sm:grid-cols-2">
           {available.map((section) => (
             <li key={section.href}>
-              <Link href={section.href} className="block h-full rounded-xl border border-border bg-card p-6 transition-colors hover:border-severn">
+              <PendingLink href={section.href} className="card-link block h-full rounded-xl border border-border bg-card p-6">
                 <h2 className="text-heading">{section.title}</h2>
                 <p className="mt-2 text-muted-foreground">{section.description}</p>
-              </Link>
+              </PendingLink>
             </li>
           ))}
         </ul>

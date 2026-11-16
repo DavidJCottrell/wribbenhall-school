@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 
 import { CreateUserForm } from "@/components/portal/admin/create-user-form"
 import { UserRowActions } from "@/components/portal/admin/user-row-actions"
+import { BackLink } from "@/components/portal/back-link"
 import { PageHeader } from "@/components/site/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -24,7 +25,7 @@ export default async function AdminUsersPage() {
 
   return (
     <>
-      <PageHeader title="Logins and permissions">
+      <PageHeader title="Logins and permissions" eyebrow={<BackLink href="/portal/admin">Administration</BackLink>}>
         <p>Logins are created here and handed over in person. There is no public sign-up. For staff, tick what each person is allowed to do.</p>
       </PageHeader>
 

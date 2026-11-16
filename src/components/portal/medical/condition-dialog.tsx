@@ -146,7 +146,7 @@ export function ConditionDialog({ childId, condition }: { childId: string; condi
     <>
       <div className="flex gap-2">
         <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
-          {condition ? "Edit" : "Add a condition, allergy or dietary need"}
+          {condition ? "Edit" : "Add a condition or allergy"}
           {condition ? <span className="sr-only"> {condition.name}</span> : null}
         </Button>
         {condition ? (
@@ -156,7 +156,7 @@ export function ConditionDialog({ childId, condition }: { childId: string; condi
         ) : null}
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{condition ? "Edit" : "Add"} a medical record</DialogTitle>
             <DialogDescription>Conditions, allergies and dietary needs.</DialogDescription>

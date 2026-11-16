@@ -1,9 +1,9 @@
-import { ArrowLeftIcon } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { z } from "zod"
 
+import { BackLink } from "@/components/portal/back-link"
 import { ContactsManager } from "@/components/portal/admin/contacts-manager"
 import { GuardianManager } from "@/components/portal/admin/pupil-links"
 import { PupilDangerZone, PupilProfileForm } from "@/components/portal/admin/pupil-settings"
@@ -26,7 +26,7 @@ export default async function AdminPupilPage({ params }: PageProps<"/portal/admi
 
   return (
     <>
-      <PageHeader title={pupilDisplayName(pupil)}>
+      <PageHeader title={pupilDisplayName(pupil)} eyebrow={<BackLink href="/portal/admin/pupils">All pupils</BackLink>}>
         <p>
           {pupil.yearGroup}
           {pupil.archived ? " · Archived" : ""}
@@ -35,10 +35,6 @@ export default async function AdminPupilPage({ params }: PageProps<"/portal/admi
 
       <div className="container-page space-y-14 py-12 md:py-16">
         <div className="flex flex-wrap gap-x-8 gap-y-3">
-          <Link href="/portal/admin/pupils" className="inline-flex items-center gap-2 underline underline-offset-4">
-            <ArrowLeftIcon aria-hidden="true" className="size-4" />
-            All pupils
-          </Link>
           <Link href={`/portal/pupils/${pupil.id}`} className="underline underline-offset-4">
             Open their dashboard
           </Link>

@@ -40,8 +40,8 @@ export function AttendanceCalendar({ weeks }: { weeks: CalendarWeek[] }) {
         <span className="text-sm text-muted-foreground">Top square is the morning, bottom square the afternoon.</span>
       </figcaption>
 
-      <div className="overflow-x-auto">
-        <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height} role="group" aria-label="Recent school days. Use the table below for every mark.">
+      <div>
+        <svg viewBox={`0 0 ${width} ${height}`} width={width} height={height} className="h-auto w-full" style={{ maxWidth: width }} role="group" aria-label="Recent school days. Use the table below for every mark.">
           {DAYS.map((day, index) => (
             <text key={`${day}-${index}`} x={LABEL_WIDTH + index * (CELL_WIDTH + CELL_GAP) + CELL_WIDTH / 2} y={14} textAnchor="middle" fontSize="12" style={{ fill: "var(--chart-label)" }}>
               {day}

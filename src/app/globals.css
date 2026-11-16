@@ -190,6 +190,47 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* A stray wide element must never give the page a sideways pan on a phone. `clip`, unlike `hidden`, keeps sticky headers working. */
+  body {
+    overflow-x: clip;
+  }
+
+  /* Visually hidden text is absolutely positioned. Without a positioned scroller around it, it escapes the scroller and widens the page. */
+  .overflow-x-auto,
+  .overflow-auto {
+    position: relative;
+  }
+
+  /* The portal's bottom bar covers the foot of the page on phones, so the footer leaves room for it. */
+  @media (max-width: 47.99rem) {
+    body:has([data-portal-bar]) footer {
+      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    }
+  }
+
+  /* A bare `grid` has one automatic column, which grows to fit its widest child instead of the screen. Any grid-cols utility overrides this. */
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* iOS draws date and time fields with an intrinsic width and centred text. Make them behave like other fields. */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  input[type="month"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    max-width: 100%;
+    text-align: left;
+  }
+
+  input[type="date"]::-webkit-date-and-time-value,
+  input[type="time"]::-webkit-date-and-time-value {
+    text-align: left;
+    min-height: 1.5em;
+  }
+
   @media (min-width: 64rem) {
     html {
       font-size: calc(100% * var(--text-boost, 1));
@@ -366,5 +407,79 @@
   to {
     opacity: 1;
     translate: 0 0;
+  }
+}
+
+/* Page loading and entrance effects. Everything here is off for people who ask for reduced motion. */
+.link-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 70;
+  height: 3px;
+  background: var(--accent);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+@keyframes link-progress {
+  0% {
+    transform: scaleX(0.05);
+    opacity: 1;
+  }
+  60% {
+    transform: scaleX(0.7);
+  }
+  100% {
+    transform: scaleX(0.92);
+    opacity: 1;
+  }
+}
+
+@keyframes portal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .link-progress {
+    animation: link-progress 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  /* Children rise into place one after another. */
+  .stagger > * {
+    animation: portal-rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .stagger > :nth-child(2) { animation-delay: 45ms; }
+  .stagger > :nth-child(3) { animation-delay: 90ms; }
+  .stagger > :nth-child(4) { animation-delay: 135ms; }
+  .stagger > :nth-child(5) { animation-delay: 180ms; }
+  .stagger > :nth-child(6) { animation-delay: 225ms; }
+  .stagger > :nth-child(n + 7) { animation-delay: 270ms; }
+
+  .rise {
+    animation: portal-rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+
+/* Cards that go somewhere lift a little on hover and press down when tapped. */
+@utility card-link {
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+  &:hover {
+    border-color: var(--severn);
+    box-shadow: 0 8px 24px -12px color-mix(in oklab, var(--ink) 35%, transparent);
+    transform: translateY(-2px);
+  }
+  &:active {
+    transform: translateY(0) scale(0.99);
+    box-shadow: none;
   }
 }

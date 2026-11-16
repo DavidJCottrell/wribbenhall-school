@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 
+import { PendingLink } from "@/components/portal/pending-link"
 import { DashboardCard } from "@/components/portal/dashboard-card"
 import { PageHeader } from "@/components/site/page-header"
 import { can } from "@/lib/auth/permissions"
@@ -38,7 +38,7 @@ export default async function PortalHomePage() {
             <h2 id="today" className="text-heading">
               Today, {formatLong(today)}
             </h2>
-            <div className="grid gap-4 lg:grid-cols-3">
+            <div className="stagger grid gap-4 lg:grid-cols-3">
               <DashboardCard title="Register" href="/portal/register" hrefLabel={can(user, "attendance.record") ? "Take the register" : "View the register"}>
                 {overview.closed ? (
                   <p>The school is marked as closed today.</p>
@@ -58,9 +58,9 @@ export default async function PortalHomePage() {
                   <ul className="space-y-2">
                     {overview.noReasonYet.map((entry) => (
                       <li key={entry.pupilId}>
-                        <Link href={`/portal/pupils/${entry.pupilId}/attendance`} className="underline underline-offset-4">
+                        <PendingLink href={`/portal/pupils/${entry.pupilId}/attendance`} className="underline underline-offset-4">
                           {entry.pupilName}
-                        </Link>
+                        </PendingLink>
                       </li>
                     ))}
                   </ul>
@@ -99,9 +99,9 @@ export default async function PortalHomePage() {
                   <ul className="space-y-2">
                     {overview.lowAttendance.map((entry) => (
                       <li key={entry.pupilId} className="flex items-baseline justify-between gap-3">
-                        <Link href={`/portal/pupils/${entry.pupilId}/attendance`} className="underline underline-offset-4">
+                        <PendingLink href={`/portal/pupils/${entry.pupilId}/attendance`} className="underline underline-offset-4">
                           {entry.pupilName}
-                        </Link>
+                        </PendingLink>
                         <span className="font-medium">{entry.percentage}%</span>
                       </li>
                     ))}
@@ -119,16 +119,13 @@ export default async function PortalHomePage() {
             <h2 id="all-pupils" className="text-heading">
               {isParent ? "Your children" : "All pupils"}
             </h2>
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {pupils.map((pupil) => (
               <li key={pupil.id}>
-                <Link
-                  href={`/portal/pupils/${pupil.id}`}
-                  className="block h-full rounded-xl border border-border bg-card p-6 transition-colors hover:border-severn"
-                >
-                  <h2 className="text-heading">{pupilDisplayName(pupil)}</h2>
+                <PendingLink href={`/portal/pupils/${pupil.id}`} className="card-link block h-full rounded-xl border border-border bg-card p-6">
+                  <h3 className="text-heading">{pupilDisplayName(pupil)}</h3>
                   <p className="mt-1 text-muted-foreground">{pupil.yearGroup}</p>
-                </Link>
+                </PendingLink>
               </li>
             ))}
           </ul>

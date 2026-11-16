@@ -3,6 +3,7 @@ import Link from "next/link"
 import { z } from "zod"
 
 import { IncidentForm } from "@/components/portal/incidents/incident-form"
+import { BackLink } from "@/components/portal/back-link"
 import { PageHeader } from "@/components/site/page-header"
 import { requireUser } from "@/lib/auth/session"
 import { getPupilFor, listPupilsFor, pupilDisplayName } from "@/lib/portal/pupils"
@@ -20,7 +21,7 @@ export default async function NewIncidentPage({ searchParams }: PageProps<"/port
     const pupils = await listPupilsFor(user)
     return (
       <>
-        <PageHeader title="Record an incident" />
+        <PageHeader title="Record an incident" eyebrow={<BackLink href="/portal/incidents">All incidents</BackLink>} />
         <div className="container-page max-w-3xl py-12">
           <h2 className="text-heading mb-6">Who is it about?</h2>
           <ul className="divide-y divide-border rounded-xl border border-border bg-card">
@@ -41,7 +42,7 @@ export default async function NewIncidentPage({ searchParams }: PageProps<"/port
 
   return (
     <>
-      <PageHeader title="Record an incident">About {pupilDisplayName(chosen)}</PageHeader>
+      <PageHeader title="Record an incident" eyebrow={<BackLink href={`/portal/pupils/${chosen.id}/incidents`}>{`${pupilDisplayName(chosen)}'s incidents`}</BackLink>}>About {pupilDisplayName(chosen)}</PageHeader>
       <div className="container-page max-w-3xl py-12">
         <IncidentForm pupil={{ id: chosen.id, name: pupilDisplayName(chosen) }} otherPupils={others.map((entry) => ({ id: entry.id, name: pupilDisplayName(entry) }))} />
       </div>

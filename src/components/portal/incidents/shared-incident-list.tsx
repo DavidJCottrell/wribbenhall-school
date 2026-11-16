@@ -6,7 +6,7 @@ export function SharedIncidentList({ incidents }: { incidents: SharedIncident[] 
   if (incidents.length === 0) return <p className="text-muted-foreground">The school hasn&apos;t shared any incident notices with you.</p>
 
   return (
-    <ol className="space-y-4">
+    <ol className="stagger space-y-4">
       {incidents.map((incident) => (
         <li key={incident.id} className="rounded-xl border border-border bg-card p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">

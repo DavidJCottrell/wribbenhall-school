@@ -17,7 +17,7 @@ type Choice = AttendanceCode | ""
 
 type Draft = { pupilId: string; pupilName: string; am: Choice; pm: Choice; note: string }
 
-const selectClass = "h-11 w-full min-w-40 rounded-md border border-input bg-card px-2 text-base disabled:cursor-not-allowed disabled:opacity-60"
+const selectClass = "h-11 w-full min-w-0 rounded-md md:min-w-40 border border-input bg-card px-2 text-base disabled:cursor-not-allowed disabled:opacity-60"
 
 function CodeSelect({ id, label, value, disabled, onChange }: { id: string; label: string; value: Choice; disabled: boolean; onChange: (value: Choice) => void }) {
   return (
@@ -132,10 +132,10 @@ export function RegisterForm({ date, rows, readOnlyReason, canManage, closed, ca
         </Alert>
       ) : null}
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-card">
-        <table className="w-full text-left">
+      <div className="rounded-xl border border-border bg-card md:overflow-x-auto">
+        <table className="block w-full text-left md:table">
           <caption className="sr-only">Register for {date}</caption>
-          <thead>
+          <thead className="sr-only md:table-header-group md:not-sr-only">
             <tr className="border-b border-border text-sm text-muted-foreground">
               <th scope="col" className="px-4 py-3 font-medium">
                 Pupil
@@ -151,23 +151,29 @@ export function RegisterForm({ date, rows, readOnlyReason, canManage, closed, ca
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="block md:table-row-group">
             {drafts.map((draft) => (
-              <tr key={draft.pupilId} className="border-b border-border last:border-0">
-                <th scope="row" className="px-4 py-3 font-semibold whitespace-nowrap">
+              <tr key={draft.pupilId} className="grid grid-cols-2 gap-x-3 gap-y-2 border-b border-border p-4 last:border-0 md:table-row md:p-0">
+                <th scope="row" className="col-span-2 text-lg font-semibold md:table-cell md:px-4 md:py-3 md:text-base md:whitespace-nowrap">
                   {draft.pupilName}
                 </th>
-                <td className="px-4 py-3">
+                <td className="min-w-0 md:table-cell md:px-4 md:py-3">
+                  <span aria-hidden="true" className="mb-1 block text-sm text-muted-foreground md:hidden">
+                    {SESSION_LABELS.am}
+                  </span>
                   <CodeSelect id={`am-${draft.pupilId}`} label={`${draft.pupilName}, morning`} value={draft.am} disabled={readOnly || pending} onChange={(value) => update(draft.pupilId, { am: value })} />
                 </td>
-                <td className="px-4 py-3">
+                <td className="min-w-0 md:table-cell md:px-4 md:py-3">
+                  <span aria-hidden="true" className="mb-1 block text-sm text-muted-foreground md:hidden">
+                    {SESSION_LABELS.pm}
+                  </span>
                   <CodeSelect id={`pm-${draft.pupilId}`} label={`${draft.pupilName}, afternoon`} value={draft.pm} disabled={readOnly || pending} onChange={(value) => update(draft.pupilId, { pm: value })} />
                 </td>
-                <td className="px-4 py-3">
-                  <label htmlFor={`note-${draft.pupilId}`} className="sr-only">
-                    Note for {draft.pupilName}
+                <td className="col-span-2 min-w-0 md:table-cell md:px-4 md:py-3">
+                  <label htmlFor={`note-${draft.pupilId}`} className="mb-1 block text-sm text-muted-foreground md:sr-only">
+                    Note for staff<span className="sr-only"> about {draft.pupilName}</span>
                   </label>
-                  <Input id={`note-${draft.pupilId}`} value={draft.note} disabled={readOnly || pending} maxLength={300} onChange={(event) => update(draft.pupilId, { note: event.target.value })} className="min-w-52" />
+                  <Input id={`note-${draft.pupilId}`} value={draft.note} disabled={readOnly || pending} maxLength={300} onChange={(event) => update(draft.pupilId, { note: event.target.value })} className="md:min-w-52" />
                 </td>
               </tr>
             ))}

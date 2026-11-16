@@ -159,7 +159,7 @@ export function ContactsManager({ childId, contacts, parents }: { childId: strin
       </Button>
 
       <Dialog open={adding} onOpenChange={setAdding}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Add a contact</DialogTitle>
             <DialogDescription>Someone the school may need to contact about this pupil.</DialogDescription>
@@ -169,7 +169,7 @@ export function ContactsManager({ childId, contacts, parents }: { childId: strin
       </Dialog>
 
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit {editing?.name}</DialogTitle>
             <DialogDescription>Changes are saved straight away.</DialogDescription>
