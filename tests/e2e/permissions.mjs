@@ -151,7 +151,7 @@ for (const path of [`/portal/pupils/${RIVER}`, `/portal/pupils/${RIVER}/profile`
   for (const persona of ["basic", "pat", "sam"]) {
     check(`${persona} is refused an upload token for a daily report`, (await uploadToken(persona, "day_report")) >= 400)
   }
-  check("an unknown upload purpose is refused even for the head teacher", (await uploadToken("admin", "medical")) >= 400)
+  check("an unknown upload purpose is refused even for the head teacher", (await uploadToken("admin", "nonsense")) >= 400)
 }
 
 // ---- Administration pages
@@ -404,6 +404,125 @@ const noReview = { status: "closed", reviewNotes: "", shareWithParents: false, p
   const removedProbe = await callAction("admin", "deleteIncident", [probe])
   check("a reviewer can delete it", removedProbe.ok, removedProbe.message)
   check("and it disappears from the parent's view", !(await asParent()).includes("E2E-PARENT-NOTE"))
+}
+
+// ---- Medical
+const COND_PEANUT = "b1111111-1111-4111-8111-111111111111"
+const MED_INHALER = "c1111111-1111-4111-8111-111111111111"
+const MED_TABLET = "c2222222-2222-4222-8222-222222222222"
+const MED_EXPIRED = "c3333333-3333-4333-8333-333333333333"
+const MED_NO_CONSENT = "c4444444-4444-4444-8444-444444444444"
+const PLAN_MARKER = "FICTIONAL-ACTION-PLAN"
+const NOTES_MARKER = "FICTIONAL-MEDICATION-NOTES"
+const validCondition = { kind: "allergy", name: "E2E probe condition", severity: "mild", signs: "", actionPlan: "", alert: false, active: true, visibleToParents: true }
+const validMedication = { name: "E2E probe medication", dose: "1 tablet", route: "oral", frequency: "", scheduledTimes: "09:00", asRequired: false, maxDailyDoses: "", prescriber: "", startsOn: "", expiresOn: "", storage: "", consentOn: "", notes: "", active: true }
+const doseEntry = (overrides = {}) => Object.assign({ outcome: "given", scheduledFor: "", dose: "", witnessedById: "", notes: "" }, overrides)
+
+{
+  const staff = ["admin", "teacher", "support", "office", "basic"]
+  for (const persona of staff) {
+    const { html } = await page(persona, `/portal/pupils/${RIVER}`)
+    check(`${persona} sees the medical alert on the pupil's page`, html.includes("Medical alerts") && html.includes("Peanut allergy") && html.includes(PLAN_MARKER))
+  }
+  for (const [persona, canView] of [["admin", true], ["teacher", true], ["support", false], ["office", false], ["basic", false], ["pat", false], ["sam", false]]) {
+    const today = await page(persona, "/portal/medical")
+    check(`${persona} ${canView ? "can" : "can't"} open medication today`, today.html.includes("Fictional tablet") === canView)
+    const tab = await page(persona, `/portal/pupils/${RIVER}/medical`)
+    check(`${persona} ${canView ? "can" : "can't"} open the medical records`, tab.html.includes("Administration log") === canView)
+    const emergency = await page(persona, `/portal/pupils/${RIVER}/medical/emergency`)
+    check(`${persona} ${canView ? "can" : "can't"} open the emergency summary`, emergency.html.includes("Emergency contacts") === canView)
+  }
+  check("only someone who manages medical records sees the add buttons", (await page("admin", `/portal/pupils/${RIVER}/medical`)).html.includes("Add medication") && !(await page("teacher", `/portal/pupils/${RIVER}/medical`)).html.includes("Add medication"))
+  check("only someone who records medication sees the record buttons", (await page("admin", `/portal/pupils/${RIVER}/medical`)).html.includes("Record an entry") && !(await page("teacher", `/portal/pupils/${RIVER}/medical`)).html.includes("Record an entry"))
+  check("medication needing attention is flagged for staff", (await page("admin", "/portal/medical")).html.includes("Needs attention"))
+
+  // What a parent can see
+  for (const path of [`/portal/pupils/${RIVER}`, `/portal/pupils/${RIVER}/medical`, `/portal/pupils/${OAK}`, `/portal/pupils/${OAK}/medical`]) {
+    const { html } = await page("pat", path)
+    const leaked = [PLAN_MARKER, NOTES_MARKER, "Medical alerts", "Hay fever", "Dr Fictional", "Office cupboard", "Administration log", "wrong pupil", "Needed support", "Recorded against", "Fictional tablet"].filter((text) => html.includes(text) && !(path.endsWith(`${OAK}/medical`) && text === "Fictional tablet"))
+    check(`a parent sees no staff-only medical detail on ${path.replace(/[0-9a-f-]{36}/, ":pupil")}`, leaked.length === 0, leaked.join(", "))
+  }
+  const parentRiver = (await page("pat", `/portal/pupils/${RIVER}/medical`)).html
+  check("a parent sees the conditions and medication the school holds, read only", parentRiver.includes("Peanut allergy") && parentRiver.includes("Fictional reliever inhaler") && !parentRiver.includes("Add medication") && !parentRiver.includes("Record an entry"))
+  const parentAsh = (await page("sam", `/portal/pupils/${ASH}/medical`)).html
+  check("another family sees only their own child's records", parentAsh.includes("Gluten free") && !parentAsh.includes("Check the lunch menu") && !(await page("sam", `/portal/pupils/${RIVER}/medical`)).html.includes("Peanut allergy"))
+
+  const attempts = [
+    ["saveCondition", [RIVER, null, validCondition, [], []], ["teacher", "support", "office", "basic", "pat", "sam"]],
+    ["deleteCondition", [COND_PEANUT], ["teacher", "support", "office", "basic", "pat", "sam"]],
+    ["saveMedication", [RIVER, null, validMedication], ["teacher", "support", "office", "basic", "pat", "sam"]],
+    ["deleteMedication", [MED_INHALER], ["teacher", "support", "office", "basic", "pat", "sam"]],
+    ["recordDose", [MED_INHALER, doseEntry()], ["teacher", "support", "office", "basic", "pat", "sam"]],
+    ["voidDose", ["99999999-9999-4999-8999-999999999999", { reason: "no reason" }], ["teacher", "support", "office", "basic", "pat", "sam"]],
+  ]
+  for (const [name, args, who] of attempts) {
+    for (const persona of who) {
+      const result = await callAction(persona, name, args)
+      check(`${persona} is refused when calling ${name} directly`, refused(result), result.message)
+    }
+  }
+  for (const persona of ["teacher", "basic", "pat"]) {
+    const response = await fetch(`${BASE}/api/portal/uploads`, {
+      method: "POST",
+      headers: { Cookie: cookies[persona], "Content-Type": "application/json", Origin: BASE },
+      body: JSON.stringify({ type: "blob.generate-client-token", payload: { pathname: `children/${RIVER}/probe.pdf`, clientPayload: JSON.stringify({ childId: RIVER, purpose: "medical" }), multipart: false } }),
+    })
+    check(`${persona} is refused an upload token for medical files`, response.status >= 400)
+  }
+
+  // Safety rules on giving medication
+  const expired = await callAction("admin", "recordDose", [MED_EXPIRED, doseEntry()])
+  check("expired medication can't be recorded as given", !expired.ok && /expired/i.test(expired.message), expired.message)
+  const noConsent = await callAction("admin", "recordDose", [MED_NO_CONSENT, doseEntry({ scheduledFor: "09:00" })])
+  check("medication without parental consent can't be recorded as given", !noConsent.ok && /consent/i.test(noConsent.message), noConsent.message)
+  const twice = await callAction("admin", "recordDose", [MED_TABLET, doseEntry({ scheduledFor: "08:30" })])
+  check("a scheduled dose can't be recorded twice", !twice.ok && /already/i.test(twice.message), twice.message)
+  const wrongTime = await callAction("admin", "recordDose", [MED_TABLET, doseEntry({ scheduledFor: "09:15" })])
+  check("a dose must be at one of the set times", !wrongTime.ok, wrongTime.message)
+  const asRequiredAtTime = await callAction("admin", "recordDose", [MED_INHALER, doseEntry({ scheduledFor: "08:30" })])
+  check("medication given only when needed has no set times", !asRequiredAtTime.ok, asRequiredAtTime.message)
+  const missedInhaler = await callAction("admin", "recordDose", [MED_INHALER, doseEntry({ outcome: "missed" })])
+  check("medication given only when needed can't be 'missed'", !missedInhaler.ok, missedInhaler.message)
+  const selfWitness = await callAction("admin", "recordDose", [MED_INHALER, doseEntry({ witnessedById: "seed-admin" })])
+  check("nobody can witness their own entry", !selfWitness.ok, selfWitness.message)
+  const deleteUsed = await callAction("admin", "deleteMedication", [MED_TABLET])
+  check("medication with entries in its log can't be deleted", !deleteUsed.ok && /log/i.test(deleteUsed.message), deleteUsed.message)
+
+  // The daily maximum, and voiding
+  for (let count = 1; count <= 4; count += 1) {
+    const given = await callAction("admin", "recordDose", [MED_INHALER, doseEntry()])
+    check(`as-required dose ${count} of 4 is recorded`, given.ok, given.message)
+  }
+  const fifth = await callAction("admin", "recordDose", [MED_INHALER, doseEntry()])
+  check("the daily maximum stops a fifth dose", !fifth.ok && /maximum/i.test(fifth.message), fifth.message)
+  const adminPage = (await page("admin", `/portal/pupils/${RIVER}/medical`)).html
+  const logIds = [...adminPage.matchAll(/\\?"logId\\?":\\?"([0-9a-f-]{36})\\?"/g)].map((match) => match[1])
+  check("recent entries offer a way to void them", logIds.length > 0)
+  const voided = await callAction("admin", "voidDose", [logIds[0], { reason: "E2E void" }])
+  check("an entry can be voided with a reason", voided.ok, voided.message)
+  const voidedTwice = await callAction("admin", "voidDose", [logIds[0], { reason: "E2E void again" }])
+  check("and not voided twice", !voidedTwice.ok, voidedTwice.message)
+  const noReason = await callAction("admin", "voidDose", [logIds[1] ?? logIds[0], { reason: "" }])
+  check("a void needs a reason", !noReason.ok, noReason.message)
+  const afterVoid = await callAction("admin", "recordDose", [MED_INHALER, doseEntry()])
+  check("a voided dose no longer counts towards the maximum", afterVoid.ok, afterVoid.message)
+
+  // Conditions and medication, from adding to parents seeing them
+  const condition = await callAction("admin", "saveCondition", [RIVER, null, validCondition, [], []])
+  check("a condition can be added", condition.ok && Boolean(condition.id), condition.message)
+  check("and parents then see its name", (await page("pat", `/portal/pupils/${RIVER}/medical`)).html.includes("E2E probe condition"))
+  const hidden = await callAction("admin", "saveCondition", [RIVER, condition.id, { ...validCondition, visibleToParents: false }, [], []])
+  check("it can be hidden from parents", hidden.ok && !(await page("pat", `/portal/pupils/${RIVER}/medical`)).html.includes("E2E probe condition"), hidden.message)
+  const removedCondition = await callAction("admin", "deleteCondition", [condition.id])
+  check("and deleted", removedCondition.ok, removedCondition.message)
+  const medication = await callAction("admin", "saveMedication", [RIVER, null, validMedication])
+  check("medication can be added", medication.ok && Boolean(medication.id), medication.message)
+  const probeDose = await callAction("admin", "recordDose", [medication.id, doseEntry({ scheduledFor: "09:00" })])
+  check("new medication can't be given without consent", !probeDose.ok && /consent/i.test(probeDose.message), probeDose.message)
+  const badTimes = await callAction("admin", "saveMedication", [RIVER, null, { ...validMedication, scheduledTimes: "9am" }])
+  check("times must be clock times", !badTimes.ok, badTimes.message)
+  const removedMedication = await callAction("admin", "deleteMedication", [medication.id])
+  check("medication with no log entries can be deleted", removedMedication.ok, removedMedication.message)
 }
 
 // ---- Creating a login with chosen permissions, and the audit trail

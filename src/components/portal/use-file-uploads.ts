@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import { attachmentPrefix, safeStorageName, type UploadedAttachment } from "@/lib/uploads"
 
 // Files are uploaded straight to Blob before the record is saved. What they are for decides who may upload them.
-export function useFileUploads(childId: string, purpose: "day_report" | "incident") {
+export function useFileUploads(childId: string, purpose: "day_report" | "incident" | "medical") {
   const [files, setFiles] = useState<File[]>([])
   const [progress, setProgress] = useState<string | null>(null)
   // Kept between attempts, so a failed save doesn't upload the same files again.

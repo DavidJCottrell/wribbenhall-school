@@ -9,6 +9,7 @@ import { z } from "zod"
 import { getDb } from "@/db"
 import { child, guardianship, pupilContact, user as userTable } from "@/db/schema"
 import { invalidInput, notFound, type ActionFailure, type ActionResult } from "@/lib/action-result"
+import { isUniqueViolation } from "@/lib/db-errors"
 import { recordAudit } from "@/lib/audit"
 import { deleteLogin, revokeAllSessions, setBanned, setPassword } from "@/lib/auth/account-admin"
 import { getAuth } from "@/lib/auth/auth"
@@ -25,14 +26,6 @@ const generatePassword = () => randomBytes(12).toString("base64url")
 function loginId(value: unknown): string | null {
   const parsed = z.string().min(1).max(64).safeParse(value)
   return parsed.success ? parsed.data : null
-}
-
-const UNIQUE_VIOLATION = "23505"
-
-// Single queries wrap the database error as `cause`. Batches throw it directly.
-function isUniqueViolation(error: unknown) {
-  const candidates = [error, error instanceof Error ? error.cause : undefined]
-  return candidates.some((candidate) => (candidate as { code?: string } | undefined)?.code === UNIQUE_VIOLATION)
 }
 
 const emailInUse: ActionFailure = {

@@ -1,6 +1,6 @@
 // Builds reset-preview.sql from the same fixtures the TypeScript seed uses, so the two can't drift apart.
 import { appTables } from "./app-tables.mjs"
-import { ATTENDANCE_SEED_WEEKDAYS_BACK, DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, attendanceProfiles, contacts, guardianships, incidents, pupils, reports, todaysMorning, users } from "./fixtures.mjs"
+import { ATTENDANCE_SEED_WEEKDAYS_BACK, DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, attendanceProfiles, contacts, conditions, guardianships, incidents, medicationLog, medications, pupils, reports, todaysMorning, users } from "./fixtures.mjs"
 
 const text = (value: string | null) => (value === null ? "NULL" : `'${value.replace(/'/g, "''")}'`)
 const date = (value: string | null) => (value === null ? "NULL" : `'${value}'`)
@@ -8,6 +8,9 @@ const bool = (value: boolean) => (value ? "true" : "false")
 const textArray = (values: readonly string[]) => (values.length === 0 ? "'{}'::text[]" : `ARRAY[${values.map((value) => text(value)).join(", ")}]::text[]`)
 // Postgres escape strings keep line breaks readable in one literal.
 const multiline = (value: string) => (value.includes("\n") ? `E'${value.replace(/\\/g, "\\\\").replace(/'/g, "''").replace(/\n/g, "\\n")}'` : text(value))
+
+const textArrayOrEmpty = (values: readonly string[]) => (values.length === 0 ? "'{}'::text[]" : textArray(values))
+const dayOffset = (days: number | null) => (days === null ? "NULL" : days >= 0 ? `current_date - ${days}` : `current_date + ${Math.abs(days)}`)
 
 const rows = (lines: string[]) => lines.map((line) => `  ${line}`).join(",\n")
 
@@ -101,6 +104,21 @@ ${rows(
 
 INSERT INTO "incident_pupil" (incident_id, child_id, role) VALUES
 ${rows(incidents.flatMap((i) => i.involved.map((p) => `(${text(i.id)}, ${text(p.pupilId)}, ${text(p.role)})`)))};
+
+INSERT INTO "medical_condition" (id, child_id, kind, name, severity, signs, action_plan, alert, active, visible_to_parents, created_by) VALUES
+${rows(conditions.map((c) => `(${text(c.id)}, ${text(c.pupilId)}, ${text(c.kind)}, ${text(c.name)}, ${text(c.severity)}, ${text(c.signs)}, ${text(c.actionPlan)}, ${bool(c.alert)}, ${bool(c.active)}, ${bool(c.visibleToParents)}, 'seed-admin')`))};
+
+INSERT INTO "medication" (id, child_id, name, dose, route, frequency, scheduled_times, as_required, max_daily_doses, prescriber, starts_on, expires_on, storage, consent_on, notes, active, created_by) VALUES
+${rows(medications.map((m) => `(${text(m.id)}, ${text(m.pupilId)}, ${text(m.name)}, ${text(m.dose)}, ${text(m.route)}, ${text(m.frequency)}, ${textArrayOrEmpty(m.scheduledTimes)}, ${bool(m.asRequired)}, ${m.maxDailyDoses ?? "NULL"}, ${text(m.prescriber)}, ${dayOffset(m.startsDaysAgo)}, ${dayOffset(m.expiresInDays === null ? null : -m.expiresInDays)}, ${text(m.storage)}, ${dayOffset(m.consentDaysAgo)}, ${text(m.notes)}, ${bool(m.active)}, 'seed-admin')`))};
+
+INSERT INTO "medication_log" (medication_id, child_id, occurred_on, occurred_time, scheduled_for, outcome, dose, given_by, given_by_name, witnessed_by, witnessed_by_name, notes, voided_at, voided_by, voided_by_name, void_reason) VALUES
+${rows(
+  medicationLog.map((l) => {
+    const giver = users.find((u) => u.id === l.givenBy)
+    const witness = users.find((u) => u.id === l.witnessedBy)
+    return `(${text(l.medicationId)}, ${text(l.pupilId)}, ${dayOffset(l.daysAgo)}, ${text(l.time)}, ${text(l.scheduledFor)}, ${text(l.outcome)}, ${text(l.dose)}, ${text(l.givenBy)}, ${text(giver?.name ?? l.givenBy)}, ${text(l.witnessedBy)}, ${text(witness?.name ?? null)}, ${text(l.notes)}, ${l.voidReason ? "now()" : "NULL"}, ${l.voidReason ? "'seed-admin'" : "NULL"}, ${l.voidReason ? "'Robin Admin'" : "NULL"}, ${text(l.voidReason)})`
+  }),
+)};
 
 -- Ten weeks of attendance, each pupil with their own pattern, one closed day, and a partly taken register for today.
 ${attendanceSeedStatements().join(";\n\n")};

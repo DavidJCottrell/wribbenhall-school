@@ -3,6 +3,7 @@ import { z } from "zod"
 
 import { isPermission, userKinds, type Permission } from "@/lib/auth/permissions"
 import { canShareWithParents } from "@/lib/incidents/rules"
+import { conditionKinds, conditionSeverities, doseOutcomes, isClockTime, medicationRoutes } from "@/lib/medical/types"
 import { incidentStatuses, incidentTypes, informedHowOptions, involvementRoles, severities } from "@/lib/incidents/types"
 
 const requiredText = (label: string, max = 200) =>
@@ -175,6 +176,13 @@ export const dayReportSchema = z.object({
 
 export type DayReportValues = z.infer<typeof dayReportSchema>
 
+// An empty string means "not set", which is how the forms send an empty optional date.
+const optionalDate = (label: string) =>
+  z
+    .string()
+    .trim()
+    .refine((value) => value === "" || (/^\d{4}-\d{2}-\d{2}$/.test(value) && isValid(parseISO(value))), `Enter a real date for ${label}`)
+
 const isoDate = (message: string) =>
   z.string().regex(/^\d{4}-\d{2}-\d{2}$/, message).refine((value) => isValid(parseISO(value)), "Enter a real date")
 
@@ -220,6 +228,73 @@ export const incidentReviewSchema = z
 
 export type IncidentReviewValues = z.infer<typeof incidentReviewSchema>
 
+export const conditionSchema = z.object({
+  kind: z.enum(conditionKinds, { error: "Choose what kind of record this is" }),
+  name: requiredText("a name", 120),
+  severity: z.enum(conditionSeverities, { error: "Choose how severe it is" }),
+  signs: optionalLongText("Signs to look for", 1000),
+  actionPlan: optionalLongText("The action plan"),
+  alert: z.boolean(),
+  active: z.boolean(),
+  visibleToParents: z.boolean(),
+})
+
+export type ConditionValues = z.infer<typeof conditionSchema>
+
+// Times are typed as a list, like "08:30, 12:30".
+export function parseTimes(value: string) {
+  return value.split(/[\s,]+/).filter(Boolean)
+}
+
+export const medicationSchema = z
+  .object({
+    name: requiredText("the medication name", 120),
+    dose: requiredText("the dose", 100),
+    route: z.enum(medicationRoutes, { error: "Choose how it is taken" }),
+    frequency: z.string().trim().max(120, "Frequency must be 120 characters or fewer"),
+    scheduledTimes: z.string().trim().refine((value) => parseTimes(value).every(isClockTime), "Enter times like 08:30, 12:30"),
+    asRequired: z.boolean(),
+    maxDailyDoses: z.string().trim().regex(/^\d{0,2}$/, "Enter a whole number"),
+    prescriber: z.string().trim().max(120, "Prescriber must be 120 characters or fewer"),
+    startsOn: optionalDate("the start date"),
+    expiresOn: optionalDate("the expiry date"),
+    storage: z.string().trim().max(200, "Storage must be 200 characters or fewer"),
+    consentOn: optionalDate("the consent date"),
+    notes: optionalLongText("Notes", 1000),
+    active: z.boolean(),
+  })
+  .refine((value) => value.asRequired || parseTimes(value.scheduledTimes).length > 0, {
+    path: ["scheduledTimes"],
+    message: "Enter at least one time, or mark it as given only when needed",
+  })
+  .refine((value) => !value.asRequired || parseTimes(value.scheduledTimes).length === 0, {
+    path: ["scheduledTimes"],
+    message: "Medication given only when needed has no set times",
+  })
+  .refine((value) => !value.maxDailyDoses || Number(value.maxDailyDoses) > 0, { path: ["maxDailyDoses"], message: "Enter a number above zero" })
+  .refine((value) => !value.startsOn || !value.expiresOn || value.expiresOn >= value.startsOn, {
+    path: ["expiresOn"],
+    message: "The expiry date can't be before the start date",
+  })
+
+export type MedicationValues = z.infer<typeof medicationSchema>
+
+export const doseSchema = z.object({
+  outcome: z.enum(doseOutcomes, { error: "Choose what happened" }),
+  scheduledFor: z.string().refine((value) => value === "" || isClockTime(value), "Choose the dose"),
+  dose: z.string().trim().max(100, "Dose must be 100 characters or fewer"),
+  witnessedById: z.string().max(100),
+  notes: optionalLongText("Notes", 500),
+})
+
+export type DoseValues = z.infer<typeof doseSchema>
+
+export const voidDoseSchema = z.object({
+  reason: z.string().trim().min(3, "Say why this entry is being voided").max(300, "The reason must be 300 characters or fewer"),
+})
+
+export type VoidDoseValues = z.infer<typeof voidDoseSchema>
+
 export const MIN_PASSWORD_LENGTH = 12
 
 export const changePasswordSchema = z
@@ -251,13 +326,6 @@ export const createUserSchema = z.object({
 })
 
 export type CreateUserValues = z.infer<typeof createUserSchema>
-
-// An empty string means "not set", which is how the forms send an empty optional date.
-const optionalDate = (label: string) =>
-  z
-    .string()
-    .trim()
-    .refine((value) => value === "" || (/^\d{4}-\d{2}-\d{2}$/.test(value) && isValid(parseISO(value))), `Enter a real date for ${label}`)
 
 export const pupilProfileSchema = z.object({
   firstName: requiredText("a first name", 80),

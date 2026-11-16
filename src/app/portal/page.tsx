@@ -5,9 +5,10 @@ import { DashboardCard } from "@/components/portal/dashboard-card"
 import { PageHeader } from "@/components/site/page-header"
 import { can } from "@/lib/auth/permissions"
 import { requireUser } from "@/lib/auth/session"
-import { formatLong, ukToday } from "@/lib/dates"
+import { formatLong, ukNowTime, ukToday } from "@/lib/dates"
 import { getTodayOverview } from "@/lib/portal/attendance"
 import { countUnclosedIncidents } from "@/lib/portal/incidents"
+import { getTodayMedical } from "@/lib/portal/medical"
 import { listPupilsFor, pupilDisplayName } from "@/lib/portal/pupils"
 
 export const metadata: Metadata = { title: "Home" }
@@ -15,7 +16,10 @@ export const metadata: Metadata = { title: "Home" }
 export default async function PortalHomePage() {
   const user = await requireUser()
   const today = ukToday()
-  const [pupils, overview, incidentCounts] = await Promise.all([listPupilsFor(user), getTodayOverview(user, today), countUnclosedIncidents(user)])
+  const [pupils, overview, incidentCounts, medication] = await Promise.all([listPupilsFor(user), getTodayOverview(user, today), countUnclosedIncidents(user), getTodayMedical(user, today, ukNowTime())])
+  const doses = medication?.flatMap((item) => item.doses) ?? []
+  const overdueDoses = doses.filter((dose) => dose.status === "overdue").length
+  const dueDoses = doses.filter((dose) => dose.status === "due").length
 
   const isParent = user.kind === "parent"
   const empty = isParent
@@ -62,6 +66,19 @@ export default async function PortalHomePage() {
                   </ul>
                 )}
               </DashboardCard>
+              {medication ? (
+                <DashboardCard title="Medication" href="/portal/medical" hrefLabel="See medication today">
+                  {doses.length === 0 ? (
+                    <p className="text-muted-foreground">No scheduled medication today.</p>
+                  ) : (
+                    <p>
+                      <span className="text-3xl font-semibold">{overdueDoses}</span> <span className="text-muted-foreground">overdue</span>
+                      {" · "}
+                      <span className="text-3xl font-semibold">{dueDoses}</span> <span className="text-muted-foreground">due now</span>
+                    </p>
+                  )}
+                </DashboardCard>
+              ) : null}
               {incidentCounts ? (
                 <DashboardCard title="Incidents" href="/portal/incidents" hrefLabel="See incidents">
                   {incidentCounts.open + incidentCounts.underReview === 0 ? (

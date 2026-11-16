@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm"
-import { bigint, boolean, check, date, index, integer, pgTable, primaryKey, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import { bigint, boolean, check, date, index, integer, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core"
 
 // Tables from user to rateLimit are owned by Better Auth. Keep their column names as they are.
 
@@ -249,6 +249,109 @@ export const incidentPupil = pgTable(
   ],
 )
 
+// Conditions, allergies and dietary needs. An active one marked as an alert is shown to every member of staff.
+export const medicalCondition = pgTable(
+  "medical_condition",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    childId: uuid("child_id")
+      .notNull()
+      .references(() => child.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    name: text("name").notNull(),
+    severity: text("severity").notNull(),
+    signs: text("signs"),
+    actionPlan: text("action_plan"),
+    alert: boolean("alert").notNull().default(false),
+    active: boolean("active").notNull().default(true),
+    visibleToParents: boolean("visible_to_parents").notNull().default(true),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("medical_condition_child_id_idx").on(table.childId),
+    check("medical_condition_kind_check", sql`${table.kind} in ('condition', 'allergy', 'dietary', 'other')`),
+    check("medical_condition_severity_check", sql`${table.severity} in ('mild', 'moderate', 'severe')`),
+  ],
+)
+
+export const medication = pgTable(
+  "medication",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    childId: uuid("child_id")
+      .notNull()
+      .references(() => child.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    dose: text("dose").notNull(),
+    route: text("route").notNull(),
+    frequency: text("frequency"),
+    // UK clock times as HH:MM. Empty for medication given only when needed.
+    scheduledTimes: text("scheduled_times").array().notNull().default([]),
+    asRequired: boolean("as_required").notNull().default(false),
+    maxDailyDoses: integer("max_daily_doses"),
+    prescriber: text("prescriber"),
+    startsOn: date("starts_on"),
+    expiresOn: date("expires_on"),
+    storage: text("storage"),
+    // The date the parents agreed to the school giving it. Nothing can be given without one.
+    consentOn: date("consent_on"),
+    notes: text("notes"),
+    active: boolean("active").notNull().default(true),
+    createdBy: text("created_by").references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("medication_child_id_idx").on(table.childId),
+    check("medication_route_check", sql`${table.route} in ('oral', 'inhaled', 'topical', 'injection', 'eye_drops', 'other')`),
+    check("medication_max_daily_doses_check", sql`${table.maxDailyDoses} is null or ${table.maxDailyDoses} > 0`),
+  ],
+)
+
+// Append only. A mistake is voided with a reason, never edited or deleted.
+export const medicationLog = pgTable(
+  "medication_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    medicationId: uuid("medication_id")
+      .notNull()
+      .references(() => medication.id, { onDelete: "cascade" }),
+    childId: uuid("child_id")
+      .notNull()
+      .references(() => child.id, { onDelete: "cascade" }),
+    occurredOn: date("occurred_on").notNull(),
+    // UK clock time the dose was given, or the outcome was recorded.
+    occurredTime: text("occurred_time").notNull(),
+    // The scheduled time this entry answers. Null for as-required doses.
+    scheduledFor: text("scheduled_for"),
+    outcome: text("outcome").notNull(),
+    dose: text("dose"),
+    givenBy: text("given_by").references(() => user.id, { onDelete: "set null" }),
+    // Kept as a snapshot, so the record still names people whose logins are later deleted.
+    givenByName: text("given_by_name").notNull(),
+    witnessedBy: text("witnessed_by").references(() => user.id, { onDelete: "set null" }),
+    witnessedByName: text("witnessed_by_name"),
+    notes: text("notes"),
+    recordedAt: timestamp("recorded_at").notNull().defaultNow(),
+    voidedAt: timestamp("voided_at"),
+    voidedBy: text("voided_by").references(() => user.id, { onDelete: "set null" }),
+    voidedByName: text("voided_by_name"),
+    voidReason: text("void_reason"),
+  },
+  (table) => [
+    index("medication_log_medication_id_occurred_on_idx").on(table.medicationId, table.occurredOn),
+    index("medication_log_child_id_occurred_on_idx").on(table.childId, table.occurredOn),
+    // One live entry per scheduled dose per day, even if two people record it at once.
+    uniqueIndex("medication_log_scheduled_dose_idx")
+      .on(table.medicationId, table.occurredOn, table.scheduledFor)
+      .where(sql`${table.scheduledFor} is not null and ${table.voidedAt} is null`),
+    check("medication_log_outcome_check", sql`${table.outcome} in ('given', 'refused', 'missed', 'not_needed')`),
+    check("medication_log_void_check", sql`(${table.voidedAt} is null) = (${table.voidReason} is null)`),
+  ],
+)
+
 // The file itself lives in the private Blob store. Downloads always go through /portal/files/[id].
 // A file belongs to one record. Later record types add their own nullable key here.
 export const recordFile = pgTable(
@@ -260,6 +363,7 @@ export const recordFile = pgTable(
       .references(() => child.id, { onDelete: "cascade" }),
     dayReportId: uuid("day_report_id").references(() => dayReport.id, { onDelete: "cascade" }),
     incidentId: uuid("incident_id").references(() => incident.id, { onDelete: "cascade" }),
+    medicalConditionId: uuid("medical_condition_id").references(() => medicalCondition.id, { onDelete: "cascade" }),
     pathname: text("pathname").notNull().unique(),
     filename: text("filename").notNull(),
     contentType: text("content_type").notNull(),
@@ -271,7 +375,8 @@ export const recordFile = pgTable(
     index("record_file_child_id_idx").on(table.childId),
     index("record_file_day_report_id_idx").on(table.dayReportId),
     index("record_file_incident_id_idx").on(table.incidentId),
-    check("record_file_one_owner_check", sql`num_nonnulls(${table.dayReportId}, ${table.incidentId}) = 1`),
+    index("record_file_medical_condition_id_idx").on(table.medicalConditionId),
+    check("record_file_one_owner_check", sql`num_nonnulls(${table.dayReportId}, ${table.incidentId}, ${table.medicalConditionId}) = 1`),
   ],
 )
 
