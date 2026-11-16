@@ -14,6 +14,13 @@ import { authClient } from "@/lib/auth/auth-client"
 import { loginSchema, type LoginValues } from "@/lib/forms/schemas"
 
 const TOO_MANY_ATTEMPTS = 429
+const SERVER_ERROR = 500
+
+function loginErrorMessage(status: number) {
+  if (status === TOO_MANY_ATTEMPTS) return "Too many attempts. Please wait a few minutes and try again."
+  if (status >= SERVER_ERROR) return "Something went wrong on our side. Please try again in a moment, or contact the school office."
+  return "The email address or password is incorrect."
+}
 
 export function LoginForm({ destination }: { destination: string }) {
   const router = useRouter()
@@ -35,11 +42,7 @@ export function LoginForm({ destination }: { destination: string }) {
         router.refresh()
         return
       }
-      setErrorMessage(
-        error.status === TOO_MANY_ATTEMPTS
-          ? "Too many attempts. Please wait a few minutes and try again."
-          : "The email address or password is incorrect.",
-      )
+      setErrorMessage(loginErrorMessage(error.status))
     })
   })
 
