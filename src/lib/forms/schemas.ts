@@ -1,6 +1,8 @@
 import { isValid, parseISO } from "date-fns"
 import { z } from "zod"
 
+import { userRoles } from "@/lib/auth/roles"
+
 const requiredText = (label: string, max = 200) =>
   z.string().trim().min(1, `Enter ${label}`).max(max, `${label[0].toUpperCase()}${label.slice(1)} must be ${max} characters or fewer`)
 
@@ -161,3 +163,32 @@ export const childUpdateSchema = z.object({
 })
 
 export type ChildUpdateValues = z.infer<typeof childUpdateSchema>
+
+export const createUserSchema = z.object({
+  name: requiredText("their name", 120),
+  email,
+  role: z.enum(userRoles, { error: "Choose a role" }),
+})
+
+export type CreateUserValues = z.infer<typeof createUserSchema>
+
+export const createPupilSchema = z.object({
+  firstName: requiredText("a first name", 80),
+  lastName: requiredText("a last name", 80),
+  yearGroup: z.enum(yearGroups, { error: "Choose a year group" }),
+})
+
+export type CreatePupilValues = z.infer<typeof createPupilSchema>
+
+export const linkGuardianSchema = z.object({
+  userId: z.string().min(1, "Choose a parent or carer"),
+  relationship: z.string().trim().max(60, "Relationship must be 60 characters or fewer"),
+})
+
+export type LinkGuardianValues = z.infer<typeof linkGuardianSchema>
+
+export const assignStaffSchema = z.object({
+  userId: z.string().min(1, "Choose a member of staff"),
+})
+
+export type AssignStaffValues = z.infer<typeof assignStaffSchema>

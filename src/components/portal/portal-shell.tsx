@@ -1,3 +1,4 @@
+import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { requireUser } from "@/lib/auth/session"
@@ -22,7 +23,17 @@ export async function PortalShell({ children }: { children: ReactNode }) {
             Logged in as <span className="font-semibold">{user.name}</span>
             <span className="text-muted-foreground"> ({roleLabels[user.role]})</span>
           </p>
-          <SignOutButton />
+          <nav aria-label="Portal" className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <Link href="/portal" className="underline underline-offset-4">
+              {user.role === "parent" ? "Your children" : "Pupils"}
+            </Link>
+            {user.role === "admin" ? (
+              <Link href="/portal/admin" className="underline underline-offset-4">
+                Administration
+              </Link>
+            ) : null}
+            <SignOutButton />
+          </nav>
         </div>
       </div>
       {children}

@@ -14,7 +14,7 @@ const DEV_PASSWORD = "dev-password-12345"
 const db = getDb()
 const auth = getAuth()
 
-async function ensureUser(email: string, name: string, role: "parent" | "staff") {
+async function ensureUser(email: string, name: string, role: "parent" | "staff" | "admin") {
   const [existing] = await db.select({ id: user.id }).from(user).where(eq(user.email, email))
   if (existing) return existing.id
 
@@ -27,6 +27,7 @@ async function ensureUser(email: string, name: string, role: "parent" | "staff")
 const parentId = await ensureUser("parent@example.test", "Pat Example", "parent")
 const otherParentId = await ensureUser("other-parent@example.test", "Sam Sample", "parent")
 const staffId = await ensureUser("staff@example.test", "Alex Teacher", "staff")
+await ensureUser("admin@example.test", "Robin Admin", "admin")
 
 const existingChildren = await db.select({ id: child.id }).from(child)
 if (existingChildren.length === 0) {
@@ -57,4 +58,4 @@ if (existingChildren.length === 0) {
   })
 }
 
-console.log(`Seeded. Fictional accounts: parent@example.test, other-parent@example.test, staff@example.test (password ${DEV_PASSWORD})`)
+console.log(`Seeded. Fictional accounts: parent@example.test, other-parent@example.test, staff@example.test, admin@example.test (password ${DEV_PASSWORD})`)
