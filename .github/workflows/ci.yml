@@ -5,6 +5,10 @@ on:
   push:
     branches: [main]
 
+# Next.js sends anonymous usage data by default, which is noise in a CI log.
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
 jobs:
   checks:
     runs-on: ubuntu-latest
