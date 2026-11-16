@@ -5,26 +5,27 @@ import { UserRowActions } from "@/components/portal/admin/user-row-actions"
 import { PageHeader } from "@/components/site/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { listUsers } from "@/lib/admin/queries"
-import type { UserRole } from "@/lib/auth/roles"
+import { listUsers, type AdminUser } from "@/lib/admin/queries"
+import { allPermissions } from "@/lib/auth/permissions"
 import { requireUser } from "@/lib/auth/session"
 
 export const metadata: Metadata = { title: "Logins" }
 
-const roleLabels: Record<UserRole, string> = {
-  parent: "Parent or carer",
-  staff: "Staff",
-  admin: "Administrator",
+function accessSummary(person: AdminUser) {
+  if (person.kind === "parent") return "Parent or carer"
+  if (person.permissions.length === allPermissions.length) return "Staff, all permissions"
+  if (person.permissions.length === 0) return "Staff, basic access only"
+  return `Staff, ${person.permissions.length} of ${allPermissions.length} permissions`
 }
 
 export default async function AdminUsersPage() {
-  const admin = await requireUser(["admin"])
+  const admin = await requireUser({ permission: "users.manage" })
   const users = await listUsers(admin)
 
   return (
     <>
-      <PageHeader title="Logins">
-        <p>Logins are created here and handed over in person. There is no public sign-up.</p>
+      <PageHeader title="Logins and permissions">
+        <p>Logins are created here and handed over in person. There is no public sign-up. For staff, tick what each person is allowed to do.</p>
       </PageHeader>
 
       <div className="container-page space-y-14 py-12 md:py-16">
@@ -45,7 +46,7 @@ export default async function AdminUsersPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
+                  <TableHead>Access</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -55,7 +56,7 @@ export default async function AdminUsersPage() {
                     <TableCell className="font-semibold">{person.name}</TableCell>
                     <TableCell>{person.email}</TableCell>
                     <TableCell className="space-x-2">
-                      <span>{roleLabels[person.role]}</span>
+                      <span>{accessSummary(person)}</span>
                       {person.banned ? <Badge variant="outline">Disabled</Badge> : null}
                     </TableCell>
                     <TableCell>

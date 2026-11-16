@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns"
+import { differenceInYears, format, parseISO } from "date-fns"
 import { enGB } from "date-fns/locale"
 
 // Content dates are plain YYYY-MM-DD strings in UK local time. Parsing them with
@@ -36,3 +36,6 @@ export function formatTimeRange(start?: string, end?: string) {
   if (end) return `Finishes ${formatClock(end)}`
   return "All day"
 }
+
+// Whole years between a date of birth and a given day, both as YYYY-MM-DD.
+export const ageOn = (dateOfBirth: string, onDay: string) => differenceInYears(parseISO(onDay), parseISO(dateOfBirth))

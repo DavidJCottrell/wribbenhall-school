@@ -5,7 +5,7 @@ import { useState } from "react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import type { TemporaryCredentials } from "@/app/actions/admin"
+import type { TemporaryCredentials } from "@/app/actions/logins"
 
 export function TemporaryPassword({ credentials }: { credentials: TemporaryCredentials }) {
   const [copied, setCopied] = useState(false)

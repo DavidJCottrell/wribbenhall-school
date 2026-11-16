@@ -6,16 +6,17 @@ import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { createUser, type TemporaryCredentials } from "@/app/actions/admin"
+import { createUser, type TemporaryCredentials } from "@/app/actions/logins"
 import { applyServerErrors } from "@/components/forms/apply-server-errors"
-import { SelectField, TextField } from "@/components/forms/fields"
 import { Button } from "@/components/ui/button"
 import { FieldGroup } from "@/components/ui/field"
 import { Spinner } from "@/components/ui/spinner"
 import { createUserSchema, type CreateUserValues } from "@/lib/forms/schemas"
 
+import { LoginFields } from "./login-fields"
 import { TemporaryPassword } from "./temporary-password"
-import { roleOptions } from "./user-row-actions"
+
+const emptyValues: CreateUserValues = { name: "", email: "", kind: "staff", permissions: [] }
 
 export function CreateUserForm() {
   const router = useRouter()
@@ -24,7 +25,7 @@ export function CreateUserForm() {
 
   const form = useForm<CreateUserValues>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: { name: "", email: "" },
+    defaultValues: emptyValues,
     mode: "onTouched",
   })
 
@@ -34,7 +35,7 @@ export function CreateUserForm() {
       const result = await createUser(values)
       if (result.ok) {
         setCredentials(result.credentials)
-        form.reset({ name: "", email: "" })
+        form.reset(emptyValues)
         router.refresh()
       } else {
         applyServerErrors(form.setError, result.fieldErrors)
@@ -47,11 +48,7 @@ export function CreateUserForm() {
     <div className="space-y-6">
       <form onSubmit={onSubmit} noValidate>
         <FieldGroup>
-          <div className="grid gap-7 sm:grid-cols-2">
-            <TextField control={form.control} name="name" label="Full name" autoComplete="off" />
-            <TextField control={form.control} name="email" label="Email address" type="email" autoComplete="off" inputMode="email" />
-          </div>
-          <SelectField control={form.control} name="role" label="Role" options={roleOptions} />
+          <LoginFields control={form.control} idPrefix="new-" />
           <div>
             <Button type="submit" size="lg" disabled={pending}>
               {pending ? <Spinner /> : null}

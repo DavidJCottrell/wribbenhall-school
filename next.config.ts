@@ -24,7 +24,11 @@ const nextConfig: NextConfig = {
     serverActions: { bodySizeLimit: "6mb" },
   },
   async redirects() {
-    return [{ source: "/staff", destination: "/about", permanent: true }]
+    return [
+      { source: "/staff", destination: "/about", permanent: true },
+      // Pupil pages moved when the portal became a records system.
+      { source: "/portal/children/:id", destination: "/portal/pupils/:id", permanent: false },
+    ]
   },
   images: {
     localPatterns: [{ pathname: "/media/**", search: "" }],

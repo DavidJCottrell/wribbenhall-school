@@ -1,12 +1,13 @@
-// Fictional data for development and preview databases. Shared by db:seed and db:reset-preview.
-import { eq } from "drizzle-orm"
-
+// Fills a development or preview database from fixtures.mts. Shared by db:seed and db:reset-preview.
 import { getDb } from "../../src/db"
-import { child, childUpdate, guardianship, staffAssignment, user } from "../../src/db/schema"
-import { getAuth } from "../../src/lib/auth/auth"
+import * as schema from "../../src/db/schema"
+import { child, childUpdate, guardianship, pupilContact, user } from "../../src/db/schema"
+export { appTables } from "./app-tables.mjs"
+import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, contacts, guardianships, pupils, reports, users } from "./fixtures.mjs"
 
-export const DEV_PASSWORD = "dev-password-12345"
-const TEST_EMAIL_DOMAIN = "@example.test"
+export { DEV_PASSWORD }
+
+export const seededAccounts = users.map((fixture) => ({ email: fixture.email, role: fixture.description }))
 
 // Stops these scripts touching a database that holds anyone's real login.
 export async function assertOnlyTestUsers() {
@@ -26,74 +27,28 @@ const daysAgo = (days: number) => {
   return date.toISOString().slice(0, 10)
 }
 
-type Role = "parent" | "staff" | "admin"
-
-async function ensureUser(email: string, name: string, role: Role) {
-  const db = getDb()
-  const [existing] = await db.select({ id: user.id }).from(user).where(eq(user.email, email))
-  if (existing) return existing.id
-
-  // The admin plugin only types "user" and "admin" roles, so the role is set directly.
-  const created = await getAuth().api.createUser({ body: { email, name, password: DEV_PASSWORD } })
-  await db.update(user).set({ role }).where(eq(user.id, created.user.id))
-  return created.user.id
-}
-
-export const seededAccounts = [
-  { email: "admin@example.test", role: "Administrator" },
-  { email: "staff@example.test", role: "Staff (River, Ash)" },
-  { email: "staff2@example.test", role: "Staff (Oak, Willow, River)" },
-  { email: "parent@example.test", role: "Parent (River, Oak)" },
-  { email: "other-parent@example.test", role: "Parent (Ash)" },
-  { email: "carer@example.test", role: "Carer (Willow)" },
-]
-
+// Adds the fixtures. Safe to run on an empty database or one that already has some of them.
 export async function seedDevData() {
   const db = getDb()
+  const { account } = schema
 
-  await ensureUser("admin@example.test", "Robin Admin", "admin")
-  const alex = await ensureUser("staff@example.test", "Alex Teacher", "staff")
-  const jo = await ensureUser("staff2@example.test", "Jo Support", "staff")
-  const pat = await ensureUser("parent@example.test", "Pat Example", "parent")
-  const sam = await ensureUser("other-parent@example.test", "Sam Sample", "parent")
-  const chris = await ensureUser("carer@example.test", "Chris Carer", "parent")
+  await db
+    .insert(user)
+    .values(users.map(({ id, name, email, kind, permissions }) => ({ id, name, email, role: kind, permissions, emailVerified: false })))
+    .onConflictDoNothing()
+  await db
+    .insert(account)
+    .values(users.map(({ id }) => ({ id: `account-${id}`, accountId: id, providerId: "credential", userId: id, password: DEV_PASSWORD_HASH })))
+    .onConflictDoNothing()
 
-  const [existingChild] = await db.select({ id: child.id }).from(child).limit(1)
-  if (existingChild) return
+  await db.insert(child).values(pupils.map(({ ...pupil }) => pupil)).onConflictDoNothing()
+  await db.insert(pupilContact).values(contacts.map(({ pupilId, ...contact }) => ({ ...contact, childId: pupilId }))).onConflictDoNothing()
+  await db.insert(guardianship).values(guardianships.map(({ pupilId, ...link }) => ({ ...link, childId: pupilId }))).onConflictDoNothing()
 
-  const [river, oak, ash, willow] = await db
-    .insert(child)
-    .values([
-      { firstName: "River", lastName: "Example", yearGroup: "Year 4" },
-      { firstName: "Oak", lastName: "Example", yearGroup: "Year 7" },
-      { firstName: "Ash", lastName: "Sample", yearGroup: "Year 2" },
-      { firstName: "Willow", lastName: "Brook", yearGroup: "Year 10" },
-    ])
-    .returning({ id: child.id })
-
-  await db.insert(guardianship).values([
-    { userId: pat, childId: river.id, relationship: "Parent" },
-    { userId: pat, childId: oak.id, relationship: "Parent" },
-    { userId: sam, childId: ash.id, relationship: "Carer" },
-    { userId: chris, childId: willow.id, relationship: "Grandparent" },
-  ])
-
-  await db.insert(staffAssignment).values([
-    { userId: alex, childId: river.id },
-    { userId: alex, childId: ash.id },
-    { userId: jo, childId: oak.id },
-    { userId: jo, childId: willow.id },
-    { userId: jo, childId: river.id },
-  ])
-
-  const note = "This is fictional text for development."
-  await db.insert(childUpdate).values([
-    { childId: river.id, authorId: alex, title: "Reading together", body: note, occurredOn: daysAgo(1) },
-    { childId: river.id, authorId: jo, title: "Staff note: sensory break", body: note, occurredOn: daysAgo(3), visibleToParents: false },
-    { childId: river.id, authorId: alex, title: "Swimming session", body: `${note}\nA second line, to check line breaks.`, occurredOn: daysAgo(8) },
-    { childId: oak.id, authorId: jo, title: "Art project", body: note, occurredOn: daysAgo(2) },
-    { childId: oak.id, authorId: jo, title: "Staff note: lunchtime routine", body: note, occurredOn: daysAgo(6), visibleToParents: false },
-    { childId: ash.id, authorId: alex, title: "Garden visit", body: note, occurredOn: daysAgo(4) },
-    { childId: willow.id, authorId: jo, title: "Work experience planning", body: note, occurredOn: daysAgo(5) },
-  ])
+  const [existingReport] = await db.select({ id: childUpdate.id }).from(childUpdate).limit(1)
+  if (!existingReport) {
+    await db
+      .insert(childUpdate)
+      .values(reports.map(({ pupilId, daysAgo: days, ...report }) => ({ ...report, childId: pupilId, occurredOn: daysAgo(days) })))
+  }
 }

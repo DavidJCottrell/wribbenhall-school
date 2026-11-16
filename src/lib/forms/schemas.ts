@@ -1,7 +1,7 @@
 import { isValid, parseISO } from "date-fns"
 import { z } from "zod"
 
-import { userRoles } from "@/lib/auth/roles"
+import { isPermission, userKinds, type Permission } from "@/lib/auth/permissions"
 
 const requiredText = (label: string, max = 200) =>
   z.string().trim().min(1, `Enter ${label}`).max(max, `${label[0].toUpperCase()}${label.slice(1)} must be ${max} characters or fewer`)
@@ -189,18 +189,62 @@ export type ChangePasswordValues = z.infer<typeof changePasswordSchema>
 export const createUserSchema = z.object({
   name: requiredText("their name", 120),
   email,
-  role: z.enum(userRoles, { error: "Choose a role" }),
+  kind: z.enum(userKinds, { error: "Choose parent or staff" }),
+  // Only staff can hold permissions. The server ignores any sent for a parent.
+  permissions: z.array(z.custom<Permission>(isPermission, "Unknown permission")),
 })
 
 export type CreateUserValues = z.infer<typeof createUserSchema>
 
-export const createPupilSchema = z.object({
+// An empty string means "not set", which is how the forms send an empty optional date.
+const optionalDate = (label: string) =>
+  z
+    .string()
+    .trim()
+    .refine((value) => value === "" || (/^\d{4}-\d{2}-\d{2}$/.test(value) && isValid(parseISO(value))), `Enter a real date for ${label}`)
+
+export const pupilProfileSchema = z.object({
   firstName: requiredText("a first name", 80),
   lastName: requiredText("a last name", 80),
+  preferredName: z.string().trim().max(80, "Preferred name must be 80 characters or fewer"),
   yearGroup: z.enum(yearGroups, { error: "Choose a year group" }),
+  dateOfBirth: optionalDate("the date of birth"),
+  admissionDate: optionalDate("the admission date"),
+  leavingDate: optionalDate("the leaving date"),
+  // The id of a member of staff, or empty for none.
+  keyWorkerId: z.string().trim(),
+  ehcpStatus: z.union([z.literal(""), z.enum(ehcpStatuses)]),
+  localAuthority: z.string().trim().max(120, "Local authority must be 120 characters or fewer"),
+  ehcpReviewDue: optionalDate("the EHCP review"),
 })
 
+export type PupilProfileValues = z.infer<typeof pupilProfileSchema>
+
+export const createPupilSchema = pupilProfileSchema.pick({ firstName: true, lastName: true, yearGroup: true })
+
 export type CreatePupilValues = z.infer<typeof createPupilSchema>
+
+const optionalEmail = z.union([z.literal(""), email])
+
+export const contactSchema = z
+  .object({
+    name: requiredText("their name", 120),
+    relationship: requiredText("their relationship to the pupil", 80),
+    phone: optionalPhone,
+    email: optionalEmail,
+    parentalResponsibility: z.boolean(),
+    emergencyContact: z.boolean(),
+    authorisedToCollect: z.boolean(),
+    notes: z.string().trim().max(500, "Notes must be 500 characters or fewer"),
+    // The id of a parent login this contact is the same person as, or empty.
+    linkedUserId: z.string().trim(),
+  })
+  .refine((values) => !values.emergencyContact || values.phone !== "", {
+    path: ["phone"],
+    message: "An emergency contact needs a phone number",
+  })
+
+export type ContactValues = z.infer<typeof contactSchema>
 
 export const linkGuardianSchema = z.object({
   userId: z.string().min(1, "Choose a parent or carer"),
@@ -208,12 +252,6 @@ export const linkGuardianSchema = z.object({
 })
 
 export type LinkGuardianValues = z.infer<typeof linkGuardianSchema>
-
-export const assignStaffSchema = z.object({
-  userId: z.string().min(1, "Choose a member of staff"),
-})
-
-export type AssignStaffValues = z.infer<typeof assignStaffSchema>
 
 export const forgotPasswordSchema = z.object({ email })
 

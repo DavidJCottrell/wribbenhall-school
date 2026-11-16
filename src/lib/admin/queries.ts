@@ -1,86 +1,98 @@
 import "server-only"
 
-import { and, asc, count, eq, notInArray } from "drizzle-orm"
+import { and, asc, count, eq } from "drizzle-orm"
 
 import { getDb } from "@/db"
-import { child, childUpdate, guardianship, staffAssignment, user as userTable } from "@/db/schema"
-import { isUserRole, type UserRole } from "@/lib/auth/roles"
+import { child, childUpdate, guardianship, user as userTable } from "@/db/schema"
+import { can, isUserKind, normalizePermissions, type Permission, type UserKind } from "@/lib/auth/permissions"
 import type { CurrentUser } from "@/lib/auth/session"
-import type { ChildSummary } from "@/lib/portal/children"
+import { listContactsFor, getPupilProfile, type ContactView, type PupilProfile, type PupilSummary } from "@/lib/portal/pupils"
 
 // These queries expose everyone's details, so each one re-checks the caller.
-function assertAdmin(user: CurrentUser) {
-  if (user.role !== "admin") throw new Error("Administrator access required")
+function assertCan(user: CurrentUser, permission: Permission) {
+  if (!can(user, permission)) throw new Error("Not allowed")
 }
 
 export type AdminUser = {
   id: string
   name: string
   email: string
-  role: UserRole
+  kind: UserKind
+  permissions: Permission[]
   banned: boolean
 }
 
 export type PersonOption = { id: string; name: string; email: string }
 
-export async function listUsers(admin: CurrentUser): Promise<AdminUser[]> {
-  assertAdmin(admin)
+export async function listUsers(user: CurrentUser): Promise<AdminUser[]> {
+  assertCan(user, "users.manage")
 
   const rows = await getDb()
-    .select({ id: userTable.id, name: userTable.name, email: userTable.email, role: userTable.role, banned: userTable.banned })
+    .select({
+      id: userTable.id,
+      name: userTable.name,
+      email: userTable.email,
+      role: userTable.role,
+      permissions: userTable.permissions,
+      banned: userTable.banned,
+    })
     .from(userTable)
     .orderBy(asc(userTable.name))
 
-  return rows.flatMap(({ role, ...rest }) => (isUserRole(role) ? [{ ...rest, role }] : []))
+  return rows.flatMap(({ role, permissions, ...rest }) =>
+    isUserKind(role) ? [{ ...rest, kind: role, permissions: role === "staff" ? normalizePermissions(permissions) : [] }] : [],
+  )
 }
 
-export type PupilWithCounts = ChildSummary & { guardianCount: number; staffCount: number }
+export type PupilWithCounts = PupilSummary & { guardianCount: number; archived: boolean }
 
-export async function listPupilsWithCounts(admin: CurrentUser): Promise<PupilWithCounts[]> {
-  assertAdmin(admin)
+export async function listPupilsForAdmin(user: CurrentUser): Promise<PupilWithCounts[]> {
+  assertCan(user, "pupils.manage")
   const db = getDb()
 
-  const [pupils, guardianCounts, staffCounts] = await Promise.all([
+  const [pupils, guardianCounts] = await Promise.all([
     db
-      .select({ id: child.id, firstName: child.firstName, lastName: child.lastName, yearGroup: child.yearGroup })
+      .select({
+        id: child.id,
+        firstName: child.firstName,
+        lastName: child.lastName,
+        preferredName: child.preferredName,
+        yearGroup: child.yearGroup,
+        archivedAt: child.archivedAt,
+      })
       .from(child)
       .orderBy(asc(child.lastName), asc(child.firstName)),
     db.select({ childId: guardianship.childId, total: count() }).from(guardianship).groupBy(guardianship.childId),
-    db.select({ childId: staffAssignment.childId, total: count() }).from(staffAssignment).groupBy(staffAssignment.childId),
   ])
 
   const guardiansByChild = new Map(guardianCounts.map((row) => [row.childId, row.total]))
-  const staffByChild = new Map(staffCounts.map((row) => [row.childId, row.total]))
-
-  return pupils.map((pupil) => ({
+  return pupils.map(({ archivedAt, ...pupil }) => ({
     ...pupil,
+    archived: archivedAt !== null,
     guardianCount: guardiansByChild.get(pupil.id) ?? 0,
-    staffCount: staffByChild.get(pupil.id) ?? 0,
   }))
 }
 
 export type PupilAdminDetail = {
-  pupil: ChildSummary
+  pupil: PupilProfile
+  contacts: ContactView[]
   guardians: (PersonOption & { relationship: string | null })[]
-  staff: PersonOption[]
   availableParents: PersonOption[]
-  availableStaff: PersonOption[]
+  staffOptions: PersonOption[]
+  parentOptions: PersonOption[]
   updateCount: number
 }
 
-export async function getPupilAdminDetail(admin: CurrentUser, childId: string): Promise<PupilAdminDetail | null> {
-  assertAdmin(admin)
+export async function getPupilAdminDetail(user: CurrentUser, childId: string): Promise<PupilAdminDetail | null> {
+  assertCan(user, "pupils.manage")
   const db = getDb()
 
-  const [pupil] = await db
-    .select({ id: child.id, firstName: child.firstName, lastName: child.lastName, yearGroup: child.yearGroup })
-    .from(child)
-    .where(eq(child.id, childId))
+  const pupil = await getPupilProfile(user, childId)
   if (!pupil) return null
 
   const person = { id: userTable.id, name: userTable.name, email: userTable.email }
 
-  const [[updates], guardians, staff] = await Promise.all([
+  const [[updates], guardians, staffOptions, parentOptions, contacts] = await Promise.all([
     db.select({ total: count() }).from(childUpdate).where(eq(childUpdate.childId, childId)),
     db
       .select({ ...person, relationship: guardianship.relationship })
@@ -88,29 +100,13 @@ export async function getPupilAdminDetail(admin: CurrentUser, childId: string): 
       .innerJoin(userTable, eq(userTable.id, guardianship.userId))
       .where(eq(guardianship.childId, childId))
       .orderBy(asc(userTable.name)),
-    db
-      .select(person)
-      .from(staffAssignment)
-      .innerJoin(userTable, eq(userTable.id, staffAssignment.userId))
-      .where(eq(staffAssignment.childId, childId))
-      .orderBy(asc(userTable.name)),
+    db.select(person).from(userTable).where(and(eq(userTable.role, "staff"), eq(userTable.banned, false))).orderBy(asc(userTable.name)),
+    db.select(person).from(userTable).where(and(eq(userTable.role, "parent"), eq(userTable.banned, false))).orderBy(asc(userTable.name)),
+    listContactsFor(user, childId),
   ])
 
-  const availablePeople = (role: UserRole, linked: PersonOption[]) =>
-    db
-      .select(person)
-      .from(userTable)
-      .where(
-        linked.length > 0
-          ? and(eq(userTable.role, role), eq(userTable.banned, false), notInArray(userTable.id, linked.map((linkedPerson) => linkedPerson.id)))
-          : and(eq(userTable.role, role), eq(userTable.banned, false)),
-      )
-      .orderBy(asc(userTable.name))
+  const linkedIds = guardians.map((guardian) => guardian.id)
+  const availableParents = linkedIds.length > 0 ? parentOptions.filter((parent) => !linkedIds.includes(parent.id)) : parentOptions
 
-  const [availableParents, availableStaff] = await Promise.all([
-    availablePeople("parent", guardians),
-    availablePeople("staff", staff),
-  ])
-
-  return { pupil, guardians, staff, availableParents, availableStaff, updateCount: updates?.total ?? 0 }
+  return { pupil, contacts, guardians, availableParents, staffOptions, parentOptions, updateCount: updates?.total ?? 0 }
 }
