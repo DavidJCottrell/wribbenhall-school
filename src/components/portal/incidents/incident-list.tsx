@@ -1,5 +1,4 @@
-import Link from "next/link"
-
+import { PendingLink } from "@/components/portal/pending-link"
 import { Badge } from "@/components/ui/badge"
 import { formatShort } from "@/lib/dates"
 import { INCIDENT_STATUSES, INCIDENT_TYPES, SEVERITIES } from "@/lib/incidents/types"
@@ -11,7 +10,7 @@ export function IncidentList({ incidents, showPupil = true, empty = "There are n
   if (incidents.length === 0) return <p className="text-muted-foreground">{empty}</p>
 
   return (
-    <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+    <ul className="stagger divide-y divide-border rounded-xl border border-border bg-card">
       {incidents.map((incident) => (
         <li key={incident.id} className="p-5">
           <p className="text-sm text-muted-foreground">
@@ -19,9 +18,9 @@ export function IncidentList({ incidents, showPupil = true, empty = "There are n
             {showPupil ? ` · ${incident.pupilName}` : ""}
           </p>
           <p className="mt-1 text-lg font-semibold">
-            <Link href={`/portal/incidents/${incident.id}`} className="underline underline-offset-4">
+            <PendingLink href={`/portal/incidents/${incident.id}`} className="underline underline-offset-4">
               {incident.summary}
-            </Link>
+            </PendingLink>
           </p>
           <p className="mt-2 flex flex-wrap items-center gap-2">
             <Badge variant="outline">{INCIDENT_TYPES[incident.type]}</Badge>

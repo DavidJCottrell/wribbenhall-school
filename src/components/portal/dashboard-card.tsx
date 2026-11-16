@@ -1,6 +1,6 @@
-import Link from "next/link"
 import type { ReactNode } from "react"
 
+import { PendingLink } from "./pending-link"
 type Props = {
   title: string
   // Where "see all" goes, if there is more to see.
@@ -19,10 +19,10 @@ export function DashboardCard({ title, href, hrefLabel = "See all", children, cl
           {title}
         </h2>
         {href ? (
-          <Link href={href} className="text-sm underline underline-offset-4">
+          <PendingLink href={href} className="text-sm underline underline-offset-4">
             {hrefLabel}
             <span className="sr-only"> for {title.toLowerCase()}</span>
-          </Link>
+          </PendingLink>
         ) : null}
       </div>
       {children}

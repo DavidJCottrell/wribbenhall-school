@@ -126,7 +126,7 @@ export default async function PupilOverviewPage({ params }: PageProps<"/portal/p
     ])
 
     return (
-      <div className="container-page grid gap-6 py-10 lg:grid-cols-2">
+      <div className="stagger container-page grid gap-6 py-10 lg:grid-cols-2">
         <AttendanceSummaryCard view={attendance} href={`${base}/attendance`} />
         <DashboardCard title="Recent daily reports" href={`${base}/reports`}>
           <RecentReports reports={reports} base={base} />
@@ -171,7 +171,7 @@ export default async function PupilOverviewPage({ params }: PageProps<"/portal/p
   })
 
   return (
-    <div className="container-page grid gap-6 py-10 lg:grid-cols-2">
+    <div className="stagger container-page grid gap-6 py-10 lg:grid-cols-2">
       <AttendanceSummaryCard view={attendance} href={`${base}/attendance`} />
       <DashboardCard title="Recent daily reports" href={`${base}/reports`}>
         <RecentReports reports={reports} base={base} />

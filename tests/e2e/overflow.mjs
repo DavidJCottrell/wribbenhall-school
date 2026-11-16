@@ -69,13 +69,22 @@ const report = (label, result) => {
 
 const browser = await chromium.launch()
 
-async function signedIn(width, email) {
-  const context = await browser.newContext({ viewport: { width, height: 800 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 })
-  if (email) {
+// Sign-in is rate limited, so each login happens once and its session is reused at every width.
+const sessions = new Map()
+async function sessionFor(email) {
+  if (!sessions.has(email)) {
+    const context = await browser.newContext()
     const response = await context.request.post(`${BASE}/api/auth/sign-in/email`, { headers: { Origin: BASE }, data: { email, password: PASSWORD } })
     if (!response.ok()) throw new Error(`Could not log in as ${email} (HTTP ${response.status()}). Reset the database, and clear the rate_limit table if you were rate limited.`)
+    sessions.set(email, await context.storageState())
+    await context.close()
   }
-  return context
+  return sessions.get(email)
+}
+
+async function signedIn(width, email) {
+  const storageState = email ? await sessionFor(email) : undefined
+  return browser.newContext({ viewport: { width, height: 800 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1, storageState })
 }
 
 for (const width of WIDTHS) {
@@ -92,7 +101,9 @@ for (const width of WIDTHS) {
         for (const name of buttons) {
           await page.goto(`${BASE}${path}`, { waitUntil: "load" })
           const button = page.getByRole("button", { name: new RegExp(`^${name}`) }).first()
-          if ((await button.count()) === 0) { console.log(`SKIP  no "${name}" button on ${path}`); continue }
+          // Pages stream in behind a loading skeleton, so give the button time to arrive. A missing one is a failure, not a skip.
+          const found = await button.waitFor({ timeout: 8000 }).then(() => true, () => false)
+          if (!found) { problems += 1; checked += 1; console.log(`MISSING  no "${name}" button on ${path}`); continue }
           await button.click()
           await page.waitForTimeout(500)
           report(`${width}px dialog "${name}" on ${path}`, await measure(page))

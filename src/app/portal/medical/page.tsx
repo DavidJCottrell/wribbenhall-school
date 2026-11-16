@@ -56,7 +56,7 @@ export default async function MedicationTodayPage() {
 
         {rows.length === 0 ? <p className="text-muted-foreground">No current medication is recorded for any pupil.</p> : null}
 
-        <ul className="space-y-4">
+        <ul className="stagger space-y-4">
           {rows.map((item) => {
             const medication = { id: item.medicationId, name: item.name, dose: item.dose, asRequired: item.asRequired, scheduledTimes: item.doses.map((dose) => dose.time) }
             const blockedReason = item.administer.ok ? null : item.administer.reason

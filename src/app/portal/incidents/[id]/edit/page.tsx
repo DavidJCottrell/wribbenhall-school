@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { z } from "zod"
 
 import { IncidentForm } from "@/components/portal/incidents/incident-form"
+import { BackLink } from "@/components/portal/back-link"
 import { PageHeader } from "@/components/site/page-header"
 import { requireUser } from "@/lib/auth/session"
 import { canEditIncident } from "@/lib/incidents/rules"
@@ -23,7 +24,7 @@ export default async function EditIncidentPage({ params }: PageProps<"/portal/in
 
   return (
     <>
-      <PageHeader title="Edit incident">About {incident.pupilName}</PageHeader>
+      <PageHeader title="Edit incident" eyebrow={<BackLink href={`/portal/incidents/${incident.id}`}>Back to the incident</BackLink>}>About {incident.pupilName}</PageHeader>
       <div className="container-page max-w-3xl py-12">
         <IncidentForm
           pupil={{ id: incident.childId, name: incident.pupilName }}

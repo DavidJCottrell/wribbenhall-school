@@ -3,7 +3,7 @@ import type { ParentMedicalView } from "@/lib/portal/medical"
 
 export function ParentMedical({ view }: { view: ParentMedicalView }) {
   return (
-    <div className="space-y-10">
+    <div className="stagger space-y-10">
       <section aria-labelledby="parent-conditions">
         <h2 id="parent-conditions" className="text-heading mb-4">
           Conditions, allergies and dietary needs

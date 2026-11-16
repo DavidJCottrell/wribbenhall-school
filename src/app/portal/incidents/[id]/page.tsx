@@ -8,6 +8,7 @@ import { z } from "zod"
 import { DashboardCard, Facts } from "@/components/portal/dashboard-card"
 import { DeleteIncidentButton } from "@/components/portal/incidents/delete-incident-button"
 import { IncidentReviewForm } from "@/components/portal/incidents/incident-review-form"
+import { BackLink } from "@/components/portal/back-link"
 import { PageHeader } from "@/components/site/page-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -51,7 +52,7 @@ export default async function IncidentPage({ params }: PageProps<"/portal/incide
 
   return (
     <>
-      <PageHeader title={incident.summary}>
+      <PageHeader title={incident.summary} eyebrow={<BackLink href="/portal/incidents">All incidents</BackLink>}>
         <Link href={`/portal/pupils/${incident.childId}`} className="underline underline-offset-4">
           {incident.pupilName}
         </Link>

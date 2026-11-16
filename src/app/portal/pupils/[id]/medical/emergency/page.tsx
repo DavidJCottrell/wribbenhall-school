@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { z } from "zod"
 
+import { BackLink } from "@/components/portal/back-link"
 import { PrintButton } from "@/components/portal/medical/print-button"
 import { Badge } from "@/components/ui/badge"
 import { recordAuditAfterResponse } from "@/lib/audit"
@@ -25,6 +26,7 @@ export default async function EmergencySummaryPage({ params }: PageProps<"/porta
 
   return (
     <div className="container-page max-w-3xl space-y-8 py-10">
+      <BackLink href={`/portal/pupils/${pupilId.data}/medical`}>Back to medical records</BackLink>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm text-muted-foreground">Emergency summary, printed {formatLong(today)}</p>

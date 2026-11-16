@@ -61,7 +61,7 @@ export function DayReportList({ days, childId, user }: Props) {
   }
 
   return (
-    <ol className="space-y-10">
+    <ol className="stagger space-y-10">
       {days.map((day) => (
         <li key={day.date}>
           <div className="mb-4 border-b border-border pb-2">
@@ -71,7 +71,7 @@ export function DayReportList({ days, childId, user }: Props) {
             {day.attendance ? <AttendanceLine attendance={day.attendance} /> : null}
           </div>
           {day.reports.length > 0 ? (
-            <ol className="space-y-4">
+            <ol className="stagger space-y-4">
               {day.reports.map((report) => (
                 <ReportCard key={report.id} report={report} childId={childId} user={user} />
               ))}

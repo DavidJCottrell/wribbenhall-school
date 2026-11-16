@@ -38,7 +38,7 @@ export function AttendancePanel({ view, audience, canEditRegister }: { view: Att
         <h2 id="attendance-figures" className="sr-only">
           Attendance figures
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatTile
             label="This school year"
             value={figure(year.percentage)}
@@ -64,7 +64,7 @@ export function AttendancePanel({ view, audience, canEditRegister }: { view: Att
         </div>
       </section>
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="stagger grid gap-6 xl:grid-cols-2">
         <section className="min-w-0 rounded-xl border border-border bg-card p-5 xl:col-span-2">
           <WeeklyAttendanceChart weeks={view.weeks} />
         </section>

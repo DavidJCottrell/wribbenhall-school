@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { z } from "zod"
 
+import { BackLink } from "@/components/portal/back-link"
 import { PageHeader } from "@/components/site/page-header"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { listAuditEvents } from "@/lib/audit"
@@ -24,7 +25,7 @@ export default async function AuditLogPage({ searchParams }: PageProps<"/portal/
 
   return (
     <>
-      <PageHeader title="Audit log">
+      <PageHeader title="Audit log" eyebrow={<BackLink href="/portal/admin">Administration</BackLink>}>
         <p>Who viewed or changed records. The most recent {events.length === 200 ? "200" : events.length} entries are shown.</p>
       </PageHeader>
 

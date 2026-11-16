@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import { CreatePupilForm } from "@/components/portal/admin/create-pupil-form"
+import { BackLink } from "@/components/portal/back-link"
 import { PageHeader } from "@/components/site/page-header"
 import { Badge } from "@/components/ui/badge"
 import { listPupilsForAdmin } from "@/lib/admin/queries"
@@ -16,7 +17,7 @@ export default async function AdminPupilsPage() {
 
   return (
     <>
-      <PageHeader title="Pupils">
+      <PageHeader title="Pupils" eyebrow={<BackLink href="/portal/admin">Administration</BackLink>}>
         <p>Add pupils, then open one to complete their profile, contacts and parent logins.</p>
       </PageHeader>
 
