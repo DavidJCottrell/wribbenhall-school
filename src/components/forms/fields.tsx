@@ -10,6 +10,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 
+export type SelectOption = string | { value: string; label: string }
+
+const optionValue = (option: SelectOption) => (typeof option === "string" ? option : option.value)
+const optionLabel = (option: SelectOption) => (typeof option === "string" ? option : option.label)
+
 type BaseProps<T extends FieldValues> = {
   control: Control<T>
   name: FieldPath<T>
@@ -93,7 +98,7 @@ export function SelectField<T extends FieldValues>({
   description,
   options,
   placeholder = "Choose an option",
-}: BaseProps<T> & { options: readonly string[]; placeholder?: string }) {
+}: BaseProps<T> & { options: readonly SelectOption[]; placeholder?: string }) {
   return (
     <Controller
       control={control}
@@ -117,8 +122,8 @@ export function SelectField<T extends FieldValues>({
             </SelectTrigger>
             <SelectContent>
               {options.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
+                <SelectItem key={optionValue(option)} value={optionValue(option)}>
+                  {optionLabel(option)}
                 </SelectItem>
               ))}
             </SelectContent>

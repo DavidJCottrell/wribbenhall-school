@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next"
+import { Suspense } from "react"
 
 import { SiteFooter } from "@/components/site/site-footer"
 import { SiteHeader } from "@/components/site/site-header"
@@ -33,7 +34,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to main content
         </a>
-        <SiteHeader />
+        {/* usePathname() needs a boundary on routes whose params aren't known at build time */}
+        <Suspense fallback={<div aria-hidden="true" className="h-[4.5rem] border-b border-border/70" />}>
+          <SiteHeader />
+        </Suspense>
         <main id="main" className="flex-1">
           {children}
         </main>

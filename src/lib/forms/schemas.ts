@@ -1,4 +1,7 @@
+import { isValid, parseISO } from "date-fns"
 import { z } from "zod"
+
+import { userRoles } from "@/lib/auth/roles"
 
 const requiredText = (label: string, max = 200) =>
   z.string().trim().min(1, `Enter ${label}`).max(max, `${label[0].toUpperCase()}${label.slice(1)} must be ${max} characters or fewer`)
@@ -141,3 +144,73 @@ export const jobApplicationSchema = z.object({
 export type EnquiryValues = z.infer<typeof enquirySchema>
 export type PlaceApplicationValues = z.infer<typeof placeApplicationSchema>
 export type JobApplicationValues = z.input<typeof jobApplicationSchema>
+
+export const loginSchema = z.object({
+  email,
+  password: z.string().min(1, "Enter your password"),
+})
+
+export type LoginValues = z.infer<typeof loginSchema>
+
+export const childUpdateSchema = z.object({
+  title: requiredText("a title", 120),
+  occurredOn: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the date of the update")
+    .refine((value) => isValid(parseISO(value)), "Enter a real date"),
+  body: z.string().trim().min(1, "Enter the update").max(5000, "The update must be 5,000 characters or fewer"),
+  visibleToParents: z.boolean(),
+})
+
+export type ChildUpdateValues = z.infer<typeof childUpdateSchema>
+
+export const MIN_PASSWORD_LENGTH = 12
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password"),
+    newPassword: z
+      .string()
+      .min(MIN_PASSWORD_LENGTH, `Use at least ${MIN_PASSWORD_LENGTH} characters`)
+      .max(128, "Use 128 characters or fewer"),
+    confirmPassword: z.string().min(1, "Enter your new password again"),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "The two passwords don't match",
+  })
+  .refine((values) => values.newPassword !== values.currentPassword, {
+    path: ["newPassword"],
+    message: "Choose a different password from your current one",
+  })
+
+export type ChangePasswordValues = z.infer<typeof changePasswordSchema>
+
+export const createUserSchema = z.object({
+  name: requiredText("their name", 120),
+  email,
+  role: z.enum(userRoles, { error: "Choose a role" }),
+})
+
+export type CreateUserValues = z.infer<typeof createUserSchema>
+
+export const createPupilSchema = z.object({
+  firstName: requiredText("a first name", 80),
+  lastName: requiredText("a last name", 80),
+  yearGroup: z.enum(yearGroups, { error: "Choose a year group" }),
+})
+
+export type CreatePupilValues = z.infer<typeof createPupilSchema>
+
+export const linkGuardianSchema = z.object({
+  userId: z.string().min(1, "Choose a parent or carer"),
+  relationship: z.string().trim().max(60, "Relationship must be 60 characters or fewer"),
+})
+
+export type LinkGuardianValues = z.infer<typeof linkGuardianSchema>
+
+export const assignStaffSchema = z.object({
+  userId: z.string().min(1, "Choose a member of staff"),
+})
+
+export type AssignStaffValues = z.infer<typeof assignStaffSchema>
