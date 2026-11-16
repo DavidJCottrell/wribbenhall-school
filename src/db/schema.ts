@@ -123,9 +123,8 @@ export const childUpdate = pgTable(
     childId: uuid("child_id")
       .notNull()
       .references(() => child.id, { onDelete: "cascade" }),
-    authorId: text("author_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "restrict" }),
+    // Cleared when the author's login is deleted, so their updates stay on the child's record.
+    authorId: text("author_id").references(() => user.id, { onDelete: "set null" }),
     title: text("title").notNull(),
     body: text("body").notNull(),
     occurredOn: date("occurred_on").notNull(),

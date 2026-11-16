@@ -1,23 +1,92 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
+import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { resetPassword, setUserDisabled, type TemporaryCredentials } from "@/app/actions/admin"
+import { deleteUser, resetPassword, setUserDisabled, updateUser, type TemporaryCredentials } from "@/app/actions/admin"
+import { applyServerErrors } from "@/components/forms/apply-server-errors"
+import { SelectField, TextField } from "@/components/forms/fields"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { FieldGroup } from "@/components/ui/field"
+import { Spinner } from "@/components/ui/spinner"
+import type { AdminUser } from "@/lib/admin/queries"
+import { createUserSchema, type CreateUserValues } from "@/lib/forms/schemas"
 
+import { ConfirmByTyping } from "./confirm-by-typing"
 import { TemporaryPassword } from "./temporary-password"
 
-export function UserRowActions({ userId, name, banned, isSelf }: { userId: string; name: string; banned: boolean; isSelf: boolean }) {
+export const roleOptions = [
+  { value: "parent", label: "Parent or carer" },
+  { value: "staff", label: "Staff" },
+  { value: "admin", label: "Administrator" },
+]
+
+function EditUserForm({ person, isSelf, onSaved }: { person: AdminUser; isSelf: boolean; onSaved: () => void }) {
+  const router = useRouter()
+  const [pending, startTransition] = useTransition()
+  const form = useForm<CreateUserValues>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: { name: person.name, email: person.email, role: person.role },
+    mode: "onTouched",
+  })
+  const prefix = `edit-${person.id}-`
+
+  const onSubmit = form.handleSubmit((values) => {
+    startTransition(async () => {
+      const result = await updateUser(person.id, values)
+      if (result.ok) {
+        toast.success("Changes saved")
+        router.refresh()
+        onSaved()
+      } else {
+        applyServerErrors(form.setError, result.fieldErrors)
+        toast.error(result.message)
+      }
+    })
+  })
+
+  return (
+    <form onSubmit={onSubmit} noValidate>
+      <FieldGroup>
+        <TextField control={form.control} id={`${prefix}name`} name="name" label="Full name" autoComplete="off" />
+        <TextField control={form.control} id={`${prefix}email`} name="email" label="Email address" type="email" autoComplete="off" />
+        {isSelf ? (
+          <p className="text-muted-foreground">You can&apos;t change your own role.</p>
+        ) : (
+          <SelectField
+            control={form.control}
+            id={`${prefix}role`}
+            name="role"
+            label="Role"
+            description="Changing role removes their links to pupils. Add the right ones again afterwards."
+            options={roleOptions}
+          />
+        )}
+        <div>
+          <Button type="submit" disabled={pending}>
+            {pending ? <Spinner /> : null}
+            Save changes
+          </Button>
+        </div>
+      </FieldGroup>
+    </form>
+  )
+}
+
+export function UserRowActions({ person, isSelf }: { person: AdminUser; isSelf: boolean }) {
   const router = useRouter()
   const [credentials, setCredentials] = useState<TemporaryCredentials | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [pending, startTransition] = useTransition()
 
   function reset() {
     startTransition(async () => {
-      const result = await resetPassword(userId)
+      const result = await resetPassword(person.id)
       if (result.ok) setCredentials(result.credentials)
       else toast.error(result.message)
     })
@@ -25,9 +94,22 @@ export function UserRowActions({ userId, name, banned, isSelf }: { userId: strin
 
   function toggleDisabled() {
     startTransition(async () => {
-      const result = await setUserDisabled(userId, !banned)
+      const result = await setUserDisabled(person.id, !person.banned)
       if (result.ok) {
-        toast.success(banned ? `${name} can log in again` : `${name} can no longer log in`)
+        toast.success(person.banned ? `${person.name} can log in again` : `${person.name} can no longer log in`)
+        router.refresh()
+      } else {
+        toast.error(result.message)
+      }
+    })
+  }
+
+  function confirmDelete(typed: string) {
+    startTransition(async () => {
+      const result = await deleteUser(person.id, typed)
+      if (result.ok) {
+        toast.success(`${person.name}'s login was deleted`)
+        setDeleting(false)
         router.refresh()
       } else {
         toast.error(result.message)
@@ -37,23 +119,55 @@ export function UserRowActions({ userId, name, banned, isSelf }: { userId: strin
 
   return (
     <div className="flex flex-wrap gap-2">
+      <Button type="button" variant="outline" size="sm" onClick={() => setEditing(true)} disabled={pending}>
+        Edit<span className="sr-only"> {person.name}</span>
+      </Button>
       <Button type="button" variant="outline" size="sm" onClick={reset} disabled={pending}>
-        Reset password
+        Reset password<span className="sr-only"> for {person.name}</span>
       </Button>
       {isSelf ? null : (
-        <Button type="button" variant="outline" size="sm" onClick={toggleDisabled} disabled={pending}>
-          {banned ? "Enable login" : "Disable login"}
-        </Button>
+        <>
+          <Button type="button" variant="outline" size="sm" onClick={toggleDisabled} disabled={pending}>
+            {person.banned ? "Enable login" : "Disable login"}
+            <span className="sr-only"> for {person.name}</span>
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => setDeleting(true)} disabled={pending}>
+            Delete<span className="sr-only"> {person.name}</span>
+          </Button>
+        </>
       )}
+
+      <Dialog open={editing} onOpenChange={setEditing}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit {person.name}</DialogTitle>
+            <DialogDescription>Their password and sessions are not affected.</DialogDescription>
+          </DialogHeader>
+          <EditUserForm person={person} isSelf={isSelf} onSaved={() => setEditing(false)} />
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={credentials !== null} onOpenChange={(open) => !open && setCredentials(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Password reset for {name}</DialogTitle>
+            <DialogTitle>Password reset for {person.name}</DialogTitle>
             <DialogDescription>They have been signed out and need the new password to log in.</DialogDescription>
           </DialogHeader>
           {credentials ? <TemporaryPassword credentials={credentials} /> : null}
         </DialogContent>
       </Dialog>
+
+      <ConfirmByTyping
+        open={deleting}
+        onOpenChange={setDeleting}
+        title={`Delete ${person.name}'s login?`}
+        description="They will be signed out and lose access for good. Updates they wrote stay on the pupils' records. This can't be undone. To stop someone logging in for now, disable the login instead."
+        phrase={person.email}
+        phraseLabel="Type their email address to confirm"
+        confirmLabel="Delete login"
+        pending={pending}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

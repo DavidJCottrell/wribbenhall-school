@@ -1,11 +1,18 @@
 import { PaperclipIcon } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
+import type { CurrentUser } from "@/lib/auth/session"
 import { formatLong } from "@/lib/dates"
-import type { ChildUpdateView } from "@/lib/portal/children"
+import { canManageUpdate, type ChildUpdateView } from "@/lib/portal/children"
 import { formatBytes } from "@/lib/uploads"
 
-export function UpdateList({ updates, showVisibility }: { updates: ChildUpdateView[]; showVisibility: boolean }) {
+import { UpdateActions } from "./update-actions"
+
+type Props = { updates: ChildUpdateView[]; childId: string; user: CurrentUser }
+
+export function UpdateList({ updates, childId, user }: Props) {
+  const showVisibility = user.role !== "parent"
+
   if (updates.length === 0) {
     return <p className="text-muted-foreground">There are no updates yet.</p>
   }
@@ -34,10 +41,13 @@ export function UpdateList({ updates, showVisibility }: { updates: ChildUpdateVi
               ))}
             </ul>
           ) : null}
-          <p className="mt-4 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <span>Added by {update.authorName}</span>
-            {showVisibility && !update.visibleToParents ? <Badge variant="outline">Staff only</Badge> : null}
-          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <span>Added by {update.authorName ?? "a former member of staff"}</span>
+              {showVisibility && !update.visibleToParents ? <Badge variant="outline">Staff only</Badge> : null}
+            </p>
+            {canManageUpdate(user, update) ? <UpdateActions childId={childId} update={update} /> : null}
+          </div>
         </li>
       ))}
     </ol>

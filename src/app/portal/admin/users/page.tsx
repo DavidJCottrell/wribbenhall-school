@@ -59,7 +59,7 @@ export default async function AdminUsersPage() {
                       {person.banned ? <Badge variant="outline">Disabled</Badge> : null}
                     </TableCell>
                     <TableCell>
-                      <UserRowActions userId={person.id} name={person.name} banned={person.banned} isSelf={person.id === admin.id} />
+                      <UserRowActions person={person} isSelf={person.id === admin.id} />
                     </TableCell>
                   </TableRow>
                 ))}

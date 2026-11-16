@@ -65,8 +65,15 @@ export type ChildUpdateView = {
   body: string
   occurredOn: string
   visibleToParents: boolean
-  authorName: string
+  authorId: string | null
+  authorName: string | null
   attachments: AttachmentView[]
+}
+
+// Staff can change their own updates. Administrators can change any.
+export function canManageUpdate(user: CurrentUser, update: { authorId: string | null }) {
+  if (user.role === "admin") return true
+  return user.role === "staff" && update.authorId === user.id
 }
 
 export async function listUpdatesFor(user: CurrentUser, childId: string): Promise<ChildUpdateView[]> {
@@ -82,10 +89,11 @@ export async function listUpdatesFor(user: CurrentUser, childId: string): Promis
       body: childUpdate.body,
       occurredOn: childUpdate.occurredOn,
       visibleToParents: childUpdate.visibleToParents,
+      authorId: childUpdate.authorId,
       authorName: userTable.name,
     })
     .from(childUpdate)
-    .innerJoin(userTable, eq(userTable.id, childUpdate.authorId))
+    .leftJoin(userTable, eq(userTable.id, childUpdate.authorId))
     .where(and(eq(childUpdate.childId, childId), visibility))
     .orderBy(desc(childUpdate.occurredOn), desc(childUpdate.createdAt))
 

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 import { z } from "zod"
 
 import { GuardianManager, StaffManager } from "@/components/portal/admin/pupil-links"
+import { PupilSettings } from "@/components/portal/admin/pupil-settings"
 import { PageHeader } from "@/components/site/page-header"
 import { getPupilAdminDetail } from "@/lib/admin/queries"
 import { requireUser } from "@/lib/auth/session"
@@ -53,6 +54,8 @@ export default async function AdminPupilPage({ params }: PageProps<"/portal/admi
           <p className="mb-6 text-muted-foreground">They can see all of this pupil&apos;s updates and add new ones.</p>
           <StaffManager childId={pupil.id} linked={detail.staff} available={detail.availableStaff} />
         </section>
+
+        <PupilSettings pupil={pupil} updateCount={detail.updateCount} />
       </div>
     </>
   )

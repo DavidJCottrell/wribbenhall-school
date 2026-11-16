@@ -21,6 +21,7 @@ type BaseProps<T extends FieldValues> = {
   label: ReactNode
   description?: ReactNode
   optional?: boolean
+  id?: string
 }
 
 function LabelText({ label, optional }: { label: ReactNode; optional?: boolean }) {
@@ -38,6 +39,7 @@ export function TextField<T extends FieldValues>({
   label,
   description,
   optional,
+  id = name,
   ...inputProps
 }: BaseProps<T> & Omit<ComponentProps<typeof Input>, "name">) {
   return (
@@ -46,11 +48,11 @@ export function TextField<T extends FieldValues>({
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={name} className="text-base">
+          <FieldLabel htmlFor={id} className="text-base">
             <LabelText label={label} optional={optional} />
           </FieldLabel>
           {description ? <FieldDescription>{description}</FieldDescription> : null}
-          <Input id={name} aria-invalid={fieldState.invalid} {...inputProps} {...field} value={field.value ?? ""} />
+          <Input id={id} aria-invalid={fieldState.invalid} {...inputProps} {...field} value={field.value ?? ""} />
           <FieldError errors={[fieldState.error]} />
         </Field>
       )}
@@ -64,6 +66,7 @@ export function TextAreaField<T extends FieldValues>({
   label,
   description,
   optional,
+  id = name,
   ...textareaProps
 }: BaseProps<T> & Omit<ComponentProps<typeof Textarea>, "name">) {
   return (
@@ -72,12 +75,12 @@ export function TextAreaField<T extends FieldValues>({
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={name} className="text-base">
+          <FieldLabel htmlFor={id} className="text-base">
             <LabelText label={label} optional={optional} />
           </FieldLabel>
           {description ? <FieldDescription>{description}</FieldDescription> : null}
           <Textarea
-            id={name}
+            id={id}
             aria-invalid={fieldState.invalid}
             className="min-h-32"
             {...textareaProps}
@@ -98,6 +101,7 @@ export function SelectField<T extends FieldValues>({
   description,
   options,
   placeholder = "Choose an option",
+  id = name,
 }: BaseProps<T> & { options: readonly SelectOption[]; placeholder?: string }) {
   return (
     <Controller
@@ -105,7 +109,7 @@ export function SelectField<T extends FieldValues>({
       name={name}
       render={({ field, fieldState }) => (
         <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={name} className="text-base">
+          <FieldLabel htmlFor={id} className="text-base">
             {label}
           </FieldLabel>
           {description ? <FieldDescription>{description}</FieldDescription> : null}
@@ -117,7 +121,7 @@ export function SelectField<T extends FieldValues>({
               field.onBlur()
             }}
           >
-            <SelectTrigger id={name} aria-invalid={fieldState.invalid} className="w-full" onBlur={field.onBlur} ref={field.ref}>
+            <SelectTrigger id={id} aria-invalid={fieldState.invalid} className="w-full" onBlur={field.onBlur} ref={field.ref}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
@@ -182,7 +186,7 @@ export function RadioField<T extends FieldValues>({
   )
 }
 
-export function CheckboxField<T extends FieldValues>({ control, name, label, description }: BaseProps<T>) {
+export function CheckboxField<T extends FieldValues>({ control, name, label, description, id = name }: BaseProps<T>) {
   return (
     <Controller
       control={control}
@@ -190,7 +194,7 @@ export function CheckboxField<T extends FieldValues>({ control, name, label, des
       render={({ field, fieldState }) => (
         <Field orientation="horizontal" data-invalid={fieldState.invalid} className="items-start">
           <Checkbox
-            id={name}
+            id={id}
             name={field.name}
             checked={Boolean(field.value)}
             onCheckedChange={(checked) => {
@@ -203,7 +207,7 @@ export function CheckboxField<T extends FieldValues>({ control, name, label, des
             className="mt-0.5 size-5"
           />
           <FieldContent>
-            <FieldLabel htmlFor={name} className="text-base leading-snug font-normal">
+            <FieldLabel htmlFor={id} className="text-base leading-snug font-normal">
               {label}
             </FieldLabel>
             {description ? <FieldDescription>{description}</FieldDescription> : null}

@@ -214,3 +214,22 @@ export const assignStaffSchema = z.object({
 })
 
 export type AssignStaffValues = z.infer<typeof assignStaffSchema>
+
+export const forgotPasswordSchema = z.object({ email })
+
+export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(MIN_PASSWORD_LENGTH, `Use at least ${MIN_PASSWORD_LENGTH} characters`)
+      .max(128, "Use 128 characters or fewer"),
+    confirmPassword: z.string().min(1, "Enter your new password again"),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "The two passwords don't match",
+  })
+
+export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>

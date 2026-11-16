@@ -15,12 +15,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { createUserSchema, type CreateUserValues } from "@/lib/forms/schemas"
 
 import { TemporaryPassword } from "./temporary-password"
-
-const roleOptions = [
-  { value: "parent", label: "Parent or carer" },
-  { value: "staff", label: "Staff" },
-  { value: "admin", label: "Administrator" },
-]
+import { roleOptions } from "./user-row-actions"
 
 export function CreateUserForm() {
   const router = useRouter()
