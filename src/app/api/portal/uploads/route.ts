@@ -12,7 +12,7 @@ import {
 } from "@/lib/uploads"
 
 // What the upload is for decides who may make it. Later record types add their own purpose here.
-const PURPOSE_PERMISSIONS = { day_report: "reports.write" } as const satisfies Record<string, Permission>
+const PURPOSE_PERMISSIONS = { day_report: "reports.write", incident: "incidents.record" } as const satisfies Record<string, Permission>
 
 const payloadSchema = z.object({ childId: z.uuid(), purpose: z.enum(Object.keys(PURPOSE_PERMISSIONS) as [keyof typeof PURPOSE_PERMISSIONS]) })
 

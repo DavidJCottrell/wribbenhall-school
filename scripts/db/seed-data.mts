@@ -3,10 +3,10 @@ import { sql } from "drizzle-orm"
 
 import { getDb } from "../../src/db"
 import * as schema from "../../src/db/schema"
-import { attendanceMark, child, dayReport, guardianship, pupilContact, user } from "../../src/db/schema"
+import { attendanceMark, child, dayReport, guardianship, incident, incidentPupil, pupilContact, user } from "../../src/db/schema"
 export { appTables } from "./app-tables.mjs"
 import { attendanceSeedStatements } from "./build-reset-sql.mjs"
-import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, contacts, guardianships, pupils, reports, users } from "./fixtures.mjs"
+import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, contacts, guardianships, incidents, pupils, reports, users } from "./fixtures.mjs"
 
 export { DEV_PASSWORD }
 
@@ -53,6 +53,40 @@ export async function seedDevData() {
     await db
       .insert(dayReport)
       .values(reports.map(({ pupilId, daysAgo: days, ...report }) => ({ ...report, childId: pupilId, reportDate: daysAgo(days) })))
+  }
+
+  const [existingIncident] = await db.select({ id: incident.id }).from(incident).limit(1)
+  if (!existingIncident) {
+    await db.insert(incident).values(
+      incidents.map((fixture) => ({
+        id: fixture.id,
+        childId: fixture.pupilId,
+        createdBy: fixture.createdBy,
+        occurredOn: daysAgo(fixture.daysAgo),
+        occurredTime: fixture.time,
+        type: fixture.type,
+        severity: fixture.severity,
+        location: fixture.location,
+        summary: fixture.summary,
+        description: fixture.description,
+        injury: fixture.injury,
+        firstAid: fixture.firstAid,
+        interventionTechnique: fixture.intervention?.technique ?? null,
+        interventionMinutes: fixture.intervention?.minutes ?? null,
+        interventionStaff: fixture.intervention?.staff ?? null,
+        interventionDebrief: fixture.intervention?.debrief ?? null,
+        parentsInformedOn: fixture.parentsInformed ? daysAgo(fixture.parentsInformed.daysAgo) : null,
+        parentsInformedBy: fixture.parentsInformed?.by ?? null,
+        parentsInformedHow: fixture.parentsInformed?.how ?? null,
+        status: fixture.status,
+        reviewedBy: fixture.reviewedBy,
+        reviewedAt: fixture.reviewedBy ? new Date() : null,
+        reviewNotes: fixture.reviewNotes,
+        shareWithParents: fixture.shareWithParents,
+        parentSummary: fixture.parentSummary,
+      })),
+    )
+    await db.insert(incidentPupil).values(incidents.flatMap((fixture) => fixture.involved.map((other) => ({ incidentId: fixture.id, childId: other.pupilId, role: other.role }))))
   }
 
   const [existingMark] = await db.select({ childId: attendanceMark.childId }).from(attendanceMark).limit(1)

@@ -1,6 +1,6 @@
 // Builds reset-preview.sql from the same fixtures the TypeScript seed uses, so the two can't drift apart.
 import { appTables } from "./app-tables.mjs"
-import { ATTENDANCE_SEED_WEEKDAYS_BACK, DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, attendanceProfiles, contacts, guardianships, pupils, reports, todaysMorning, users } from "./fixtures.mjs"
+import { ATTENDANCE_SEED_WEEKDAYS_BACK, DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, attendanceProfiles, contacts, guardianships, incidents, pupils, reports, todaysMorning, users } from "./fixtures.mjs"
 
 const text = (value: string | null) => (value === null ? "NULL" : `'${value.replace(/'/g, "''")}'`)
 const date = (value: string | null) => (value === null ? "NULL" : `'${value}'`)
@@ -90,6 +90,17 @@ ${rows(guardianships.map((g) => `(${text(g.userId)}, ${text(g.pupilId)}, ${text(
 
 INSERT INTO "day_report" (child_id, author_id, title, body, report_date, session, subject, visible_to_parents) VALUES
 ${rows(reports.map((r) => `(${text(r.pupilId)}, ${text(r.authorId)}, ${text(r.title)}, ${multiline(r.body)}, current_date - ${r.daysAgo}, ${text(r.session)}, ${text(r.subject)}, ${bool(r.visibleToParents)})`))};
+
+INSERT INTO "incident" (id, child_id, created_by, occurred_on, occurred_time, type, severity, location, summary, description, injury, first_aid, intervention_technique, intervention_minutes, intervention_staff, intervention_debrief, parents_informed_on, parents_informed_by, parents_informed_how, status, reviewed_by, reviewed_at, review_notes, share_with_parents, parent_summary) VALUES
+${rows(
+  incidents.map(
+    (i) =>
+      `(${text(i.id)}, ${text(i.pupilId)}, ${text(i.createdBy)}, current_date - ${i.daysAgo}, ${text(i.time)}, ${text(i.type)}, ${text(i.severity)}, ${text(i.location)}, ${text(i.summary)}, ${multiline(i.description)}, ${text(i.injury)}, ${text(i.firstAid)}, ${text(i.intervention?.technique ?? null)}, ${i.intervention?.minutes ?? "NULL"}, ${text(i.intervention?.staff ?? null)}, ${text(i.intervention?.debrief ?? null)}, ${i.parentsInformed ? `current_date - ${i.parentsInformed.daysAgo}` : "NULL"}, ${text(i.parentsInformed?.by ?? null)}, ${text(i.parentsInformed?.how ?? null)}, ${text(i.status)}, ${text(i.reviewedBy)}, ${i.reviewedBy ? "now()" : "NULL"}, ${text(i.reviewNotes)}, ${bool(i.shareWithParents)}, ${text(i.parentSummary)})`,
+  ),
+)};
+
+INSERT INTO "incident_pupil" (incident_id, child_id, role) VALUES
+${rows(incidents.flatMap((i) => i.involved.map((p) => `(${text(i.id)}, ${text(p.pupilId)}, ${text(p.role)})`)))};
 
 -- Ten weeks of attendance, each pupil with their own pattern, one closed day, and a partly taken register for today.
 ${attendanceSeedStatements().join(";\n\n")};

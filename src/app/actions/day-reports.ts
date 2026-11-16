@@ -1,6 +1,5 @@
 "use server"
 
-import { BlobNotFoundError, del, head } from "@vercel/blob"
 import { and, eq, inArray } from "drizzle-orm"
 import type { BatchItem } from "drizzle-orm/batch"
 import { z } from "zod"
@@ -11,46 +10,12 @@ import { recordAudit } from "@/lib/audit"
 import { getActionUser, type CurrentUser } from "@/lib/auth/session"
 import { dayReportSchema, type DayReportValues } from "@/lib/forms/schemas"
 import { canManageDayReport } from "@/lib/portal/day-reports"
+import { discardBlobs, verifyUploads, type VerifiedUpload } from "@/lib/portal/file-uploads"
 import { getPupilFor } from "@/lib/portal/pupils"
-import { MAX_FILES_PER_RECORD, MAX_ATTACHMENT_BYTES, isAllowedAttachmentType, isAttachmentPathFor } from "@/lib/uploads"
-
-const attachmentsSchema = z
-  .array(z.object({ pathname: z.string().max(300), filename: z.string().trim().min(1).max(200) }))
-  .max(MAX_FILES_PER_RECORD)
-
-type VerifiedAttachment = { pathname: string; filename: string; contentType: string; sizeBytes: number }
-
-// The browser uploads straight to Blob, so check what actually landed rather than trusting what it says.
-async function verifyAttachments(childId: string, attachments: unknown): Promise<VerifiedAttachment[] | null> {
-  const parsed = attachmentsSchema.safeParse(attachments ?? [])
-  if (!parsed.success) return null
-
-  const verified: VerifiedAttachment[] = []
-  for (const { pathname, filename } of parsed.data) {
-    if (!isAttachmentPathFor(childId, pathname)) return null
-    try {
-      const blob = await head(pathname)
-      if (blob.size > MAX_ATTACHMENT_BYTES || !isAllowedAttachmentType(blob.contentType)) return null
-      verified.push({ pathname, filename, contentType: blob.contentType, sizeBytes: blob.size })
-    } catch (error) {
-      if (error instanceof BlobNotFoundError) return null
-      throw error
-    }
-  }
-  return verified
-}
+import { MAX_FILES_PER_RECORD } from "@/lib/uploads"
 
 function storedFields(values: DayReportValues) {
   return { ...values, session: values.session || null, subject: values.subject || null }
-}
-
-async function discardBlobs(pathnames: string[]) {
-  if (pathnames.length === 0) return
-  try {
-    await del(pathnames)
-  } catch (error) {
-    console.error("[portal] couldn't remove unused uploads", error)
-  }
 }
 
 export type DayReportResult =
@@ -76,9 +41,9 @@ export async function addDayReport(childId: unknown, values: unknown, attachment
     }
   }
 
-  let verified: VerifiedAttachment[] | null
+  let verified: VerifiedUpload[] | null
   try {
-    verified = await verifyAttachments(parsedChildId.data, attachments)
+    verified = await verifyUploads(parsedChildId.data, attachments)
   } catch (error) {
     console.error("[portal] couldn't check uploads", error)
     return { ok: false, message: "Your files couldn't be checked. Please try again." }
@@ -164,9 +129,9 @@ export async function updateDayReport(
     .where(eq(recordFile.dayReportId, report.id))
   const removing = existing.filter((file) => removedIds.data.includes(file.id))
 
-  let verified: VerifiedAttachment[] | null
+  let verified: VerifiedUpload[] | null
   try {
-    verified = await verifyAttachments(report.childId, newAttachments)
+    verified = await verifyUploads(report.childId, newAttachments)
   } catch (error) {
     console.error("[portal] couldn't check uploads", error)
     return { ok: false, message: "Your files couldn't be checked. Please try again." }

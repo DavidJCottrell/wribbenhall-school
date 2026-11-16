@@ -2,6 +2,8 @@ import { isValid, parseISO } from "date-fns"
 import { z } from "zod"
 
 import { isPermission, userKinds, type Permission } from "@/lib/auth/permissions"
+import { canShareWithParents } from "@/lib/incidents/rules"
+import { incidentStatuses, incidentTypes, informedHowOptions, involvementRoles, severities } from "@/lib/incidents/types"
 
 const requiredText = (label: string, max = 200) =>
   z.string().trim().min(1, `Enter ${label}`).max(max, `${label[0].toUpperCase()}${label.slice(1)} must be ${max} characters or fewer`)
@@ -172,6 +174,51 @@ export const dayReportSchema = z.object({
 })
 
 export type DayReportValues = z.infer<typeof dayReportSchema>
+
+const isoDate = (message: string) =>
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/, message).refine((value) => isValid(parseISO(value)), "Enter a real date")
+
+const optionalLongText = (label: string, max = 3000) => z.string().trim().max(max, `${label} must be ${max.toLocaleString("en-GB")} characters or fewer`)
+
+export const incidentSchema = z.object({
+  occurredOn: isoDate("Enter the date it happened"),
+  occurredTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Enter the time it happened"),
+  type: z.enum(incidentTypes, { error: "Choose the type of incident" }),
+  severity: z.enum(severities, { error: "Choose how serious it was" }),
+  location: z.string().trim().max(120, "Location must be 120 characters or fewer"),
+  summary: requiredText("a short summary", 200),
+  description: z.string().trim().min(1, "Describe what happened").max(5000, "The description must be 5,000 characters or fewer"),
+  antecedent: optionalLongText("What led up to it"),
+  behaviour: optionalLongText("What the pupil did"),
+  response: optionalLongText("How staff responded"),
+  outcome: optionalLongText("The outcome"),
+  injury: optionalLongText("Injury details", 1000),
+  firstAid: optionalLongText("First aid", 1000),
+  interventionTechnique: z.string().trim().max(200, "Technique must be 200 characters or fewer"),
+  interventionMinutes: z.string().trim().regex(/^\d{0,3}$/, "Enter the minutes as a whole number"),
+  interventionStaff: z.string().trim().max(300, "Staff involved must be 300 characters or fewer"),
+  interventionDebrief: optionalLongText("Debrief"),
+  parentsInformedOn: z.union([z.literal(""), isoDate("Enter the date parents were told")]),
+  parentsInformedBy: z.string().trim().max(120, "Name must be 120 characters or fewer"),
+  parentsInformedHow: z.enum([...informedHowOptions, ""]),
+  involved: z.array(z.object({ childId: z.uuid(), role: z.enum(involvementRoles) })).max(10, "Choose up to 10 other pupils"),
+})
+
+export type IncidentValues = z.infer<typeof incidentSchema>
+
+export const incidentReviewSchema = z
+  .object({
+    status: z.enum(incidentStatuses),
+    reviewNotes: optionalLongText("Review notes"),
+    shareWithParents: z.boolean(),
+    parentSummary: optionalLongText("The summary for parents", 2000),
+  })
+  .refine((value) => !value.shareWithParents || canShareWithParents(value.parentSummary), {
+    path: ["parentSummary"],
+    message: "Write the summary parents will see before sharing it",
+  })
+
+export type IncidentReviewValues = z.infer<typeof incidentReviewSchema>
 
 export const MIN_PASSWORD_LENGTH = 12
 

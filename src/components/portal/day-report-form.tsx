@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
-import { upload } from "@vercel/blob/client"
 import { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -16,9 +15,10 @@ import { Spinner } from "@/components/ui/spinner"
 import { useToday } from "@/hooks/use-today"
 import { REPORT_SESSIONS, dayReportSchema, type DayReportValues } from "@/lib/forms/schemas"
 import type { DayReportView } from "@/lib/portal/day-reports"
-import { MAX_FILES_PER_RECORD, attachmentPrefix, formatBytes, safeStorageName, type UploadedAttachment } from "@/lib/uploads"
+import { MAX_FILES_PER_RECORD, formatBytes } from "@/lib/uploads"
 
 import { AttachmentPicker } from "./attachment-picker"
+import { useFileUploads } from "./use-file-uploads"
 
 type Props = {
   childId: string
@@ -33,10 +33,7 @@ export function DayReportForm({ childId, report, onSaved, idPrefix = "" }: Props
   const router = useRouter()
   const today = useToday()
   const [pending, startTransition] = useTransition()
-  const [files, setFiles] = useState<File[]>([])
-  const [progress, setProgress] = useState<string | null>(null)
-  // Kept between attempts, so a failed save doesn't upload the same files again.
-  const [uploaded] = useState(() => new Map<File, UploadedAttachment>())
+  const { files, setFiles, progress, uploadAll, reset: resetFiles } = useFileUploads(childId, "day_report")
   const [removedIds, setRemovedIds] = useState<ReadonlySet<string>>(new Set())
 
   const form = useForm<DayReportValues>({
@@ -69,34 +66,9 @@ export function DayReportForm({ childId, report, onSaved, idPrefix = "" }: Props
     })
   }
 
-  async function uploadFiles(): Promise<UploadedAttachment[] | null> {
-    const results: UploadedAttachment[] = []
-    for (const [index, file] of files.entries()) {
-      let result = uploaded.get(file)
-      if (!result) {
-        setProgress(`Uploading file ${index + 1} of ${files.length}`)
-        try {
-          const blob = await upload(`${attachmentPrefix(childId)}${crypto.randomUUID()}-${safeStorageName(file.name)}`, file, {
-            access: "private",
-            handleUploadUrl: "/api/portal/uploads",
-            clientPayload: JSON.stringify({ childId, purpose: "day_report" }),
-          })
-          result = { pathname: blob.pathname, filename: file.name }
-          uploaded.set(file, result)
-        } catch {
-          toast.error(`${file.name} couldn't be uploaded. Please try again.`)
-          return null
-        }
-      }
-      results.push(result)
-    }
-    return results
-  }
-
   const onSubmit = form.handleSubmit((values) => {
     startTransition(async () => {
-      const attachments = await uploadFiles()
-      setProgress(null)
+      const attachments = await uploadAll()
       if (!attachments) return
 
       const result = report
@@ -105,8 +77,7 @@ export function DayReportForm({ childId, report, onSaved, idPrefix = "" }: Props
       if (result.ok) {
         toast.success(report ? "Changes saved" : "Report saved")
         if (!report) form.reset({ title: "", reportDate: today ?? "", session: "", subject: "", body: "", visibleToParents: true })
-        setFiles([])
-        uploaded.clear()
+        resetFiles()
         router.refresh()
         onSaved?.()
       } else {

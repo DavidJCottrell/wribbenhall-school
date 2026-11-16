@@ -71,7 +71,7 @@ async function callAction(persona, name, args) {
     body: JSON.stringify(args),
   })
   const text = await response.text()
-  return { ok: /"ok":true/.test(text), message: text.match(/"message":"([^"]*)"/)?.[1] ?? "", userId: text.match(/"userId":"([^"]*)"/)?.[1] }
+  return { ok: /"ok":true/.test(text), message: text.match(/"message":"([^"]*)"/)?.[1] ?? "", userId: text.match(/"userId":"([^"]*)"/)?.[1], id: text.match(/"id":"([^"]*)"/)?.[1] }
 }
 
 const refused = (result) => !result.ok && /permission|could not be found|session/i.test(result.message)
@@ -323,6 +323,88 @@ const tomorrow = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" })
   check("an administrator can't disable their own login", !disableSelf.ok && /own login/i.test(disableSelf.message), disableSelf.message)
   const deleteSelf = await callAction("admin", "deleteUser", [adminId, "admin@example.test"])
   check("an administrator can't delete their own login", !deleteSelf.ok && /own login/i.test(deleteSelf.message), deleteSelf.message)
+}
+
+// ---- Incidents
+const INC_SHARED = "a1111111-1111-4111-8111-111111111111"
+const INC_PRIVATE = "a2222222-2222-4222-8222-222222222222"
+const INC_OAK = "a3333333-3333-4333-8333-333333333333"
+const INC_ASH = "a4444444-4444-4444-8444-444444444444"
+const PARENT_MARKER = "FICTIONAL-PARENT-SUMMARY"
+const STAFF_MARKER = "FICTIONAL-STAFF-ONLY-DETAIL"
+const validIncident = {
+  occurredOn: today, occurredTime: "10:30", type: "behaviour", severity: "low", location: "", summary: "E2E probe incident", description: "E2E probe",
+  antecedent: "", behaviour: "", response: "", outcome: "", injury: "", firstAid: "", interventionTechnique: "", interventionMinutes: "",
+  interventionStaff: "", interventionDebrief: "", parentsInformedOn: "", parentsInformedBy: "", parentsInformedHow: "", involved: [{ childId: ASH, role: "witness" }],
+}
+const noReview = { status: "closed", reviewNotes: "", shareWithParents: false, parentSummary: "" }
+
+{
+  for (const [persona, canView] of [["admin", true], ["teacher", true], ["support", true], ["office", false], ["basic", false], ["pat", false], ["sam", false]]) {
+    const list = await page(persona, "/portal/incidents")
+    check(`${persona} ${canView ? "can" : "can't"} open the incident list`, list.html.includes("Difficult start to the morning") === canView)
+    const detail = await page(persona, `/portal/incidents/${INC_SHARED}`)
+    check(`${persona} ${canView ? "can" : "can't"} read an incident in full`, detail.html.includes(STAFF_MARKER) === canView)
+    const tab = await page(persona, `/portal/pupils/${RIVER}/incidents`)
+    const seesNotices = persona === "pat"
+    check(`${persona} gets the right incident tab`, tab.html.includes("Grazed knee at break") === canView && tab.html.includes(PARENT_MARKER) === seesNotices)
+  }
+  for (const [persona, canRecord] of [["admin", true], ["teacher", true], ["support", true], ["office", false], ["basic", false]]) {
+    const form = await page(persona, `/portal/incidents/new?pupil=${RIVER}`)
+    check(`${persona} ${canRecord ? "can" : "can't"} open the form to record an incident`, form.html.includes("What happened") === canRecord)
+  }
+  check("someone who records can edit their own open incident only", (await page("teacher", `/portal/incidents/${INC_ASH}/edit`)).html.includes("Save changes") && !(await page("teacher", `/portal/incidents/${INC_SHARED}/edit`)).html.includes("Save changes") && !(await page("support", `/portal/incidents/${INC_ASH}/edit`)).html.includes("Save changes"))
+  check("a reviewer can edit any incident", (await page("admin", `/portal/incidents/${INC_SHARED}/edit`)).html.includes("Save changes"))
+  check("only a reviewer sees the review form", (await page("admin", `/portal/incidents/${INC_OAK}`)).html.includes("Save review") && !(await page("teacher", `/portal/incidents/${INC_OAK}`)).html.includes("Save review"))
+
+  // What a parent can see, across every page they can reach
+  for (const path of [`/portal/pupils/${RIVER}`, `/portal/pupils/${RIVER}/incidents`, `/portal/pupils/${OAK}`, `/portal/pupils/${OAK}/incidents`]) {
+    const { html } = await page("pat", path)
+    const leaked = [STAFF_MARKER, "Grazed knee", "Needed support", "Unkind comments", "Fictional technique", "Ash Sample", "Draft, not yet shared", "Followed the agreed plan"].filter((text) => html.includes(text))
+    check(`a parent sees nothing staff-only on ${path.replace(/[0-9a-f-]{36}/, ":pupil")}`, leaked.length === 0, leaked.join(", "))
+  }
+  check("a parent sees the summary staff chose to share, and only that", (await page("pat", `/portal/pupils/${RIVER}/incidents`)).html.includes(PARENT_MARKER) && !(await page("pat", `/portal/pupils/${OAK}/incidents`)).html.includes(PARENT_MARKER))
+  check("a parent of another pupil sees no notices", !(await page("sam", `/portal/pupils/${ASH}/incidents`)).html.includes("Unkind comments"))
+
+  const attempts = [
+    ["recordIncident", [RIVER, validIncident, []], ["office", "basic", "pat", "sam"]],
+    ["updateIncident", [INC_SHARED, validIncident, [], []], ["teacher", "support", "office", "basic", "pat"]],
+    ["updateIncident", [INC_ASH, validIncident, [], []], ["support"]],
+    ["reviewIncident", [INC_OAK, noReview], ["teacher", "support", "office", "basic", "pat"]],
+    ["deleteIncident", [INC_OAK], ["teacher", "support", "office", "basic", "pat"]],
+  ]
+  for (const [name, args, who] of attempts) {
+    for (const persona of who) {
+      const result = await callAction(persona, name, args)
+      check(`${persona} is refused when calling ${name} directly`, refused(result), result.message)
+    }
+  }
+  for (const persona of ["office", "basic", "pat"]) {
+    const response = await fetch(`${BASE}/api/portal/uploads`, {
+      method: "POST",
+      headers: { Cookie: cookies[persona], "Content-Type": "application/json", Origin: BASE },
+      body: JSON.stringify({ type: "blob.generate-client-token", payload: { pathname: `children/${RIVER}/probe.pdf`, clientPayload: JSON.stringify({ childId: RIVER, purpose: "incident" }), multipart: false } }),
+    })
+    check(`${persona} is refused an upload token for an incident`, response.status >= 400)
+  }
+
+  // The whole life of an incident
+  const recorded = await callAction("teacher", "recordIncident", [RIVER, validIncident, []])
+  check("someone who records can record an incident", recorded.ok && Boolean(recorded.id), recorded.message)
+  const probe = recorded.id
+  const asParent = async () => (await page("pat", `/portal/pupils/${RIVER}/incidents`)).html
+  check("a new incident is not shown to parents", !(await asParent()).includes("E2E probe"))
+  const noSummary = await callAction("admin", "reviewIncident", [probe, { ...noReview, shareWithParents: true }])
+  check("an incident can't be shared without a summary for parents", !noSummary.ok, noSummary.message)
+  const shared = await callAction("admin", "reviewIncident", [probe, { status: "closed", reviewNotes: "", shareWithParents: true, parentSummary: "E2E-PARENT-NOTE" }])
+  check("a reviewer can close an incident and share a summary", shared.ok, shared.message)
+  const parentHtml = await asParent()
+  check("the parent then sees that summary, but never the pupils listed as involved", parentHtml.includes("E2E-PARENT-NOTE") && !parentHtml.includes("Ash Sample") && !parentHtml.includes("E2E probe incident"))
+  const editClosed = await callAction("teacher", "updateIncident", [probe, validIncident, [], []])
+  check("the author can't change it once it is closed", refused(editClosed), editClosed.message)
+  const removedProbe = await callAction("admin", "deleteIncident", [probe])
+  check("a reviewer can delete it", removedProbe.ok, removedProbe.message)
+  check("and it disappears from the parent's view", !(await asParent()).includes("E2E-PARENT-NOTE"))
 }
 
 // ---- Creating a login with chosen permissions, and the audit trail
