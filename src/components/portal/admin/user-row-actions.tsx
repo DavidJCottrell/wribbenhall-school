@@ -117,7 +117,7 @@ export function UserRowActions({ person, isSelf }: { person: AdminUser; isSelf: 
       )}
 
       <Dialog open={editing} onOpenChange={setEditing}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit {person.name}</DialogTitle>
             <DialogDescription>Their password and sessions are not affected.</DialogDescription>

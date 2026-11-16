@@ -43,7 +43,7 @@ export function DayReportActions({ childId, report }: { childId: string; report:
       </Button>
 
       <Dialog open={editing} onOpenChange={setEditing}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit report</DialogTitle>
             <DialogDescription>Changes are shown to parents straight away if the report is visible to them.</DialogDescription>

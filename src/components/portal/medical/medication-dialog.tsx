@@ -136,7 +136,7 @@ export function MedicationDialog({ childId, medication }: { childId: string; med
         ) : null}
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{medication ? "Edit" : "Add"} medication</DialogTitle>
             <DialogDescription>Only medication the parents have consented to can be given.</DialogDescription>

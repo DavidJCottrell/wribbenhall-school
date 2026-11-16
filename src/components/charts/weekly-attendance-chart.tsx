@@ -9,7 +9,7 @@ import { Legend, SERIES_LABELS, TableView, seriesFill, type Series } from "./cha
 
 // Drawn at the width it is shown at, so bars keep their real 24px cap and text its real size.
 const FALLBACK_WIDTH = 640
-const MIN_WIDTH = 520
+const MIN_WIDTH = 260
 const HEIGHT = 250
 const MARGIN = { top: 12, right: 8, bottom: 42, left: 34 }
 const BAR_MAX = 24
@@ -53,6 +53,8 @@ export function WeeklyAttendanceChart({ weeks }: { weeks: WeekSummary[] }) {
   const maxSessions = Math.max(10, ...weeks.map((week) => week.sessions))
   const band = plotWidth / weeks.length
   const barWidth = Math.min(BAR_MAX, band * 0.55)
+  // Labels thin out as bars get narrower, always keeping the latest week.
+  const labelStep = band >= 56 ? 1 : band >= 30 ? 2 : 3
   const yFor = (value: number) => MARGIN.top + plotHeight - (value / maxSessions) * plotHeight
   const ticks = [0, maxSessions / 2, maxSessions]
 
@@ -114,7 +116,7 @@ export function WeeklyAttendanceChart({ weeks }: { weeks: WeekSummary[] }) {
                     <rect key={segment.series} x={x} y={y} width={barWidth} height={Math.max(height, 1)} style={{ fill: seriesFill(segment.series) }} />
                   )
                 })}
-                {band >= 56 || index % 2 === weeks.length % 2 ? (
+                {index % labelStep === (weeks.length - 1) % labelStep ? (
                   <text x={MARGIN.left + band * index + band / 2} y={HEIGHT - 18} textAnchor="middle" fontSize="12" style={{ fill: "var(--chart-label)" }}>
                     {label(week.weekStart)}
                   </text>
