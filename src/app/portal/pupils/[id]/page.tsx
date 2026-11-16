@@ -13,6 +13,7 @@ import { getAttendanceFor, type AttendanceView } from "@/lib/portal/attendance"
 import { getParentPupilView, getPupilProfile, listContactsFor, type ContactView } from "@/lib/portal/pupils"
 import { listDayReportsFor, type DayReportView } from "@/lib/portal/day-reports"
 import { INCIDENT_TYPES } from "@/lib/incidents/types"
+import { getMedicalFor } from "@/lib/portal/medical"
 import { listIncidentsFor, listSharedIncidentsFor, type IncidentSummary, type SharedIncident } from "@/lib/portal/incidents"
 
 export const metadata: Metadata = { title: "Pupil overview" }
@@ -153,11 +154,12 @@ export default async function PupilOverviewPage({ params }: PageProps<"/portal/p
 
   const pupil = await getPupilProfile(user, pupilId.data)
   if (!pupil) notFound()
-  const [reports, contacts, attendance, incidents] = await Promise.all([
+  const [reports, contacts, attendance, incidents, medical] = await Promise.all([
     listDayReportsFor(user, pupil.id, { limit: 3 }),
     listContactsFor(user, pupil.id),
     getAttendanceFor(user, pupil.id, ukToday()),
     listIncidentsFor(user, { childId: pupil.id, limit: 3 }),
+    getMedicalFor(user, pupil.id),
   ])
 
   recordAuditAfterResponse(user, {
@@ -177,6 +179,16 @@ export default async function PupilOverviewPage({ params }: PageProps<"/portal/p
       {can(user, "incidents.view") ? (
         <DashboardCard title="Recent incidents" href={`${base}/incidents`}>
           <RecentIncidents incidents={incidents} />
+        </DashboardCard>
+      ) : null}
+      {medical ? (
+        <DashboardCard title="Medical" href={`${base}/medical`}>
+          <Facts
+            items={[
+              { label: "Current conditions and allergies", value: medical.conditions.filter((condition) => condition.active).length },
+              { label: "Current medication", value: medical.medications.filter((med) => med.active).length },
+            ]}
+          />
         </DashboardCard>
       ) : null}
       <DashboardCard title="Key details" href={`${base}/profile`} hrefLabel="Full profile">

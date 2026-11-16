@@ -21,7 +21,7 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <header style={{ viewTransitionName: "site-header" }} className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
+    <header style={{ viewTransitionName: "site-header" }} className="print:hidden sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85">
       <div className="container-page flex h-[4.5rem] items-center justify-between gap-6">
         <Link href="/" className="min-w-0 rounded-md text-ink" aria-label="Wribbenhall School, home">
           <Logo />

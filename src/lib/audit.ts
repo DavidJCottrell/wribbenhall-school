@@ -10,7 +10,7 @@ import type { CurrentUser } from "@/lib/auth/session"
 
 export type AuditAction = "view" | "create" | "update" | "delete" | "export"
 
-export type AuditSubject = "attendance" | "pupil" | "contact" | "parent_link" | "login" | "permissions" | "report" | "incident" | "password"
+export type AuditSubject = "attendance" | "pupil" | "contact" | "parent_link" | "login" | "permissions" | "report" | "incident" | "medical" | "password"
 
 export type AuditEntry = {
   action: AuditAction

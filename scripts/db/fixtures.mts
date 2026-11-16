@@ -224,6 +224,179 @@ export const incidents: FixtureIncident[] = [
   },
 ]
 
+// Markers in the text let the permission tests prove what a parent can and can't see.
+export const ACTION_PLAN_MARKER = "FICTIONAL-ACTION-PLAN"
+export const MEDICATION_NOTES_MARKER = "FICTIONAL-MEDICATION-NOTES"
+
+export type FixtureCondition = {
+  id: string
+  pupilId: string
+  kind: "condition" | "allergy" | "dietary" | "other"
+  name: string
+  severity: "mild" | "moderate" | "severe"
+  signs: string | null
+  actionPlan: string | null
+  alert: boolean
+  active: boolean
+  visibleToParents: boolean
+}
+
+export const conditions: FixtureCondition[] = [
+  {
+    id: "b1111111-1111-4111-8111-111111111111",
+    pupilId: pupils[0].id,
+    kind: "allergy",
+    name: "Peanut allergy",
+    severity: "severe",
+    signs: "Swelling of the lips, wheezing, hives.",
+    actionPlan: `${ACTION_PLAN_MARKER} Use the auto-injector from the office, then call 999.`,
+    alert: true,
+    active: true,
+    visibleToParents: true,
+  },
+  {
+    id: "b2222222-2222-4222-8222-222222222222",
+    pupilId: pupils[0].id,
+    kind: "condition",
+    name: "Hay fever (staff note)",
+    severity: "mild",
+    signs: null,
+    actionPlan: null,
+    alert: false,
+    active: true,
+    visibleToParents: false,
+  },
+  {
+    id: "b3333333-3333-4333-8333-333333333333",
+    pupilId: pupils[2].id,
+    kind: "dietary",
+    name: "Gluten free",
+    severity: "moderate",
+    signs: "Stomach pain after eating wheat.",
+    actionPlan: `${ACTION_PLAN_MARKER} Check the lunch menu with the kitchen.`,
+    alert: true,
+    active: true,
+    visibleToParents: true,
+  },
+]
+
+export type FixtureMedication = {
+  id: string
+  pupilId: string
+  name: string
+  dose: string
+  route: "oral" | "inhaled" | "topical" | "injection" | "eye_drops" | "other"
+  frequency: string | null
+  scheduledTimes: string[]
+  asRequired: boolean
+  maxDailyDoses: number | null
+  prescriber: string | null
+  startsDaysAgo: number | null
+  // Negative means already expired.
+  expiresInDays: number | null
+  storage: string | null
+  consentDaysAgo: number | null
+  notes: string | null
+  active: boolean
+}
+
+export const medications: FixtureMedication[] = [
+  {
+    id: "c1111111-1111-4111-8111-111111111111",
+    pupilId: pupils[0].id,
+    name: "Fictional reliever inhaler",
+    dose: "2 puffs",
+    route: "inhaled",
+    frequency: "When needed",
+    scheduledTimes: [],
+    asRequired: true,
+    maxDailyDoses: 4,
+    prescriber: "Dr Fictional",
+    startsDaysAgo: 60,
+    expiresInDays: 200,
+    storage: "Office cupboard",
+    consentDaysAgo: 55,
+    notes: `${MEDICATION_NOTES_MARKER} Shake before use.`,
+    active: true,
+  },
+  {
+    id: "c2222222-2222-4222-8222-222222222222",
+    pupilId: pupils[1].id,
+    name: "Fictional tablet",
+    dose: "5 mg",
+    route: "oral",
+    frequency: "Twice on school days",
+    scheduledTimes: ["08:30", "12:30"],
+    asRequired: false,
+    maxDailyDoses: null,
+    prescriber: "Dr Fictional",
+    startsDaysAgo: 90,
+    expiresInDays: 20,
+    storage: "Locked cabinet",
+    consentDaysAgo: 85,
+    notes: `${MEDICATION_NOTES_MARKER} Give with food.`,
+    active: true,
+  },
+  {
+    id: "c3333333-3333-4333-8333-333333333333",
+    pupilId: pupils[1].id,
+    name: "Fictional expired cream",
+    dose: "Thin layer",
+    route: "topical",
+    frequency: "When needed",
+    scheduledTimes: [],
+    asRequired: true,
+    maxDailyDoses: null,
+    prescriber: null,
+    startsDaysAgo: 200,
+    expiresInDays: -3,
+    storage: null,
+    consentDaysAgo: 190,
+    notes: null,
+    active: true,
+  },
+  {
+    id: "c4444444-4444-4444-8444-444444444444",
+    pupilId: pupils[2].id,
+    name: "Fictional liquid",
+    dose: "5 ml",
+    route: "oral",
+    frequency: "Once each school day",
+    scheduledTimes: ["09:00"],
+    asRequired: false,
+    maxDailyDoses: null,
+    prescriber: null,
+    startsDaysAgo: 5,
+    expiresInDays: 300,
+    storage: "Fridge in the office",
+    consentDaysAgo: null,
+    notes: null,
+    active: true,
+  },
+]
+
+export type FixtureDose = {
+  medicationId: string
+  pupilId: string
+  daysAgo: number
+  time: string
+  scheduledFor: string | null
+  outcome: "given" | "refused" | "missed" | "not_needed"
+  dose: string | null
+  givenBy: string
+  witnessedBy: string | null
+  notes: string | null
+  voidReason: string | null
+}
+
+export const medicationLog: FixtureDose[] = [
+  { medicationId: medications[1].id, pupilId: pupils[1].id, daysAgo: 0, time: "08:35", scheduledFor: "08:30", outcome: "given", dose: "5 mg", givenBy: "seed-admin", witnessedBy: "seed-staff-alex", notes: null, voidReason: null },
+  { medicationId: medications[1].id, pupilId: pupils[1].id, daysAgo: 1, time: "08:32", scheduledFor: "08:30", outcome: "given", dose: "5 mg", givenBy: "seed-admin", witnessedBy: null, notes: null, voidReason: null },
+  { medicationId: medications[1].id, pupilId: pupils[1].id, daysAgo: 1, time: "12:40", scheduledFor: "12:30", outcome: "refused", dose: null, givenBy: "seed-admin", witnessedBy: "seed-staff-jo", notes: "Said they felt sick. Fictional text.", voidReason: null },
+  { medicationId: medications[0].id, pupilId: pupils[0].id, daysAgo: 3, time: "10:50", scheduledFor: null, outcome: "given", dose: "2 puffs", givenBy: "seed-admin", witnessedBy: null, notes: "After playtime.", voidReason: null },
+  { medicationId: medications[0].id, pupilId: pupils[0].id, daysAgo: 3, time: "10:55", scheduledFor: null, outcome: "given", dose: "2 puffs", givenBy: "seed-admin", witnessedBy: null, notes: null, voidReason: "Recorded against the wrong pupil. Fictional text." },
+]
+
 // How often each pupil is marked each way, out of 100 sessions. The marks are picked by a repeatable hash of
 // pupil, day and session, so every run produces the same pattern. Unauthorised absence fills the remainder.
 export type AttendanceProfile = { pupilId: string; present: number; late: number; illness: number; medical: number; authorisedOther: number }

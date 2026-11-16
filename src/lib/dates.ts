@@ -41,4 +41,8 @@ export function formatTimeRange(start?: string, end?: string) {
 export const ageOn = (dateOfBirth: string, onDay: string) => differenceInYears(parseISO(onDay), parseISO(dateOfBirth))
 
 // Today's date in the school's own time zone as YYYY-MM-DD. The server runs in UTC, which is an hour behind in summer.
+// The current UK clock time as HH:MM.
+export const ukNowTime = (now: Date = new Date()) =>
+  new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(now)
+
 export const ukToday = (now: Date = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(now)

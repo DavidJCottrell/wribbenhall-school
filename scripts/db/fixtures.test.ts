@@ -3,11 +3,12 @@ import { readFileSync } from "node:fs"
 import { verifyPassword } from "better-auth/crypto"
 import { describe, expect, it } from "vitest"
 
+import { canAdminister } from "../../src/lib/medical/rules"
 import { isAttendanceCode } from "../../src/lib/attendance/codes"
 import { allPermissions, normalizePermissions } from "../../src/lib/auth/permissions"
 import { appTables } from "./app-tables.mjs"
 import { buildResetSql } from "./build-reset-sql.mjs"
-import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, attendanceProfiles, contacts, todaysMorning, guardianships, incidents, pupils, reports, users } from "./fixtures.mjs"
+import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, attendanceProfiles, contacts, todaysMorning, conditions, guardianships, incidents, medicationLog, medications, pupils, reports, users } from "./fixtures.mjs"
 
 const userById = new Map(users.map((fixture) => [fixture.id, fixture]))
 const pupilIds = new Set(pupils.map((pupil) => pupil.id))
@@ -70,6 +71,51 @@ describe("incident fixtures", () => {
     for (const incident of incidents) {
       if (incident.shareWithParents) expect(incident.parentSummary?.trim()).toBeTruthy()
       expect(incident.intervention !== null).toBe(incident.type === "physical_intervention")
+    }
+  })
+})
+
+describe("medical fixtures", () => {
+  const medicationIds = new Set(medications.map((medication) => medication.id))
+
+  it("point at real pupils, and only alert about conditions that are current", () => {
+    for (const condition of conditions) {
+      expect(pupilIds.has(condition.pupilId)).toBe(true)
+      if (condition.alert) expect(condition.active).toBe(true)
+    }
+  })
+
+  it("give scheduled medication times and as-required medication none", () => {
+    for (const medication of medications) {
+      expect(pupilIds.has(medication.pupilId)).toBe(true)
+      expect(medication.scheduledTimes.length > 0).toBe(!medication.asRequired)
+      for (const time of medication.scheduledTimes) expect(time).toMatch(/^([01]\d|2[0-3]):[0-5]\d$/)
+    }
+  })
+
+  it("includes medication the school must not give: one without consent and one that has expired", () => {
+    const blocked = medications.filter((medication) => {
+      const check = canAdminister(
+        {
+          active: medication.active,
+          startsOn: null,
+          expiresOn: medication.expiresInDays !== null && medication.expiresInDays < 0 ? "2000-01-01" : null,
+          consentOn: medication.consentDaysAgo === null ? null : "2000-01-01",
+        },
+        "2026-01-01",
+      )
+      return !check.ok
+    })
+    expect(blocked.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it("has a log that points at real medication and people, with a reason for anything voided", () => {
+    for (const dose of medicationLog) {
+      expect(medicationIds.has(dose.medicationId)).toBe(true)
+      expect(pupilIds.has(dose.pupilId)).toBe(true)
+      expect(userById.get(dose.givenBy)?.kind).toBe("staff")
+      if (dose.witnessedBy) expect(dose.witnessedBy).not.toBe(dose.givenBy)
+      expect(medications.find((medication) => medication.id === dose.medicationId)?.pupilId).toBe(dose.pupilId)
     }
   })
 })

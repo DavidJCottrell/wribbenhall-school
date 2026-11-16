@@ -15,7 +15,7 @@ END $$;
 
 -- App data only. The migration history is left alone.
 TRUNCATE TABLE
-  "account", "attendance_mark", "audit_event", "child", "day_report", "guardianship", "incident", "incident_pupil", "pupil_contact", "rate_limit", "record_file", "session", "user", "verification"
+  "account", "attendance_mark", "audit_event", "child", "day_report", "guardianship", "incident", "incident_pupil", "medical_condition", "medication", "medication_log", "pupil_contact", "rate_limit", "record_file", "session", "user", "verification"
 CASCADE;
 
 INSERT INTO "user" (id, name, email, email_verified, role, permissions, must_change_password, banned) VALUES
@@ -77,6 +77,24 @@ INSERT INTO "incident" (id, child_id, created_by, occurred_on, occurred_time, ty
 INSERT INTO "incident_pupil" (incident_id, child_id, role) VALUES
   ('a3333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', 'witness'),
   ('a4444444-4444-4444-8444-444444444444', '22222222-2222-4222-8222-222222222222', 'involved');
+
+INSERT INTO "medical_condition" (id, child_id, kind, name, severity, signs, action_plan, alert, active, visible_to_parents, created_by) VALUES
+  ('b1111111-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111', 'allergy', 'Peanut allergy', 'severe', 'Swelling of the lips, wheezing, hives.', 'FICTIONAL-ACTION-PLAN Use the auto-injector from the office, then call 999.', true, true, true, 'seed-admin'),
+  ('b2222222-2222-4222-8222-222222222222', '11111111-1111-4111-8111-111111111111', 'condition', 'Hay fever (staff note)', 'mild', NULL, NULL, false, true, false, 'seed-admin'),
+  ('b3333333-3333-4333-8333-333333333333', '33333333-3333-4333-8333-333333333333', 'dietary', 'Gluten free', 'moderate', 'Stomach pain after eating wheat.', 'FICTIONAL-ACTION-PLAN Check the lunch menu with the kitchen.', true, true, true, 'seed-admin');
+
+INSERT INTO "medication" (id, child_id, name, dose, route, frequency, scheduled_times, as_required, max_daily_doses, prescriber, starts_on, expires_on, storage, consent_on, notes, active, created_by) VALUES
+  ('c1111111-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111', 'Fictional reliever inhaler', '2 puffs', 'inhaled', 'When needed', '{}'::text[], true, 4, 'Dr Fictional', current_date - 60, current_date + 200, 'Office cupboard', current_date - 55, 'FICTIONAL-MEDICATION-NOTES Shake before use.', true, 'seed-admin'),
+  ('c2222222-2222-4222-8222-222222222222', '22222222-2222-4222-8222-222222222222', 'Fictional tablet', '5 mg', 'oral', 'Twice on school days', ARRAY['08:30', '12:30']::text[], false, NULL, 'Dr Fictional', current_date - 90, current_date + 20, 'Locked cabinet', current_date - 85, 'FICTIONAL-MEDICATION-NOTES Give with food.', true, 'seed-admin'),
+  ('c3333333-3333-4333-8333-333333333333', '22222222-2222-4222-8222-222222222222', 'Fictional expired cream', 'Thin layer', 'topical', 'When needed', '{}'::text[], true, NULL, NULL, current_date - 200, current_date - 3, NULL, current_date - 190, NULL, true, 'seed-admin'),
+  ('c4444444-4444-4444-8444-444444444444', '33333333-3333-4333-8333-333333333333', 'Fictional liquid', '5 ml', 'oral', 'Once each school day', ARRAY['09:00']::text[], false, NULL, NULL, current_date - 5, current_date + 300, 'Fridge in the office', NULL, NULL, true, 'seed-admin');
+
+INSERT INTO "medication_log" (medication_id, child_id, occurred_on, occurred_time, scheduled_for, outcome, dose, given_by, given_by_name, witnessed_by, witnessed_by_name, notes, voided_at, voided_by, voided_by_name, void_reason) VALUES
+  ('c2222222-2222-4222-8222-222222222222', '22222222-2222-4222-8222-222222222222', current_date - 0, '08:35', '08:30', 'given', '5 mg', 'seed-admin', 'Robin Admin', 'seed-staff-alex', 'Alex Teacher', NULL, NULL, NULL, NULL, NULL),
+  ('c2222222-2222-4222-8222-222222222222', '22222222-2222-4222-8222-222222222222', current_date - 1, '08:32', '08:30', 'given', '5 mg', 'seed-admin', 'Robin Admin', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+  ('c2222222-2222-4222-8222-222222222222', '22222222-2222-4222-8222-222222222222', current_date - 1, '12:40', '12:30', 'refused', NULL, 'seed-admin', 'Robin Admin', 'seed-staff-jo', 'Jo Support', 'Said they felt sick. Fictional text.', NULL, NULL, NULL, NULL),
+  ('c1111111-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111', current_date - 3, '10:50', NULL, 'given', '2 puffs', 'seed-admin', 'Robin Admin', NULL, NULL, 'After playtime.', NULL, NULL, NULL, NULL),
+  ('c1111111-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111', current_date - 3, '10:55', NULL, 'given', '2 puffs', 'seed-admin', 'Robin Admin', NULL, NULL, NULL, now(), 'seed-admin', 'Robin Admin', 'Recorded against the wrong pupil. Fictional text.');
 
 -- Ten weeks of attendance, each pupil with their own pattern, one closed day, and a partly taken register for today.
 INSERT INTO "attendance_mark" (child_id, mark_date, session, code, recorded_by)

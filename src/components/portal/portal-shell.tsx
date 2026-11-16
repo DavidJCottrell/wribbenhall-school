@@ -11,7 +11,7 @@ export async function PortalShell({ children }: { children: ReactNode }) {
 
   return (
     <>
-      <div className="border-b border-border bg-secondary">
+      <div className="border-b border-border bg-secondary print:hidden">
         <div className="container-page flex flex-wrap items-center justify-between gap-3 py-3">
           <p>
             Logged in as <span className="font-semibold">{user.name}</span>
@@ -24,6 +24,11 @@ export async function PortalShell({ children }: { children: ReactNode }) {
             {user.kind === "staff" ? (
               <Link href="/portal/register" className="underline underline-offset-4">
                 Register
+              </Link>
+            ) : null}
+            {can(user, "medical.view") ? (
+              <Link href="/portal/medical" className="underline underline-offset-4">
+                Medication
               </Link>
             ) : null}
             {can(user, "incidents.view") ? (

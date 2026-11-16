@@ -3,10 +3,12 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { z } from "zod"
 
+import { AlertStrip } from "@/components/portal/medical/alert-strip"
 import { PupilTabs, type PupilTab } from "@/components/portal/pupil-tabs"
 import { can } from "@/lib/auth/permissions"
 import { requireUser } from "@/lib/auth/session"
 import { ageOn, toIsoDate } from "@/lib/dates"
+import { listAlertsFor } from "@/lib/portal/medical"
 import { getParentPupilView, getPupilProfile, pupilDisplayName } from "@/lib/portal/pupils"
 
 // Checks who may open this pupil. Each page below checks again, because a layout is not a security boundary.
@@ -30,15 +32,17 @@ export default async function PupilLayout({ children, params }: LayoutProps<"/po
       : can(user, "incidents.view")
         ? [{ href: `${base}/incidents`, label: "Incidents" }]
         : []),
+    ...(user.kind === "parent" || can(user, "medical.view") ? [{ href: `${base}/medical`, label: "Medical" }] : []),
     { href: `${base}/profile`, label: user.kind === "staff" ? "Profile and contacts" : "About your child" },
   ]
 
+  const alerts = await listAlertsFor(user, pupil.id)
   const age = pupil.dateOfBirth ? ageOn(pupil.dateOfBirth, toIsoDate(new Date())) : null
   const facts = [pupil.yearGroup, age !== null ? `Age ${age}` : null, pupil.keyWorkerName ? `Key worker: ${pupil.keyWorkerName}` : null].filter(Boolean)
 
   return (
     <>
-      <div className="border-b border-border">
+      <div className="border-b border-border print:hidden">
         <div className="container-page pt-8 pb-5">
           <Link href="/portal" className="inline-flex items-center gap-2 underline underline-offset-4">
             <ArrowLeftIcon aria-hidden="true" className="size-4" />
@@ -48,6 +52,9 @@ export default async function PupilLayout({ children, params }: LayoutProps<"/po
           <p className="mt-2 text-lead text-muted-foreground">{facts.join(" · ")}</p>
         </div>
         <PupilTabs tabs={tabs} />
+      </div>
+      <div className="print:hidden">
+        <AlertStrip alerts={alerts} />
       </div>
       {children}
     </>

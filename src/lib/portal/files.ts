@@ -31,6 +31,7 @@ export async function getFileFor(user: CurrentUser, fileId: string): Promise<Sto
       childId: recordFile.childId,
       dayReportId: recordFile.dayReportId,
       incidentId: recordFile.incidentId,
+      medicalConditionId: recordFile.medicalConditionId,
       reportVisibleToParents: dayReport.visibleToParents,
     })
     .from(recordFile)
@@ -40,6 +41,8 @@ export async function getFileFor(user: CurrentUser, fileId: string): Promise<Sto
 
   // Incident files are for staff with access to incidents. Parents never get them.
   if (row.incidentId && !can(user, "incidents.view")) return null
+  // Medical files (action plans) are for staff who may see medical records. Parents never get them.
+  if (row.medicalConditionId && !can(user, "medical.view")) return null
   if (user.kind === "parent" && (!row.dayReportId || row.reportVisibleToParents !== true)) return null
   if (!(await getPupilFor(user, row.childId))) return null
 

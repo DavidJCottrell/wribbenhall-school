@@ -3,10 +3,10 @@ import { sql } from "drizzle-orm"
 
 import { getDb } from "../../src/db"
 import * as schema from "../../src/db/schema"
-import { attendanceMark, child, dayReport, guardianship, incident, incidentPupil, pupilContact, user } from "../../src/db/schema"
+import { attendanceMark, child, dayReport, guardianship, incident, incidentPupil, medicalCondition, medication, medicationLog, pupilContact, user } from "../../src/db/schema"
 export { appTables } from "./app-tables.mjs"
 import { attendanceSeedStatements } from "./build-reset-sql.mjs"
-import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, contacts, guardianships, incidents, pupils, reports, users } from "./fixtures.mjs"
+import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, contacts, conditions, guardianships, incidents, medicationLog as doseFixtures, medications, pupils, reports, users } from "./fixtures.mjs"
 
 export { DEV_PASSWORD }
 
@@ -87,6 +87,44 @@ export async function seedDevData() {
       })),
     )
     await db.insert(incidentPupil).values(incidents.flatMap((fixture) => fixture.involved.map((other) => ({ incidentId: fixture.id, childId: other.pupilId, role: other.role }))))
+  }
+
+  const [existingCondition] = await db.select({ id: medicalCondition.id }).from(medicalCondition).limit(1)
+  if (!existingCondition) {
+    await db.insert(medicalCondition).values(conditions.map(({ pupilId, ...condition }) => ({ ...condition, childId: pupilId, createdBy: "seed-admin" })))
+    await db.insert(medication).values(
+      medications.map(({ pupilId, startsDaysAgo, expiresInDays, consentDaysAgo, ...med }) => ({
+        ...med,
+        childId: pupilId,
+        startsOn: startsDaysAgo === null ? null : daysAgo(startsDaysAgo),
+        expiresOn: expiresInDays === null ? null : daysAgo(-expiresInDays),
+        consentOn: consentDaysAgo === null ? null : daysAgo(consentDaysAgo),
+        createdBy: "seed-admin",
+      })),
+    )
+    await db.insert(medicationLog).values(
+      doseFixtures.map((dose) => {
+        const named = (id: string | null) => users.find((fixture) => fixture.id === id)?.name ?? null
+        return {
+          medicationId: dose.medicationId,
+          childId: dose.pupilId,
+          occurredOn: daysAgo(dose.daysAgo),
+          occurredTime: dose.time,
+          scheduledFor: dose.scheduledFor,
+          outcome: dose.outcome,
+          dose: dose.dose,
+          givenBy: dose.givenBy,
+          givenByName: named(dose.givenBy) ?? dose.givenBy,
+          witnessedBy: dose.witnessedBy,
+          witnessedByName: named(dose.witnessedBy),
+          notes: dose.notes,
+          voidedAt: dose.voidReason ? new Date() : null,
+          voidedBy: dose.voidReason ? "seed-admin" : null,
+          voidedByName: dose.voidReason ? "Robin Admin" : null,
+          voidReason: dose.voidReason,
+        }
+      }),
+    )
   }
 
   const [existingMark] = await db.select({ childId: attendanceMark.childId }).from(attendanceMark).limit(1)

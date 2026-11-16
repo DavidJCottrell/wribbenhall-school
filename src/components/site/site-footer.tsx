@@ -9,7 +9,7 @@ export async function SiteFooter() {
   const school = await getSchool()
 
   return (
-    <footer className="mt-auto bg-panel-deep panel-edge text-panel-foreground">
+    <footer className="mt-auto print:hidden bg-panel-deep panel-edge text-panel-foreground">
       <div className="container-page grid gap-12 py-16 md:grid-cols-12">
         <div className="md:col-span-5">
           <div className="flex items-center gap-4">
