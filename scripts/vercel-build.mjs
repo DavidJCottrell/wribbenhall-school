@@ -6,10 +6,10 @@ function run(command, args) {
   if (result.status !== 0) process.exit(result.status ?? 1)
 }
 
-// Each preview can have its own database branch, copied when the git branch was first pushed,
-// so it needs the latest migrations before the site is built against it.
-// Production migrations are run by hand on purpose.
-if (process.env.VERCEL_ENV === "preview") {
+// Migrations run before the build, so a failed migration fails the deploy and the live site keeps running its old code.
+// Previews each have their own database branch, copied when the git branch was first pushed, so they need the latest too.
+// The old code stays live while this runs, so a migration must not break it. Drop or rename things in a later PR.
+if (process.env.VERCEL_ENV === "preview" || process.env.VERCEL_ENV === "production") {
   run("npx", ["tsx", "--conditions=react-server", "scripts/db/migrate.mts"])
 }
 

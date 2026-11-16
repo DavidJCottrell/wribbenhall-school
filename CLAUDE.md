@@ -34,7 +34,7 @@ Changes to the portal's permissions or data access also need the permission matr
 
 | Service | What it does here | How it is set up |
 | --- | --- | --- |
-| **Vercel** | Hosts the site. `main` is Production. Every PR gets a Preview. Runs the nightly cleanup job. | `vercel.json` holds the cron schedule. The `vercel-build` script (`scripts/vercel-build.mjs`) migrates the database on **Preview** builds before building. Production builds do not migrate. |
+| **Vercel** | Hosts the site. `main` is Production. Every PR gets a Preview. Runs the nightly cleanup job. | `vercel.json` holds the cron schedule. The `vercel-build` script (`scripts/vercel-build.mjs`) migrates the database on **Preview and Production** builds before building. A failed migration fails the build, so the live site keeps its old code. |
 | **Neon (Postgres)** | The portal's database. | Two separate Neon projects: one for Preview, one for Production. The integration gives each git branch its own Neon branch, copied from the Preview project's `main` when the branch is first pushed. A new PR starts with whatever `main` holds then. An existing PR keeps its own copy, so it can be missing newer test data. |
 | **Vercel Blob** | Private file storage for report attachments. | One private store for Preview and one for Production. Browsers upload straight to it using short-lived tokens. Files are only ever served through `/portal/files/[id]`, which applies the same rules as the reports they belong to. |
 | **Better Auth** | Logins, sessions, password reset. | Configured in `src/lib/auth/auth.ts`. There is no public sign-up. The school creates every login. |
@@ -64,7 +64,9 @@ Without `RESEND_API_KEY` on Production, password reset still looks like it works
 - `drizzle-kit` asks an interactive question if one table is dropped and another created in the same change (it can't tell a rename). Split it into two migrations.
 - Put any data conversion in the migration SQL. Migration `0005` converted the old `admin` role to staff with every permission.
 - `npm run db:migrate` applies pending migrations to whichever database `DATABASE_URL` points at.
-- **Previews migrate themselves** during the Vercel build. **Production does not.** The owner runs `npm run db:migrate` against the Production database **before merging** any PR that adds a migration. Run it first because the new code fails without it. Say this in the PR. Never use Production credentials in a Claude session.
+- **Previews and Production migrate themselves** during the Vercel build, before the site is built. Merging a PR that adds a migration applies it to Production. Nobody runs it by hand. Never use Production credentials in a Claude session.
+- The old code keeps serving while the migration runs, for a minute or two. So each PR's migrations must be safe for the code already live: add tables and columns first, and drop or rename things in a later PR once nothing uses them. Say in the PR if a migration is not safe that way.
+- A migration is applied to real data with no human step. Read the generated SQL, and put data conversions in it carefully. Neon keeps point-in-time history if a restore is needed.
 - Create the first administrator on a new database with `ADMIN_EMAIL=... ADMIN_NAME=... ADMIN_PASSWORD=... npm run db:create-admin`. It makes a staff login holding every permission.
 
 ### Test data
@@ -91,8 +93,8 @@ Fictional data lives in `scripts/db/fixtures.mts`. Every login uses an `@example
 
 ## Releasing a portal change
 
-1. PR description lists anything to do on Production first: migrations to run, settings to add.
-2. The owner runs the migrations on Production, then merges.
+1. PR description lists anything to do on Production first: settings to add, and any migration that is not safe for the code currently live.
+2. The owner adds any settings, then merges. Migrations apply during the Production build.
 3. The owner checks the live site (log in, open a pupil).
 
 Settings the owner has had to add by hand so far: the Production database and Blob token, `AUTH_SECRET`, and for password reset, `RESEND_API_KEY`, `EMAIL_FROM` and `BETTER_AUTH_URL`, plus `CRON_SECRET` for the cleanup job.
