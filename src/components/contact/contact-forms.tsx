@@ -36,15 +36,15 @@ export function ContactForms({ officeEmail }: { officeEmail: string }) {
 
   return (
     <Tabs id="forms" value={tab} onValueChange={changeTab} className="scroll-mt-28 gap-0">
-      <TabsList className="h-auto w-full justify-start gap-1 rounded-none rounded-t-xl border border-b-0 border-border bg-secondary p-1.5 sm:w-auto sm:rounded-t-xl">
-        <TabsTrigger value="enquiry" className="h-auto min-h-11 flex-1 px-3 py-2 text-base whitespace-normal data-[state=active]:shadow-none sm:flex-none sm:px-5">
+      <TabsList className="mb-4 h-auto w-full gap-1 rounded-xl border border-border bg-secondary p-1 sm:w-fit">
+        <TabsTrigger value="enquiry" className="h-auto min-h-11 flex-1 rounded-lg px-3 py-2 text-base whitespace-normal data-[state=active]:bg-card data-[state=active]:shadow-sm sm:flex-none sm:px-6">
           Send an enquiry
         </TabsTrigger>
-        <TabsTrigger value="apply" className="h-auto min-h-11 flex-1 px-3 py-2 text-base whitespace-normal data-[state=active]:shadow-none sm:flex-none sm:px-5">
+        <TabsTrigger value="apply" className="h-auto min-h-11 flex-1 rounded-lg px-3 py-2 text-base whitespace-normal data-[state=active]:bg-card data-[state=active]:shadow-sm sm:flex-none sm:px-6">
           Apply for a place
         </TabsTrigger>
       </TabsList>
-      <div className="rounded-xl rounded-tl-none border border-border bg-card p-6 md:p-9">
+      <div className="rounded-xl border border-border bg-card p-6 md:p-9">
         <TabsContent value="enquiry">
           <h2 className="text-heading">Send an enquiry</h2>
           <p className="mt-2 mb-8 max-w-prose text-muted-foreground">
