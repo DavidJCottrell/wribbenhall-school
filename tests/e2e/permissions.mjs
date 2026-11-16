@@ -187,6 +187,106 @@ for (const [name, args, who] of attempts) {
   check("none of those attempts changed anything", before.includes("River Example") && !before.includes("Probe Pupil") && !(await page("admin", "/portal/admin/users")).html.includes("probe."))
 }
 
+
+// ---- Attendance
+const ukDay = (daysBack) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date(Date.now() - daysBack * 86_400_000))
+const today = ukDay(0)
+const longAgo = ukDay(200) // outside the seeded weeks, so nothing exists there
+const recentlyPast = ukDay(10) // inside the seeded weeks, so marks exist
+const tomorrow = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date(Date.now() + 86_400_000))
+
+{
+  for (const persona of Object.keys(personas)) {
+    const { html } = await page(persona, "/portal/register")
+    const isStaff = !["pat", "sam", "chris"].includes(persona)
+    check(`${persona} ${isStaff ? "can" : "can't"} open the register`, html.includes("Note for staff") === isStaff)
+  }
+  for (const [persona, canEdit] of [["admin", true], ["teacher", true], ["support", true], ["office", true], ["basic", false]]) {
+    const { html } = await page(persona, "/portal/register")
+    check(`${persona} ${canEdit ? "can" : "can't"} edit today's register`, html.includes("Save register") === canEdit)
+  }
+  const old = await page("teacher", `/portal/register?date=${longAgo}`)
+  check("someone who takes the register can't edit a date long ago", !old.html.includes("Save register") && old.html.includes("Only people who manage attendance"))
+  const oldManager = await page("office", `/portal/register?date=${longAgo}`)
+  check("someone who manages attendance can", oldManager.html.includes("Save register"))
+  const future = await page("admin", `/portal/register?date=${tomorrow}`)
+  check("nobody gets a future date, the page falls back to today", new RegExp(`Register for (?:<!-- -->)?${today}`).test(future.html))
+
+  for (const persona of ["admin", "teacher", "basic", "office"]) {
+    const { html } = await page(persona, `/portal/pupils/${ASH}/attendance`)
+    check(`${persona} sees a pupil's attendance`, html.includes("Why sessions were missed"))
+  }
+  check("a parent sees their own child's attendance", (await page("pat", `/portal/pupils/${RIVER}/attendance`)).html.includes("Why sessions were missed"))
+  const other = await page("sam", `/portal/pupils/${RIVER}/attendance`)
+  check("a parent can't see another family's child's attendance", !other.html.includes("Why sessions were missed") && !other.html.includes("River Example"))
+}
+
+// Notes on the register are for staff only.
+{
+  const note = "SECRET-REGISTER-NOTE"
+  const saved = await callAction("teacher", "saveRegister", [{ date: today, rows: [{ pupilId: RIVER, am: "present", pm: "", note }] }])
+  check("someone who takes the register can save today's register", saved.ok, saved.message)
+  const staffView = await page("admin", `/portal/pupils/${RIVER}/attendance`)
+  check("staff see the note on the pupil's attendance page", staffView.html.includes(note))
+  for (const path of [`/portal/pupils/${RIVER}`, `/portal/pupils/${RIVER}/attendance`, `/portal/pupils/${RIVER}/profile`]) {
+    const parentView = await page("pat", path)
+    check(`the note never reaches a parent (${path.replace(RIVER, ":id").split("/").slice(-1)[0] || "overview"})`, !parentView.html.includes(note))
+  }
+  await callAction("teacher", "saveRegister", [{ date: today, rows: [{ pupilId: RIVER, am: "present", pm: "", note: "" }] }])
+}
+
+// Direct calls
+{
+  const rows = [{ pupilId: RIVER, am: "present", pm: "present", note: "" }]
+  for (const persona of ["basic", "pat", "sam"]) {
+    const result = await callAction(persona, "saveRegister", [{ date: today, rows }])
+    check(`${persona} is refused when saving the register directly`, refused(result), result.message)
+  }
+  const tooOld = await callAction("teacher", "saveRegister", [{ date: longAgo, rows: [] }])
+  check("someone who takes the register is refused an old date", !tooOld.ok && /can't change the register/i.test(tooOld.message), tooOld.message)
+  const manager = await callAction("office", "saveRegister", [{ date: longAgo, rows: [] }])
+  check("someone who manages attendance is allowed an old date", manager.ok, manager.message)
+  const futureSave = await callAction("admin", "saveRegister", [{ date: tomorrow, rows }])
+  check("nobody can save a register for the future", !futureSave.ok, futureSave.message)
+  const badCode = await callAction("teacher", "saveRegister", [{ date: today, rows: [{ pupilId: RIVER, am: "closed", pm: "", note: "" }] }])
+  check("the school-closed code can't be set pupil by pupil", !badCode.ok, badCode.message)
+  const badPupil = await callAction("teacher", "saveRegister", [{ date: today, rows: [{ pupilId: "99999999-9999-4999-8999-999999999999", am: "present", pm: "", note: "" }] }])
+  check("a made-up pupil is refused", !badPupil.ok && /could not be found/i.test(badPupil.message), badPupil.message)
+
+  for (const persona of ["teacher", "support", "basic", "pat"]) {
+    const result = await callAction(persona, "closeSchoolDay", [{ date: longAgo }])
+    check(`${persona} is refused when closing a school day`, refused(result), result.message)
+  }
+  const closeFuture = await callAction("admin", "closeSchoolDay", [{ date: tomorrow }])
+  check("a future day can't be closed", !closeFuture.ok, closeFuture.message)
+  const needsConfirm = await callAction("admin", "closeSchoolDay", [{ date: recentlyPast }])
+  check("closing a day that already has marks asks for confirmation first", !needsConfirm.ok && /would be replaced/i.test(needsConfirm.message), needsConfirm.message)
+  const stillMarked = (await page("admin", `/portal/register?date=${recentlyPast}`)).html
+  check("and changes nothing until confirmed", !stillMarked.includes("The school was closed on this day"))
+}
+
+// Closing and reopening a day
+{
+  const closed = await callAction("admin", "closeSchoolDay", [{ date: longAgo }])
+  check("an administrator can close a school day", closed.ok, closed.message)
+  check("a closed day shows as closed on the register", (await page("teacher", `/portal/register?date=${longAgo}`)).html.includes("The school was closed on this day"))
+  const typedOver = await callAction("office", "saveRegister", [{ date: longAgo, rows: [{ pupilId: RIVER, am: "present", pm: "", note: "" }] }])
+  check("a closed day can't be typed over", !typedOver.ok && /closed/i.test(typedOver.message), typedOver.message)
+  const refusedReopen = await callAction("teacher", "reopenSchoolDay", [{ date: longAgo }])
+  check("someone who only takes the register can't reopen it", refusedReopen && refused(refusedReopen), refusedReopen.message)
+  const reopened = await callAction("admin", "reopenSchoolDay", [{ date: longAgo }])
+  check("and it can be reopened by someone who manages attendance", reopened.ok, reopened.message)
+  check("a reopened day is open again", !(await page("teacher", `/portal/register?date=${longAgo}`)).html.includes("The school was closed on this day"))
+}
+
+// The home page figures
+{
+  const home = (await page("teacher", "/portal")).html
+  check("staff see today's register status and attendance flags on the home page", home.includes("pupils marked for both sessions") && home.includes("Attendance below 90%"))
+  const parentHome = (await page("pat", "/portal")).html
+  check("a parent's home page has no staff register panel", !parentHome.includes("pupils marked for both sessions") && !parentHome.includes("Attendance below 90%"))
+}
+
 // ---- Rules that protect the system
 {
   const adminId = "seed-admin"
@@ -217,6 +317,7 @@ for (const [name, args, who] of attempts) {
   const audit = (await page("admin", "/portal/admin/audit")).html
   check("viewing a profile is recorded in the audit log", audit.includes("Viewed the profile and contacts") && audit.includes("Alex Teacher"))
   check("changes made by an administrator are recorded in the audit log", audit.includes("Created a staff login for Created Person"))
+  check("register changes are recorded in the audit log", audit.includes("Recorded the register for") && audit.includes("Closed the school for"))
 }
 
 console.log(`\n${checks - failures} of ${checks} checks passed${failures ? `, ${failures} FAILED` : ""}`)

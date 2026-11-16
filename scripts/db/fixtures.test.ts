@@ -3,10 +3,11 @@ import { readFileSync } from "node:fs"
 import { verifyPassword } from "better-auth/crypto"
 import { describe, expect, it } from "vitest"
 
+import { isAttendanceCode } from "../../src/lib/attendance/codes"
 import { allPermissions, normalizePermissions } from "../../src/lib/auth/permissions"
 import { appTables } from "./app-tables.mjs"
 import { buildResetSql } from "./build-reset-sql.mjs"
-import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, contacts, guardianships, pupils, reports, users } from "./fixtures.mjs"
+import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, attendanceProfiles, contacts, todaysMorning, guardianships, pupils, reports, users } from "./fixtures.mjs"
 
 const userById = new Map(users.map((fixture) => [fixture.id, fixture]))
 const pupilIds = new Set(pupils.map((pupil) => pupil.id))
@@ -48,6 +49,23 @@ describe("fixtures", () => {
     for (const report of reports) {
       expect(pupilIds.has(report.pupilId)).toBe(true)
       expect(userById.get(report.authorId)?.kind).toBe("staff")
+    }
+  })
+})
+
+describe("attendance fixtures", () => {
+  it("has a pattern for every pupil that leaves room for unauthorised absence", () => {
+    expect(attendanceProfiles.map((profile) => profile.pupilId).sort()).toEqual([...pupilIds].sort())
+    for (const profile of attendanceProfiles) {
+      const total = profile.present + profile.late + profile.illness + profile.medical + profile.authorisedOther
+      expect(total).toBeLessThanOrEqual(100)
+    }
+  })
+
+  it("uses real attendance codes for today's morning", () => {
+    for (const entry of todaysMorning) {
+      expect(pupilIds.has(entry.pupilId)).toBe(true)
+      expect(isAttendanceCode(entry.code)).toBe(true)
     }
   })
 })

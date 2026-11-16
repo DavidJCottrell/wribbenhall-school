@@ -1,16 +1,20 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { DashboardCard } from "@/components/portal/dashboard-card"
 import { PageHeader } from "@/components/site/page-header"
 import { can } from "@/lib/auth/permissions"
 import { requireUser } from "@/lib/auth/session"
+import { formatLong, ukToday } from "@/lib/dates"
+import { getTodayOverview } from "@/lib/portal/attendance"
 import { listPupilsFor, pupilDisplayName } from "@/lib/portal/pupils"
 
 export const metadata: Metadata = { title: "Home" }
 
 export default async function PortalHomePage() {
   const user = await requireUser()
-  const pupils = await listPupilsFor(user)
+  const today = ukToday()
+  const [pupils, overview] = await Promise.all([listPupilsFor(user), getTodayOverview(user, today)])
 
   const isParent = user.kind === "parent"
   const empty = isParent
@@ -23,10 +27,67 @@ export default async function PortalHomePage() {
     <>
       <PageHeader title={isParent ? "Your children" : "Pupils"} />
 
-      <div className="container-page py-12 md:py-16">
+      <div className="container-page space-y-12 py-12 md:py-16">
+        {overview && overview.pupilCount > 0 ? (
+          <section aria-labelledby="today" className="space-y-4">
+            <h2 id="today" className="text-heading">
+              Today, {formatLong(today)}
+            </h2>
+            <div className="grid gap-4 lg:grid-cols-3">
+              <DashboardCard title="Register" href="/portal/register" hrefLabel={can(user, "attendance.record") ? "Take the register" : "View the register"}>
+                {overview.closed ? (
+                  <p>The school is marked as closed today.</p>
+                ) : (
+                  <p>
+                    <span className="text-3xl font-semibold">
+                      {overview.complete} of {overview.pupilCount}
+                    </span>{" "}
+                    <span className="text-muted-foreground">pupils marked for both sessions</span>
+                  </p>
+                )}
+              </DashboardCard>
+              <DashboardCard title="No reason given yet">
+                {overview.noReasonYet.length === 0 ? (
+                  <p className="text-muted-foreground">Nobody is absent without a reason today.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {overview.noReasonYet.map((entry) => (
+                      <li key={entry.pupilId}>
+                        <Link href={`/portal/pupils/${entry.pupilId}/attendance`} className="underline underline-offset-4">
+                          {entry.pupilName}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </DashboardCard>
+              <DashboardCard title="Attendance below 90%">
+                {overview.lowAttendance.length === 0 ? (
+                  <p className="text-muted-foreground">Everyone is at 90% or more this school year.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {overview.lowAttendance.map((entry) => (
+                      <li key={entry.pupilId} className="flex items-baseline justify-between gap-3">
+                        <Link href={`/portal/pupils/${entry.pupilId}/attendance`} className="underline underline-offset-4">
+                          {entry.pupilName}
+                        </Link>
+                        <span className="font-medium">{entry.percentage}%</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </DashboardCard>
+            </div>
+          </section>
+        ) : null}
+
         {pupils.length === 0 ? (
           <p className="measure text-muted-foreground">{empty}</p>
         ) : (
+          <section aria-labelledby="all-pupils" className="space-y-4">
+            <h2 id="all-pupils" className="text-heading">
+              {isParent ? "Your children" : "All pupils"}
+            </h2>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {pupils.map((pupil) => (
               <li key={pupil.id}>
@@ -40,6 +101,7 @@ export default async function PortalHomePage() {
               </li>
             ))}
           </ul>
+          </section>
         )}
       </div>
     </>

@@ -46,6 +46,25 @@
   --panel-foreground: #ffffff;
   --panel-accent: var(--buttercup);
   --panel-edge: transparent;
+
+  /*
+    Chart colours for attendance. Checked with the data-viz palette validator against the white card they sit on:
+    colour-blind separation 11.8 (target 8), normal-vision separation 21 (floor 15), at least 3:1 contrast.
+    Teal is a more saturated cousin of severn, amber a darker buttercup, and red is the site's destructive red.
+    The brand colours themselves fail as chart series (severn is too grey, buttercup too light).
+  */
+  --chart-attended: #12856f;
+  --chart-authorised: #c98500;
+  --chart-unauthorised: #b3261e;
+  --chart-closed: var(--stone);
+  --chart-surface: var(--card);
+  --chart-grid: #e1e6e2;
+  --chart-axis: #c3cec6;
+  --chart-label: var(--ink-soft);
+  /* Where each series is filled. High contrast swaps these for hatching, so colour is never the only signal. */
+  --chart-attended-fill: var(--chart-attended);
+  --chart-authorised-fill: var(--chart-authorised);
+  --chart-unauthorised-fill: var(--chart-unauthorised);
 }
 
 /* Yellow on black, chosen from the display settings menu. */
@@ -76,6 +95,18 @@
   --panel-foreground: #ffe600;
   --panel-accent: #ffe600;
   --panel-edge: #ffe600;
+
+  /* Every brand colour is yellow here, so the series are told apart by hatching and the red keeps its own colour. */
+  --chart-attended: #ffe600;
+  --chart-authorised: #ffe600;
+  --chart-unauthorised: #ff7a70;
+  --chart-closed: #4d4d4d;
+  --chart-grid: #404040;
+  --chart-axis: #ffe600;
+  --chart-label: #ffe600;
+  --chart-attended-fill: #ffe600;
+  --chart-authorised-fill: url(#chart-hatch-authorised);
+  --chart-unauthorised-fill: url(#chart-hatch-unauthorised);
 }
 
 :root[data-text-size="large"] {

@@ -15,7 +15,7 @@ END $$;
 
 -- App data only. The migration history is left alone.
 TRUNCATE TABLE
-  "account", "audit_event", "child", "child_update", "child_update_attachment", "guardianship", "pupil_contact", "rate_limit", "session", "user", "verification"
+  "account", "attendance_mark", "audit_event", "child", "child_update", "child_update_attachment", "guardianship", "pupil_contact", "rate_limit", "session", "user", "verification"
 CASCADE;
 
 INSERT INTO "user" (id, name, email, email_verified, role, permissions, must_change_password, banned) VALUES
@@ -66,3 +66,44 @@ INSERT INTO "child_update" (child_id, author_id, title, body, occurred_on, visib
   ('22222222-2222-4222-8222-222222222222', 'seed-staff-jo', 'Staff note: lunchtime routine', 'This is fictional text for development.', current_date - 6, false),
   ('33333333-3333-4333-8333-333333333333', 'seed-staff-alex', 'Garden visit', 'This is fictional text for development.', current_date - 4, true),
   ('44444444-4444-4444-8444-444444444444', 'seed-staff-jo', 'Work experience planning', 'This is fictional text for development.', current_date - 5, true);
+
+-- Ten weeks of attendance, each pupil with their own pattern, one closed day, and a partly taken register for today.
+INSERT INTO "attendance_mark" (child_id, mark_date, session, code, recorded_by)
+SELECT a.child_id::uuid, d::date, s.session,
+  CASE
+    WHEN r.roll < a.present THEN 'present'
+    WHEN r.roll < a.present + a.late THEN 'late'
+    WHEN r.roll < a.present + a.late + a.illness THEN 'illness'
+    WHEN r.roll < a.present + a.late + a.illness + a.medical THEN 'medical'
+    WHEN r.roll < a.present + a.late + a.illness + a.medical + a.other THEN 'authorised_other'
+    ELSE 'unauthorised'
+  END,
+  'seed-staff-alex'
+FROM (VALUES
+    ('11111111-1111-4111-8111-111111111111', 88, 4, 4, 2, 1),
+    ('22222222-2222-4222-8222-222222222222', 80, 5, 6, 3, 2),
+    ('33333333-3333-4333-8333-333333333333', 94, 3, 2, 1, 0),
+    ('44444444-4444-4444-8444-444444444444', 62, 4, 12, 4, 8)
+  ) AS a(child_id, present, late, illness, medical, other)
+CROSS JOIN generate_series(current_date - 70, current_date - 1, interval '1 day') AS d
+CROSS JOIN (VALUES ('am'), ('pm')) AS s(session)
+CROSS JOIN LATERAL (SELECT abs(hashtext(a.child_id || d::text || s.session)) % 100 AS roll) AS r
+WHERE extract(isodow FROM d) < 6;
+
+UPDATE "attendance_mark" SET code = 'closed'
+WHERE mark_date = (SELECT d::date FROM generate_series(current_date - 24, current_date - 18, interval '1 day') AS d WHERE extract(isodow FROM d) = 3 LIMIT 1);
+
+INSERT INTO "attendance_mark" (child_id, mark_date, session, code, note, recorded_by)
+SELECT t.child_id::uuid, current_date, 'am', t.code, t.note, 'seed-staff-alex'
+FROM (VALUES
+    ('11111111-1111-4111-8111-111111111111', 'present', NULL),
+    ('22222222-2222-4222-8222-222222222222', 'late', NULL),
+    ('33333333-3333-4333-8333-333333333333', 'present', NULL),
+    ('44444444-4444-4444-8444-444444444444', 'no_reason', 'Parent has not been in touch yet. This is fictional text.')
+  ) AS t(child_id, code, note)
+WHERE extract(isodow FROM current_date) < 6;
+
+UPDATE "attendance_mark" SET note = 'Stomach bug, parent phoned in. This is fictional text.'
+WHERE (child_id, mark_date, session) IN (
+  SELECT child_id, mark_date, session FROM "attendance_mark" WHERE code = 'illness' AND session = 'am' ORDER BY mark_date DESC LIMIT 4
+);

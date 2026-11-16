@@ -39,3 +39,6 @@ export function formatTimeRange(start?: string, end?: string) {
 
 // Whole years between a date of birth and a given day, both as YYYY-MM-DD.
 export const ageOn = (dateOfBirth: string, onDay: string) => differenceInYears(parseISO(onDay), parseISO(dateOfBirth))
+
+// Today's date in the school's own time zone as YYYY-MM-DD. The server runs in UTC, which is an hour behind in summer.
+export const ukToday = (now: Date = new Date()) => new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(now)

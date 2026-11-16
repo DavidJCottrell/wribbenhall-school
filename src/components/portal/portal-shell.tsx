@@ -21,6 +21,11 @@ export async function PortalShell({ children }: { children: ReactNode }) {
             <Link href="/portal" className="underline underline-offset-4">
               {user.kind === "parent" ? "Your children" : "Pupils"}
             </Link>
+            {user.kind === "staff" ? (
+              <Link href="/portal/register" className="underline underline-offset-4">
+                Register
+              </Link>
+            ) : null}
             <Link href="/portal/account" className="underline underline-offset-4">
               Account
             </Link>
