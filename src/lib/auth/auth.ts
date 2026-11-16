@@ -32,6 +32,12 @@ function createAuth() {
         "/sign-in/email": { window: 300, max: 15 },
       },
     },
+    user: {
+      additionalFields: {
+        // Never settable by the client. Only server code changes it.
+        mustChangePassword: { type: "boolean", defaultValue: false, input: false },
+      },
+    },
     plugins: [
       admin({ defaultRole: "parent", adminRoles: ["admin"] }),
       // Must stay last so server actions can set cookies.

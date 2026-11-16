@@ -10,6 +10,8 @@ export const user = pgTable("user", {
   emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
   role: text("role").notNull().default("parent"),
+  // Set when the school hands out a temporary password, cleared once the person picks their own.
+  mustChangePassword: boolean("must_change_password").notNull().default(false),
   banned: boolean("banned").notNull().default(false),
   banReason: text("ban_reason"),
   banExpires: timestamp("ban_expires"),

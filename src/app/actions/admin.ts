@@ -25,7 +25,7 @@ const NOT_ALLOWED: Failure = { ok: false, message: "You don't have permission to
 // Every action re-checks the role, because the client can call any exported action directly.
 async function currentAdmin(): Promise<CurrentUser | null> {
   const user = await getCurrentUser()
-  return user?.role === "admin" ? user : null
+  return user?.role === "admin" && !user.mustChangePassword ? user : null
 }
 
 function invalid(error: z.ZodError): Failure {
@@ -59,7 +59,10 @@ export async function createUser(values: unknown): Promise<AdminResult<{ credent
       headers: await headers(),
     })
     // The admin plugin only types "user" and "admin" roles, so the role is set directly.
-    await getDb().update(userTable).set({ role: parsed.data.role }).where(eq(userTable.id, created.user.id))
+    await getDb()
+      .update(userTable)
+      .set({ role: parsed.data.role, mustChangePassword: true })
+      .where(eq(userTable.id, created.user.id))
   } catch (error) {
     const exists = error instanceof Error && /exist/i.test(error.message)
     if (!exists) console.error("[admin] failed to create user", error)
@@ -90,6 +93,7 @@ export async function resetPassword(userId: unknown): Promise<AdminResult<{ cred
     await auth.api.setUserPassword({ body: { userId: parsedId, newPassword: password }, headers: requestHeaders })
     // Signs them out everywhere, except the admin's own session.
     if (parsedId !== admin.id) await auth.api.revokeUserSessions({ body: { userId: parsedId }, headers: requestHeaders })
+    await getDb().update(userTable).set({ mustChangePassword: true }).where(eq(userTable.id, parsedId))
   } catch (error) {
     console.error("[admin] failed to reset password", error)
     return { ok: false, message: "The password couldn't be reset. Please try again." }

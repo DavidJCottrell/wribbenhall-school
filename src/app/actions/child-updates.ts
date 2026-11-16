@@ -15,6 +15,7 @@ export type AddChildUpdateResult =
 export async function addChildUpdate(childId: unknown, values: unknown): Promise<AddChildUpdateResult> {
   const user = await getCurrentUser()
   if (!user) return { ok: false, message: "Your session has ended. Please log in again." }
+  if (user.mustChangePassword) return { ok: false, message: "Please choose your own password first." }
   if (user.role === "parent") return { ok: false, message: "Only staff can add updates." }
 
   const parsedChildId = z.uuid().safeParse(childId)

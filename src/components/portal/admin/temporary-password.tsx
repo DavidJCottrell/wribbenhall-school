@@ -23,7 +23,7 @@ export function TemporaryPassword({ credentials }: { credentials: TemporaryCrede
     <Alert>
       <AlertTitle>Give these login details to {credentials.email}</AlertTitle>
       <AlertDescription className="space-y-3">
-        <p>This password is shown once and can&apos;t be looked up again. Pass it on privately, not by email or text message to a shared inbox.</p>
+        <p>This password is shown once and can&apos;t be looked up again. Pass it on privately. They will be asked to choose their own password when they first log in.</p>
         <div className="flex flex-wrap items-center gap-3">
           <code className="rounded-md bg-secondary px-3 py-2 font-mono text-base select-all">{credentials.password}</code>
           <Button type="button" variant="outline" size="sm" onClick={copy}>

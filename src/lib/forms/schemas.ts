@@ -164,6 +164,28 @@ export const childUpdateSchema = z.object({
 
 export type ChildUpdateValues = z.infer<typeof childUpdateSchema>
 
+export const MIN_PASSWORD_LENGTH = 12
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Enter your current password"),
+    newPassword: z
+      .string()
+      .min(MIN_PASSWORD_LENGTH, `Use at least ${MIN_PASSWORD_LENGTH} characters`)
+      .max(128, "Use 128 characters or fewer"),
+    confirmPassword: z.string().min(1, "Enter your new password again"),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "The two passwords don't match",
+  })
+  .refine((values) => values.newPassword !== values.currentPassword, {
+    path: ["newPassword"],
+    message: "Choose a different password from your current one",
+  })
+
+export type ChangePasswordValues = z.infer<typeof changePasswordSchema>
+
 export const createUserSchema = z.object({
   name: requiredText("their name", 120),
   email,

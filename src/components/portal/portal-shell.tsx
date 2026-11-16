@@ -13,7 +13,8 @@ const roleLabels: Record<UserRole, string> = {
 }
 
 export async function PortalShell({ children }: { children: ReactNode }) {
-  const user = await requireUser()
+  // Pages do their own check. The shell must render for the account page while a password change is pending.
+  const user = await requireUser(undefined, { allowPendingPasswordChange: true })
 
   return (
     <>
@@ -26,6 +27,9 @@ export async function PortalShell({ children }: { children: ReactNode }) {
           <nav aria-label="Portal" className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <Link href="/portal" className="underline underline-offset-4">
               {user.role === "parent" ? "Your children" : "Pupils"}
+            </Link>
+            <Link href="/portal/account" className="underline underline-offset-4">
+              Account
             </Link>
             {user.role === "admin" ? (
               <Link href="/portal/admin" className="underline underline-offset-4">

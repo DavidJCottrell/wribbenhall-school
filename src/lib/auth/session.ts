@@ -13,6 +13,7 @@ export type CurrentUser = {
   name: string
   email: string
   role: UserRole
+  mustChangePassword: boolean
 }
 
 // Deduplicated per request. Not cached across requests, because it reads cookies.
@@ -23,15 +24,21 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const session = await getAuth().api.getSession({ headers: requestHeaders })
   if (!session) return null
 
-  const { id, name, email, role } = session.user
+  const { id, name, email, role, mustChangePassword } = session.user
   if (!isUserRole(role)) return null
 
-  return { id, name, email, role }
+  return { id, name, email, role, mustChangePassword }
 })
 
-export async function requireUser(allowedRoles?: readonly UserRole[]): Promise<CurrentUser> {
+type RequireUserOptions = { allowPendingPasswordChange?: boolean }
+
+export async function requireUser(
+  allowedRoles?: readonly UserRole[],
+  { allowPendingPasswordChange = false }: RequireUserOptions = {},
+): Promise<CurrentUser> {
   const user = await getCurrentUser()
   if (!user) redirect("/login")
+  if (user.mustChangePassword && !allowPendingPasswordChange) redirect("/portal/account")
   if (allowedRoles && !allowedRoles.includes(user.role)) notFound()
   return user
 }
