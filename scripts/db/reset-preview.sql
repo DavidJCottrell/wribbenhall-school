@@ -15,7 +15,7 @@ END $$;
 
 -- App data only. The migration history is left alone.
 TRUNCATE TABLE
-  "account", "attendance_mark", "audit_event", "child", "child_update", "child_update_attachment", "guardianship", "pupil_contact", "rate_limit", "session", "user", "verification"
+  "account", "attendance_mark", "audit_event", "child", "day_report", "guardianship", "pupil_contact", "rate_limit", "record_file", "session", "user", "verification"
 CASCADE;
 
 INSERT INTO "user" (id, name, email, email_verified, role, permissions, must_change_password, banned) VALUES
@@ -58,14 +58,15 @@ INSERT INTO "guardianship" (user_id, child_id, relationship) VALUES
   ('seed-parent-sam', '33333333-3333-4333-8333-333333333333', 'Carer'),
   ('seed-parent-chris', '44444444-4444-4444-8444-444444444444', 'Grandparent');
 
-INSERT INTO "child_update" (child_id, author_id, title, body, occurred_on, visible_to_parents) VALUES
-  ('11111111-1111-4111-8111-111111111111', 'seed-staff-alex', 'Reading together', 'This is fictional text for development.', current_date - 1, true),
-  ('11111111-1111-4111-8111-111111111111', 'seed-staff-jo', 'Staff note: sensory break', 'This is fictional text for development.', current_date - 3, false),
-  ('11111111-1111-4111-8111-111111111111', 'seed-staff-alex', 'Swimming session', E'This is fictional text for development.\nA second line, to check line breaks.', current_date - 8, true),
-  ('22222222-2222-4222-8222-222222222222', 'seed-staff-jo', 'Art project', 'This is fictional text for development.', current_date - 2, true),
-  ('22222222-2222-4222-8222-222222222222', 'seed-staff-jo', 'Staff note: lunchtime routine', 'This is fictional text for development.', current_date - 6, false),
-  ('33333333-3333-4333-8333-333333333333', 'seed-staff-alex', 'Garden visit', 'This is fictional text for development.', current_date - 4, true),
-  ('44444444-4444-4444-8444-444444444444', 'seed-staff-jo', 'Work experience planning', 'This is fictional text for development.', current_date - 5, true);
+INSERT INTO "day_report" (child_id, author_id, title, body, report_date, session, subject, visible_to_parents) VALUES
+  ('11111111-1111-4111-8111-111111111111', 'seed-staff-alex', 'Reading together', 'This is fictional text for development.', current_date - 1, 'morning', 'English', true),
+  ('11111111-1111-4111-8111-111111111111', 'seed-staff-jo', 'Staff note: sensory break', 'This is fictional text for development.', current_date - 3, 'afternoon', NULL, false),
+  ('11111111-1111-4111-8111-111111111111', 'seed-staff-alex', 'Swimming session', E'This is fictional text for development.\nA second line, to check line breaks.', current_date - 8, 'afternoon', 'PE', true),
+  ('11111111-1111-4111-8111-111111111111', 'seed-staff-jo', 'A calm day', 'This is fictional text for development.', current_date - 1, 'all_day', NULL, true),
+  ('22222222-2222-4222-8222-222222222222', 'seed-staff-jo', 'Art project', 'This is fictional text for development.', current_date - 2, 'afternoon', 'Art', true),
+  ('22222222-2222-4222-8222-222222222222', 'seed-staff-jo', 'Staff note: lunchtime routine', 'This is fictional text for development.', current_date - 6, NULL, NULL, false),
+  ('33333333-3333-4333-8333-333333333333', 'seed-staff-alex', 'Garden visit', 'This is fictional text for development.', current_date - 4, 'morning', 'Science', true),
+  ('44444444-4444-4444-8444-444444444444', 'seed-staff-jo', 'Work experience planning', 'This is fictional text for development.', current_date - 5, 'morning', 'Careers', true);
 
 -- Ten weeks of attendance, each pupil with their own pattern, one closed day, and a partly taken register for today.
 INSERT INTO "attendance_mark" (child_id, mark_date, session, code, recorded_by)

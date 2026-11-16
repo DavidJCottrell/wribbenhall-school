@@ -2,7 +2,7 @@ import { get } from "@vercel/blob"
 import { z } from "zod"
 
 import { getCurrentUser } from "@/lib/auth/session"
-import { getAttachmentFor } from "@/lib/portal/updates"
+import { getFileFor } from "@/lib/portal/files"
 import { isInlineType } from "@/lib/uploads"
 
 const notFound = () => new Response("Not found", { status: 404 })
@@ -20,18 +20,18 @@ export async function GET(_request: Request, context: RouteContext<"/portal/file
   const { id } = await context.params
   if (!z.uuid().safeParse(id).success) return notFound()
 
-  const attachment = await getAttachmentFor(user, id)
-  if (!attachment) return notFound()
+  const file = await getFileFor(user, id)
+  if (!file) return notFound()
 
-  const blob = await get(attachment.pathname, { access: "private" })
+  const blob = await get(file.pathname, { access: "private" })
   if (!blob || blob.statusCode !== 200) return notFound()
 
   return new Response(blob.stream, {
     headers: {
-      "Content-Type": attachment.contentType,
-      "Content-Length": String(attachment.sizeBytes),
+      "Content-Type": file.contentType,
+      "Content-Length": String(file.sizeBytes),
       // Only images open in the browser. Everything else downloads, so uploaded documents never run on this site.
-      "Content-Disposition": contentDisposition(attachment.filename, isInlineType(attachment.contentType)),
+      "Content-Disposition": contentDisposition(file.filename, isInlineType(file.contentType)),
       "X-Content-Type-Options": "nosniff",
       "Content-Security-Policy": "default-src 'none'; sandbox",
       "Cache-Control": "private, no-store",

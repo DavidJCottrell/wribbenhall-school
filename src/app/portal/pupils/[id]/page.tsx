@@ -10,7 +10,7 @@ import { requireUser } from "@/lib/auth/session"
 import { formatMedium, ukToday } from "@/lib/dates"
 import { getAttendanceFor, type AttendanceView } from "@/lib/portal/attendance"
 import { getParentPupilView, getPupilProfile, listContactsFor, type ContactView } from "@/lib/portal/pupils"
-import { listUpdatesFor, type ChildUpdateView } from "@/lib/portal/updates"
+import { listDayReportsFor, type DayReportView } from "@/lib/portal/day-reports"
 
 export const metadata: Metadata = { title: "Pupil overview" }
 
@@ -29,7 +29,7 @@ function AttendanceSummaryCard({ view, href }: { view: AttendanceView | null; hr
   )
 }
 
-function RecentReports({ reports, base }: { reports: ChildUpdateView[]; base: string }) {
+function RecentReports({ reports, base }: { reports: DayReportView[]; base: string }) {
   if (reports.length === 0) return <p className="text-muted-foreground">There are no daily reports yet.</p>
 
   return (
@@ -37,7 +37,7 @@ function RecentReports({ reports, base }: { reports: ChildUpdateView[]; base: st
       {reports.map((report) => (
         <li key={report.id} className="py-3 first:pt-0 last:pb-0">
           <p className="font-medium">{report.title}</p>
-          <p className="text-sm text-muted-foreground">{formatMedium(report.occurredOn)}</p>
+          <p className="text-sm text-muted-foreground">{formatMedium(report.reportDate)}</p>
         </li>
       ))}
       <li className="sr-only">
@@ -82,7 +82,7 @@ export default async function PupilOverviewPage({ params }: PageProps<"/portal/p
     const pupil = await getParentPupilView(user, pupilId.data)
     if (!pupil) notFound()
     const [reports, contacts, attendance] = await Promise.all([
-      listUpdatesFor(user, pupil.id, { limit: 3 }),
+      listDayReportsFor(user, pupil.id, { limit: 3 }),
       listContactsFor(user, pupil.id),
       getAttendanceFor(user, pupil.id, ukToday()),
     ])
@@ -112,7 +112,7 @@ export default async function PupilOverviewPage({ params }: PageProps<"/portal/p
   const pupil = await getPupilProfile(user, pupilId.data)
   if (!pupil) notFound()
   const [reports, contacts, attendance] = await Promise.all([
-    listUpdatesFor(user, pupil.id, { limit: 3 }),
+    listDayReportsFor(user, pupil.id, { limit: 3 }),
     listContactsFor(user, pupil.id),
     getAttendanceFor(user, pupil.id, ukToday()),
   ])

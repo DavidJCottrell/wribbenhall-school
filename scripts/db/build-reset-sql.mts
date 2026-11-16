@@ -88,8 +88,8 @@ ${rows(contacts.map((c) => `(${text(c.id)}, ${text(c.pupilId)}, ${text(c.name)},
 INSERT INTO "guardianship" (user_id, child_id, relationship) VALUES
 ${rows(guardianships.map((g) => `(${text(g.userId)}, ${text(g.pupilId)}, ${text(g.relationship)})`))};
 
-INSERT INTO "child_update" (child_id, author_id, title, body, occurred_on, visible_to_parents) VALUES
-${rows(reports.map((r) => `(${text(r.pupilId)}, ${text(r.authorId)}, ${text(r.title)}, ${multiline(r.body)}, current_date - ${r.daysAgo}, ${bool(r.visibleToParents)})`))};
+INSERT INTO "day_report" (child_id, author_id, title, body, report_date, session, subject, visible_to_parents) VALUES
+${rows(reports.map((r) => `(${text(r.pupilId)}, ${text(r.authorId)}, ${text(r.title)}, ${multiline(r.body)}, current_date - ${r.daysAgo}, ${text(r.session)}, ${text(r.subject)}, ${bool(r.visibleToParents)})`))};
 
 -- Ten weeks of attendance, each pupil with their own pattern, one closed day, and a partly taken register for today.
 ${attendanceSeedStatements().join(";\n\n")};

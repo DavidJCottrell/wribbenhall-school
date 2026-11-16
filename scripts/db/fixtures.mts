@@ -84,16 +84,26 @@ export const guardianships = [
 
 const note = "This is fictional text for development."
 
-export type FixtureReport = { pupilId: string; authorId: string; title: string; body: string; daysAgo: number; visibleToParents: boolean }
+export type FixtureReport = {
+  pupilId: string
+  authorId: string
+  title: string
+  body: string
+  daysAgo: number
+  session: "morning" | "afternoon" | "all_day" | null
+  subject: string | null
+  visibleToParents: boolean
+}
 
 export const reports: FixtureReport[] = [
-  { pupilId: pupils[0].id, authorId: "seed-staff-alex", title: "Reading together", body: note, daysAgo: 1, visibleToParents: true },
-  { pupilId: pupils[0].id, authorId: "seed-staff-jo", title: "Staff note: sensory break", body: note, daysAgo: 3, visibleToParents: false },
-  { pupilId: pupils[0].id, authorId: "seed-staff-alex", title: "Swimming session", body: `${note}\nA second line, to check line breaks.`, daysAgo: 8, visibleToParents: true },
-  { pupilId: pupils[1].id, authorId: "seed-staff-jo", title: "Art project", body: note, daysAgo: 2, visibleToParents: true },
-  { pupilId: pupils[1].id, authorId: "seed-staff-jo", title: "Staff note: lunchtime routine", body: note, daysAgo: 6, visibleToParents: false },
-  { pupilId: pupils[2].id, authorId: "seed-staff-alex", title: "Garden visit", body: note, daysAgo: 4, visibleToParents: true },
-  { pupilId: pupils[3].id, authorId: "seed-staff-jo", title: "Work experience planning", body: note, daysAgo: 5, visibleToParents: true },
+  { pupilId: pupils[0].id, authorId: "seed-staff-alex", title: "Reading together", body: note, daysAgo: 1, session: "morning", subject: "English", visibleToParents: true },
+  { pupilId: pupils[0].id, authorId: "seed-staff-jo", title: "Staff note: sensory break", body: note, daysAgo: 3, session: "afternoon", subject: null, visibleToParents: false },
+  { pupilId: pupils[0].id, authorId: "seed-staff-alex", title: "Swimming session", body: `${note}\nA second line, to check line breaks.`, daysAgo: 8, session: "afternoon", subject: "PE", visibleToParents: true },
+  { pupilId: pupils[0].id, authorId: "seed-staff-jo", title: "A calm day", body: note, daysAgo: 1, session: "all_day", subject: null, visibleToParents: true },
+  { pupilId: pupils[1].id, authorId: "seed-staff-jo", title: "Art project", body: note, daysAgo: 2, session: "afternoon", subject: "Art", visibleToParents: true },
+  { pupilId: pupils[1].id, authorId: "seed-staff-jo", title: "Staff note: lunchtime routine", body: note, daysAgo: 6, session: null, subject: null, visibleToParents: false },
+  { pupilId: pupils[2].id, authorId: "seed-staff-alex", title: "Garden visit", body: note, daysAgo: 4, session: "morning", subject: "Science", visibleToParents: true },
+  { pupilId: pupils[3].id, authorId: "seed-staff-jo", title: "Work experience planning", body: note, daysAgo: 5, session: "morning", subject: "Careers", visibleToParents: true },
 ]
 
 // How often each pupil is marked each way, out of 100 sessions. The marks are picked by a repeatable hash of

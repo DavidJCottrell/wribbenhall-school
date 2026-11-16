@@ -3,7 +3,7 @@ import "server-only"
 import { and, asc, count, eq } from "drizzle-orm"
 
 import { getDb } from "@/db"
-import { child, childUpdate, guardianship, user as userTable } from "@/db/schema"
+import { child, dayReport, guardianship, user as userTable } from "@/db/schema"
 import { can, isUserKind, normalizePermissions, type Permission, type UserKind } from "@/lib/auth/permissions"
 import type { CurrentUser } from "@/lib/auth/session"
 import { listContactsFor, getPupilProfile, type ContactView, type PupilProfile, type PupilSummary } from "@/lib/portal/pupils"
@@ -80,7 +80,7 @@ export type PupilAdminDetail = {
   availableParents: PersonOption[]
   staffOptions: PersonOption[]
   parentOptions: PersonOption[]
-  updateCount: number
+  reportCount: number
 }
 
 export async function getPupilAdminDetail(user: CurrentUser, childId: string): Promise<PupilAdminDetail | null> {
@@ -92,8 +92,8 @@ export async function getPupilAdminDetail(user: CurrentUser, childId: string): P
 
   const person = { id: userTable.id, name: userTable.name, email: userTable.email }
 
-  const [[updates], guardians, staffOptions, parentOptions, contacts] = await Promise.all([
-    db.select({ total: count() }).from(childUpdate).where(eq(childUpdate.childId, childId)),
+  const [[reports], guardians, staffOptions, parentOptions, contacts] = await Promise.all([
+    db.select({ total: count() }).from(dayReport).where(eq(dayReport.childId, childId)),
     db
       .select({ ...person, relationship: guardianship.relationship })
       .from(guardianship)
@@ -108,5 +108,5 @@ export async function getPupilAdminDetail(user: CurrentUser, childId: string): P
   const linkedIds = guardians.map((guardian) => guardian.id)
   const availableParents = linkedIds.length > 0 ? parentOptions.filter((parent) => !linkedIds.includes(parent.id)) : parentOptions
 
-  return { pupil, contacts, guardians, availableParents, staffOptions, parentOptions, updateCount: updates?.total ?? 0 }
+  return { pupil, contacts, guardians, availableParents, staffOptions, parentOptions, reportCount: reports?.total ?? 0 }
 }

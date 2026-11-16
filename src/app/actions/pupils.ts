@@ -5,7 +5,7 @@ import { and, eq } from "drizzle-orm"
 import { z } from "zod"
 
 import { getDb } from "@/db"
-import { child, childUpdate, childUpdateAttachment, guardianship, pupilContact, user as userTable } from "@/db/schema"
+import { child, guardianship, pupilContact, recordFile, user as userTable } from "@/db/schema"
 import { invalidInput, notFound, type ActionResult } from "@/lib/action-result"
 import { recordAudit } from "@/lib/audit"
 import { getActionUser } from "@/lib/auth/session"
@@ -133,10 +133,9 @@ export async function deletePupil(childId: unknown, confirmation: unknown): Prom
   }
 
   const files = await db
-    .select({ pathname: childUpdateAttachment.pathname })
-    .from(childUpdateAttachment)
-    .innerJoin(childUpdate, eq(childUpdate.id, childUpdateAttachment.updateId))
-    .where(eq(childUpdate.childId, parsedChildId.data))
+    .select({ pathname: recordFile.pathname })
+    .from(recordFile)
+    .where(eq(recordFile.childId, parsedChildId.data))
 
   try {
     // Reports, files and contacts are removed by the database (cascade).

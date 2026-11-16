@@ -50,6 +50,20 @@
       "when": 1794863367429,
       "tag": "0006_attendance_marks",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794866258062,
+      "tag": "0007_day_reports_and_record_files",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794866263566,
+      "tag": "0008_drop_child_updates",
+      "breakpoints": true
     }
   ]
 }
