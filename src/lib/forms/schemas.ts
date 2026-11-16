@@ -152,17 +152,26 @@ export const loginSchema = z.object({
 
 export type LoginValues = z.infer<typeof loginSchema>
 
-export const childUpdateSchema = z.object({
+export const REPORT_SESSIONS = [
+  { value: "all_day", label: "All day" },
+  { value: "morning", label: "Morning" },
+  { value: "afternoon", label: "Afternoon" },
+] as const
+
+export const dayReportSchema = z.object({
   title: requiredText("a title", 120),
-  occurredOn: z
+  reportDate: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the date of the update")
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the date of the report")
     .refine((value) => isValid(parseISO(value)), "Enter a real date"),
-  body: z.string().trim().min(1, "Enter the update").max(5000, "The update must be 5,000 characters or fewer"),
+  // Empty means not set. The server stores that as null.
+  session: z.enum(["all_day", "morning", "afternoon", ""]),
+  subject: z.string().trim().max(80, "The subject must be 80 characters or fewer"),
+  body: z.string().trim().min(1, "Enter the report").max(5000, "The report must be 5,000 characters or fewer"),
   visibleToParents: z.boolean(),
 })
 
-export type ChildUpdateValues = z.infer<typeof childUpdateSchema>
+export type DayReportValues = z.infer<typeof dayReportSchema>
 
 export const MIN_PASSWORD_LENGTH = 12
 

@@ -9,7 +9,7 @@ import { del, list } from "@vercel/blob"
 import { count, sql } from "drizzle-orm"
 
 import { getDb } from "../../src/db"
-import { child, childUpdate, user } from "../../src/db/schema"
+import { child, dayReport, user } from "../../src/db/schema"
 import { DEV_PASSWORD, appTables, assertOnlyTestUsers, seedDevData, seededAccounts } from "./seed-data.mjs"
 
 if (process.env.ALLOW_DEV_SEED !== "true") {
@@ -24,14 +24,14 @@ const db = getDb()
 
 await assertOnlyTestUsers()
 
-const [[users], [pupils], [updates]] = await Promise.all([
+const [[users], [pupils], [reports]] = await Promise.all([
   db.select({ total: count() }).from(user),
   db.select({ total: count() }).from(child),
-  db.select({ total: count() }).from(childUpdate),
+  db.select({ total: count() }).from(dayReport),
 ])
 
 if (process.env.CONFIRM_RESET_HOST !== host) {
-  console.log(`This would wipe ${users.total} logins, ${pupils.total} pupils and ${updates.total} updates in:`)
+  console.log(`This would wipe ${users.total} logins, ${pupils.total} pupils and ${reports.total} daily reports in:`)
   console.log(`  database ${target.pathname.slice(1)} on ${host}`)
   console.log(wipeFiles ? "  and delete every uploaded file in the Blob store." : "  (uploaded files are left alone. Add `-- --files` to delete them too.)")
   console.log("\nIf that is the TEST database you meant, run it again with:")
@@ -56,6 +56,6 @@ if (wipeFiles) {
 
 await seedDevData()
 
-console.log(`Reset ${host}. Removed ${users.total} logins, ${pupils.total} pupils, ${updates.total} updates${wipeFiles ? ` and ${removedFiles} files` : ""}.`)
+console.log(`Reset ${host}. Removed ${users.total} logins, ${pupils.total} pupils, ${reports.total} daily reports${wipeFiles ? ` and ${removedFiles} files` : ""}.`)
 console.log(`Fictional accounts (password ${DEV_PASSWORD}):`)
 for (const account of seededAccounts) console.log(`  ${account.email}  ${account.role}`)

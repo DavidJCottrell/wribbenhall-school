@@ -21,15 +21,15 @@ A small independent specialist school, 10 to 15 pupils, ages 5 to 18, for childr
 | --- | --- | --- |
 | 1. Foundations | Permissions, pupil profiles and contacts, key worker, pupil dashboard, parent view, audit log, unit tests and CI | Built and merged (PR #18) |
 | 2. Attendance | Daily register (morning and afternoon, DfE-style codes, notes, closing a day), editing windows by permission, parent and staff attendance charts, staff home panel | Built and merged (PR #19) |
-| 3. Daily reports | Evolve the existing "updates" into daily reports, and generalise file storage | **Next** |
+| 3. Daily reports | Updates became daily reports (date, optional part of the day and subject), shown day by day beside that day's attendance. One `record_file` table for files | Built, in review |
 | 4. Incidents | Incident records with review and a parent summary | Planned |
 | 5. Medical | Conditions, medication, administration log | Planned |
 
-Production steps for each stage (migrations, settings) were listed in its PR. Migrations `0004`, `0005` and `0006` must be on the Production database for the merged stages to work. Confirm they have been run.
+Production steps for each stage (migrations, settings) were listed in its PR. Migrations `0004` to `0006` (and `0007` and `0008` for stage 3) must be on the Production database for the merged stages to work. Confirm they have been run.
 
 ## What's planned
 
-**Stage 3, daily reports.** Rename `child_update` to `day_report` with an optional session and subject, keeping it generic until the school confirms what to capture. Replace `child_update_attachment` with one `record_file` table that files can belong to a report, incident or medical condition through nullable cascading keys. Same private Blob store and visibility rules. The nightly cleanup job (`src/lib/uploads-cleanup.ts`) must check the new table. A day-by-day view.
+**Stage 3, daily reports (built).** `day_report` replaced `child_update`, and `record_file` replaced `child_update_attachment`, with data copied by migration `0007` and the old tables dropped by `0008`. Files belong to a record through a nullable cascading key, so incidents and medical conditions add their own column and a purpose in `src/app/api/portal/uploads/route.ts`. The nightly cleanup checks `record_file`.
 
 **Stage 4, incidents.** Types: behaviour, accident or injury, physical intervention, bullying, other. Fields: when, where, severity, a summary, a description, and what led up to it, what the pupil did and how staff responded. Injury and first aid. Physical intervention details (technique, minutes, staff, debrief). Whether and how parents were informed. Status (open, under review, closed), reviewed by, and sign-off. Other pupils involved are recorded but never shown to parents. Parents see only a staff-written summary, and only when it has been shared. Proposed: sharing needs the review permission.
 

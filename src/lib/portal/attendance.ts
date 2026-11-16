@@ -184,3 +184,18 @@ export async function getTodayOverview(user: CurrentUser, today: string): Promis
   lowAttendance.sort((a, b) => (a.percentage ?? 0) - (b.percentage ?? 0))
   return { date: today, pupilCount: pupils.length, complete, closed: pupils.length > 0 && closedCount === pupils.length, noReasonYet, lowAttendance }
 }
+
+export type DayAttendance = { am: AttendanceCode | null; pm: AttendanceCode | null }
+
+// Codes only, so it is safe for parents. Keyed by date.
+export async function getDayAttendanceFor(user: CurrentUser, pupilId: string, from: string, to: string): Promise<Map<string, DayAttendance>> {
+  const days = new Map<string, DayAttendance>()
+  if (!(await getPupilFor(user, pupilId))) return days
+
+  for (const mark of await loadMarks(pupilId, from, to)) {
+    const day = days.get(mark.date) ?? { am: null, pm: null }
+    day[mark.session] = mark.code
+    days.set(mark.date, day)
+  }
+  return days
+}

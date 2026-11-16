@@ -7,29 +7,29 @@ import { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
-import { addChildUpdate, updateChildUpdate } from "@/app/actions/child-updates"
+import { addDayReport, updateDayReport } from "@/app/actions/day-reports"
 import { applyServerErrors } from "@/components/forms/apply-server-errors"
-import { CheckboxField, TextAreaField, TextField } from "@/components/forms/fields"
+import { CheckboxField, SelectField, TextAreaField, TextField } from "@/components/forms/fields"
 import { Button } from "@/components/ui/button"
 import { FieldGroup } from "@/components/ui/field"
 import { Spinner } from "@/components/ui/spinner"
 import { useToday } from "@/hooks/use-today"
-import { childUpdateSchema, type ChildUpdateValues } from "@/lib/forms/schemas"
-import type { ChildUpdateView } from "@/lib/portal/updates"
-import { MAX_ATTACHMENTS_PER_UPDATE, attachmentPrefix, formatBytes, safeStorageName, type UploadedAttachment } from "@/lib/uploads"
+import { REPORT_SESSIONS, dayReportSchema, type DayReportValues } from "@/lib/forms/schemas"
+import type { DayReportView } from "@/lib/portal/day-reports"
+import { MAX_FILES_PER_RECORD, attachmentPrefix, formatBytes, safeStorageName, type UploadedAttachment } from "@/lib/uploads"
 
 import { AttachmentPicker } from "./attachment-picker"
 
 type Props = {
   childId: string
-  // When set, the form edits this update instead of adding a new one.
-  update?: ChildUpdateView
+  // When set, the form edits this report instead of adding a new one.
+  report?: DayReportView
   onSaved?: () => void
   // Keeps field ids unique when two of these forms are on the page at once.
   idPrefix?: string
 }
 
-export function UpdateForm({ childId, update, onSaved, idPrefix = "" }: Props) {
+export function DayReportForm({ childId, report, onSaved, idPrefix = "" }: Props) {
   const router = useRouter()
   const today = useToday()
   const [pending, startTransition] = useTransition()
@@ -39,19 +39,26 @@ export function UpdateForm({ childId, update, onSaved, idPrefix = "" }: Props) {
   const [uploaded] = useState(() => new Map<File, UploadedAttachment>())
   const [removedIds, setRemovedIds] = useState<ReadonlySet<string>>(new Set())
 
-  const form = useForm<ChildUpdateValues>({
-    resolver: zodResolver(childUpdateSchema),
-    defaultValues: update
-      ? { title: update.title, occurredOn: update.occurredOn, body: update.body, visibleToParents: update.visibleToParents }
-      : { title: "", occurredOn: "", body: "", visibleToParents: true },
+  const form = useForm<DayReportValues>({
+    resolver: zodResolver(dayReportSchema),
+    defaultValues: report
+      ? {
+          title: report.title,
+          reportDate: report.reportDate,
+          session: (report.session ?? "") as DayReportValues["session"],
+          subject: report.subject ?? "",
+          body: report.body,
+          visibleToParents: report.visibleToParents,
+        }
+      : { title: "", reportDate: "", session: "", subject: "", body: "", visibleToParents: true },
     mode: "onTouched",
   })
 
   useEffect(() => {
-    if (!update && today && !form.getValues("occurredOn")) form.setValue("occurredOn", today)
-  }, [update, today, form])
+    if (!report && today && !form.getValues("reportDate")) form.setValue("reportDate", today)
+  }, [report, today, form])
 
-  const existingFiles = update?.attachments ?? []
+  const existingFiles = report?.files ?? []
   const keptCount = existingFiles.filter((file) => !removedIds.has(file.id)).length
 
   function toggleRemoved(attachmentId: string) {
@@ -72,7 +79,7 @@ export function UpdateForm({ childId, update, onSaved, idPrefix = "" }: Props) {
           const blob = await upload(`${attachmentPrefix(childId)}${crypto.randomUUID()}-${safeStorageName(file.name)}`, file, {
             access: "private",
             handleUploadUrl: "/api/portal/uploads",
-            clientPayload: JSON.stringify({ childId }),
+            clientPayload: JSON.stringify({ childId, purpose: "day_report" }),
           })
           result = { pathname: blob.pathname, filename: file.name }
           uploaded.set(file, result)
@@ -92,12 +99,12 @@ export function UpdateForm({ childId, update, onSaved, idPrefix = "" }: Props) {
       setProgress(null)
       if (!attachments) return
 
-      const result = update
-        ? await updateChildUpdate(update.id, values, attachments, [...removedIds])
-        : await addChildUpdate(childId, values, attachments)
+      const result = report
+        ? await updateDayReport(report.id, values, attachments, [...removedIds])
+        : await addDayReport(childId, values, attachments)
       if (result.ok) {
-        toast.success(update ? "Changes saved" : "Update saved")
-        if (!update) form.reset({ title: "", occurredOn: today ?? "", body: "", visibleToParents: true })
+        toast.success(report ? "Changes saved" : "Report saved")
+        if (!report) form.reset({ title: "", reportDate: today ?? "", session: "", subject: "", body: "", visibleToParents: true })
         setFiles([])
         uploaded.clear()
         router.refresh()
@@ -114,9 +121,20 @@ export function UpdateForm({ childId, update, onSaved, idPrefix = "" }: Props) {
       <FieldGroup>
         <div className="grid gap-7 sm:grid-cols-2">
           <TextField control={form.control} id={`${idPrefix}title`} name="title" label="Title" />
-          <TextField control={form.control} id={`${idPrefix}occurredOn`} name="occurredOn" label="Date" type="date" />
+          <TextField control={form.control} id={`${idPrefix}reportDate`} name="reportDate" label="Date" type="date" />
         </div>
-        <TextAreaField control={form.control} id={`${idPrefix}body`} name="body" label="Update" rows={5} />
+        <div className="grid gap-7 sm:grid-cols-2">
+          <SelectField
+            control={form.control}
+            id={`${idPrefix}session`}
+            name="session"
+            label="Part of the day"
+            options={REPORT_SESSIONS}
+            placeholder="Not specified"
+          />
+          <TextField control={form.control} id={`${idPrefix}subject`} name="subject" label="Subject or activity" optional />
+        </div>
+        <TextAreaField control={form.control} id={`${idPrefix}body`} name="body" label="Report" rows={5} />
         {existingFiles.length > 0 ? (
           <div className="space-y-2">
             <p className="text-base font-medium">Current attachments</p>
@@ -142,7 +160,7 @@ export function UpdateForm({ childId, update, onSaved, idPrefix = "" }: Props) {
           files={files}
           onChange={setFiles}
           disabled={pending}
-          maxFiles={MAX_ATTACHMENTS_PER_UPDATE - keptCount}
+          maxFiles={MAX_FILES_PER_RECORD - keptCount}
         />
         <CheckboxField
           control={form.control}
@@ -154,7 +172,7 @@ export function UpdateForm({ childId, update, onSaved, idPrefix = "" }: Props) {
         <div>
           <Button type="submit" size="lg" disabled={pending}>
             {pending ? <Spinner /> : null}
-            {progress ?? (pending ? "Saving" : update ? "Save changes" : "Save update")}
+            {progress ?? (pending ? "Saving" : report ? "Save changes" : "Save report")}
           </Button>
         </div>
       </FieldGroup>

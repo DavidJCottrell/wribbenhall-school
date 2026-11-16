@@ -4,9 +4,9 @@ import { del, list } from "@vercel/blob"
 import { inArray } from "drizzle-orm"
 
 import { getDb } from "@/db"
-import { childUpdateAttachment } from "@/db/schema"
+import { recordFile } from "@/db/schema"
 
-// Files newer than this may still belong to an update someone is in the middle of saving.
+// Files newer than this may still belong to a record someone is in the middle of saving.
 const DEFAULT_GRACE_MS = 24 * 60 * 60 * 1000
 const LIST_PAGE_SIZE = 1000
 const DELETE_BATCH_SIZE = 100
@@ -21,8 +21,8 @@ export type CleanupResult = {
   deleted: number
 }
 
-// Browsers upload straight to Blob before the update is saved, so abandoned forms leave files behind.
-// An uploaded file is an orphan if no attachment row points at it.
+// Browsers upload straight to Blob before the record is saved, so abandoned forms leave files behind.
+// An uploaded file is an orphan if no file row points at it.
 export async function removeOrphanedUploads({
   dryRun = false,
   graceMs = DEFAULT_GRACE_MS,
@@ -43,9 +43,9 @@ export async function removeOrphanedUploads({
 
     if (old.length > 0) {
       const rows = await db
-        .select({ pathname: childUpdateAttachment.pathname })
-        .from(childUpdateAttachment)
-        .where(inArray(childUpdateAttachment.pathname, old.map((blob) => blob.pathname)))
+        .select({ pathname: recordFile.pathname })
+        .from(recordFile)
+        .where(inArray(recordFile.pathname, old.map((blob) => blob.pathname)))
       const referenced = new Set(rows.map((row) => row.pathname))
       for (const blob of old) if (!referenced.has(blob.pathname)) orphans.push(blob.pathname)
     }

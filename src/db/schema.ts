@@ -154,39 +154,54 @@ export const guardianship = pgTable(
   (table) => [primaryKey({ columns: [table.userId, table.childId] }), index("guardianship_child_id_idx").on(table.childId)],
 )
 
-export const childUpdate = pgTable(
-  "child_update",
+// What a pupil did on a school day. Kept generic until the school confirms what to capture.
+export const dayReport = pgTable(
+  "day_report",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     childId: uuid("child_id")
       .notNull()
       .references(() => child.id, { onDelete: "cascade" }),
-    // Cleared when the author's login is deleted, so their updates stay on the child's record.
+    // Cleared when the author's login is deleted, so their reports stay on the pupil's record.
     authorId: text("author_id").references(() => user.id, { onDelete: "set null" }),
     title: text("title").notNull(),
     body: text("body").notNull(),
-    occurredOn: date("occurred_on").notNull(),
+    reportDate: date("report_date").notNull(),
+    // Both optional: a report can cover the whole day and no particular subject.
+    session: text("session"),
+    subject: text("subject"),
     visibleToParents: boolean("visible_to_parents").notNull().default(true),
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  (table) => [index("child_update_child_id_occurred_on_idx").on(table.childId, table.occurredOn)],
+  (table) => [
+    index("day_report_child_id_report_date_idx").on(table.childId, table.reportDate),
+    check("day_report_session_check", sql`${table.session} is null or ${table.session} in ('morning', 'afternoon', 'all_day')`),
+  ],
 )
 
 // The file itself lives in the private Blob store. Downloads always go through /portal/files/[id].
-export const childUpdateAttachment = pgTable(
-  "child_update_attachment",
+// A file belongs to one record. Later record types add their own nullable key here.
+export const recordFile = pgTable(
+  "record_file",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    updateId: uuid("update_id")
+    childId: uuid("child_id")
       .notNull()
-      .references(() => childUpdate.id, { onDelete: "cascade" }),
+      .references(() => child.id, { onDelete: "cascade" }),
+    dayReportId: uuid("day_report_id").references(() => dayReport.id, { onDelete: "cascade" }),
     pathname: text("pathname").notNull().unique(),
     filename: text("filename").notNull(),
     contentType: text("content_type").notNull(),
     sizeBytes: integer("size_bytes").notNull(),
+    uploadedBy: text("uploaded_by").references(() => user.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (table) => [index("child_update_attachment_update_id_idx").on(table.updateId)],
+  (table) => [
+    index("record_file_child_id_idx").on(table.childId),
+    index("record_file_day_report_id_idx").on(table.dayReportId),
+    check("record_file_one_owner_check", sql`num_nonnulls(${table.dayReportId}) = 1`),
+  ],
 )
 
 // One row per pupil per session. Closed days are marks too, with the "closed" code.
@@ -214,7 +229,7 @@ export const attendanceMark = pgTable(
 
 export const childRelations = relations(child, ({ many }) => ({
   guardianships: many(guardianship),
-  updates: many(childUpdate),
+  dayReports: many(dayReport),
 }))
 
 export const guardianshipRelations = relations(guardianship, ({ one }) => ({
@@ -222,7 +237,7 @@ export const guardianshipRelations = relations(guardianship, ({ one }) => ({
   child: one(child, { fields: [guardianship.childId], references: [child.id] }),
 }))
 
-export const childUpdateRelations = relations(childUpdate, ({ one }) => ({
-  child: one(child, { fields: [childUpdate.childId], references: [child.id] }),
-  author: one(user, { fields: [childUpdate.authorId], references: [user.id] }),
+export const dayReportRelations = relations(dayReport, ({ one }) => ({
+  child: one(child, { fields: [dayReport.childId], references: [child.id] }),
+  author: one(user, { fields: [dayReport.authorId], references: [user.id] }),
 }))

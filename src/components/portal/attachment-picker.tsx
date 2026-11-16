@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import {
   ATTACHMENT_ACCEPT,
   ATTACHMENT_HELP,
-  MAX_ATTACHMENTS_PER_UPDATE,
+  MAX_FILES_PER_RECORD,
   MAX_ATTACHMENT_BYTES,
   formatBytes,
   isAllowedAttachmentType,
@@ -28,7 +28,7 @@ function problemWith(file: File) {
   return null
 }
 
-export function AttachmentPicker({ files, onChange, disabled, maxFiles = MAX_ATTACHMENTS_PER_UPDATE }: Props) {
+export function AttachmentPicker({ files, onChange, disabled, maxFiles = MAX_FILES_PER_RECORD }: Props) {
   const inputId = useId()
   const [problems, setProblems] = useState<string[]>([])
 
@@ -46,7 +46,7 @@ export function AttachmentPicker({ files, onChange, disabled, maxFiles = MAX_ATT
 
     const combined = [...files, ...accepted]
     if (combined.length > maxFiles) {
-      found.push(`You can attach up to ${MAX_ATTACHMENTS_PER_UPDATE} files to one update`)
+      found.push(`You can attach up to ${MAX_FILES_PER_RECORD} files to one report`)
     }
 
     setProblems(found)

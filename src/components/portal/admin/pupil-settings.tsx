@@ -97,7 +97,7 @@ export function PupilProfileForm({ pupil, staff }: { pupil: PupilProfile; staff:
   )
 }
 
-export function PupilDangerZone({ pupil, updateCount }: { pupil: PupilProfile; updateCount: number }) {
+export function PupilDangerZone({ pupil, reportCount }: { pupil: PupilProfile; reportCount: number }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [deleting, setDeleting] = useState(false)
@@ -148,7 +148,7 @@ export function PupilDangerZone({ pupil, updateCount }: { pupil: PupilProfile; u
           Delete this pupil
         </h2>
         <p className="mb-6 text-muted-foreground">
-          This permanently removes {pupil.firstName}&apos;s record, {updateCount === 1 ? "their 1 daily report" : `their ${updateCount} daily reports`}, their
+          This permanently removes {pupil.firstName}&apos;s record, {reportCount === 1 ? "their 1 daily report" : `their ${reportCount} daily reports`}, their
           contacts and all attachments. Parent and staff logins are kept. This can&apos;t be undone. To keep the records, archive them instead.
         </p>
         <Button type="button" variant="destructive" onClick={() => setDeleting(true)} disabled={pending}>

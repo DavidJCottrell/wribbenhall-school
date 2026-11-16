@@ -131,6 +131,27 @@ for (const path of [`/portal/pupils/${RIVER}`, `/portal/pupils/${RIVER}/profile`
     const { html } = await page(persona, `/portal/pupils/${RIVER}/reports`)
     check(`${persona} ${expected ? "can" : "can't"} add a daily report`, html.includes("Add a daily report") === expected)
   }
+  check("reports are shown day by day, with the part of the day and subject", staff.html.includes("Day by day") && staff.html.includes("English") && staff.html.includes("Morning"))
+  check("a parent sees that day's attendance beside the reports", /Morning: (?:<!-- -->)?[A-Z]/.test(parent.html))
+  check("a parent never sees staff-only subjects or who a note is for", !parent.html.includes("Staff only"))
+  const older = await page("pat", `/portal/pupils/${RIVER}/reports?before=not-a-date`)
+  check("a bad date in the address falls back to the latest days", older.status === 200 && older.html.includes("Day by day"))
+
+  const uploadToken = async (persona, purpose) => {
+    const response = await fetch(`${BASE}/api/portal/uploads`, {
+      method: "POST",
+      headers: { Cookie: cookies[persona], "Content-Type": "application/json", Origin: BASE },
+      body: JSON.stringify({
+        type: "blob.generate-client-token",
+        payload: { pathname: `children/${RIVER}/probe.pdf`, clientPayload: JSON.stringify({ childId: RIVER, purpose }), multipart: false },
+      }),
+    })
+    return response.status
+  }
+  for (const persona of ["basic", "pat", "sam"]) {
+    check(`${persona} is refused an upload token for a daily report`, (await uploadToken(persona, "day_report")) >= 400)
+  }
+  check("an unknown upload purpose is refused even for the head teacher", (await uploadToken("admin", "medical")) >= 400)
 }
 
 // ---- Administration pages
@@ -159,7 +180,8 @@ for (const [path, marker, allowed] of adminPages) {
 const validPupil = { firstName: "Probe", lastName: "Pupil", yearGroup: "Year 1" }
 const validLogin = { name: "Probe Person", email: `probe.${Date.now()}@example.test`, kind: "staff", permissions: [] }
 const validContact = { name: "Probe", relationship: "Friend", phone: "", email: "", parentalResponsibility: false, emergencyContact: false, authorisedToCollect: false, notes: "", linkedUserId: "" }
-const validReport = { title: "Probe", occurredOn: "2026-11-16", body: "x", visibleToParents: true }
+const validReport = { title: "Probe", reportDate: "2026-11-16", session: "", subject: "", body: "x", visibleToParents: true }
+const REPORT_ID = "99999999-9999-4999-8999-999999999999"
 const profile = { ...validPupil, preferredName: "", dateOfBirth: "", admissionDate: "", leavingDate: "", keyWorkerId: "", ehcpStatus: "", localAuthority: "", ehcpReviewDue: "" }
 
 const attempts = [
@@ -174,7 +196,9 @@ const attempts = [
   ["deletePupil", [RIVER, "River Example"], ["teacher", "basic", "pat"]],
   ["saveContact", [RIVER, null, validContact], ["teacher", "basic", "pat"]],
   ["linkGuardian", [RIVER, { userId: "seed-parent-sam", relationship: "" }], ["teacher", "basic", "pat"]],
-  ["addChildUpdate", [RIVER, validReport, []], ["basic", "pat", "sam"]],
+  ["addDayReport", [RIVER, validReport, []], ["basic", "pat", "sam"]],
+  ["updateDayReport", [REPORT_ID, validReport, [], []], ["basic", "pat", "sam"]],
+  ["deleteDayReport", [REPORT_ID], ["basic", "pat", "sam"]],
 ]
 for (const [name, args, who] of attempts) {
   for (const persona of who) {

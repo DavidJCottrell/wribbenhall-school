@@ -69,7 +69,7 @@ export default async function AdminPupilPage({ params }: PageProps<"/portal/admi
           <GuardianManager childId={pupil.id} linked={detail.guardians} available={detail.availableParents} />
         </section>
 
-        <PupilDangerZone pupil={pupil} updateCount={detail.updateCount} />
+        <PupilDangerZone pupil={pupil} reportCount={detail.reportCount} />
       </div>
     </>
   )

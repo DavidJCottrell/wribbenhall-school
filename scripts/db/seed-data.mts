@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm"
 
 import { getDb } from "../../src/db"
 import * as schema from "../../src/db/schema"
-import { attendanceMark, child, childUpdate, guardianship, pupilContact, user } from "../../src/db/schema"
+import { attendanceMark, child, dayReport, guardianship, pupilContact, user } from "../../src/db/schema"
 export { appTables } from "./app-tables.mjs"
 import { attendanceSeedStatements } from "./build-reset-sql.mjs"
 import { DEV_PASSWORD, DEV_PASSWORD_HASH, TEST_EMAIL_DOMAIN, contacts, guardianships, pupils, reports, users } from "./fixtures.mjs"
@@ -48,11 +48,11 @@ export async function seedDevData() {
   await db.insert(pupilContact).values(contacts.map(({ pupilId, ...contact }) => ({ ...contact, childId: pupilId }))).onConflictDoNothing()
   await db.insert(guardianship).values(guardianships.map(({ pupilId, ...link }) => ({ ...link, childId: pupilId }))).onConflictDoNothing()
 
-  const [existingReport] = await db.select({ id: childUpdate.id }).from(childUpdate).limit(1)
+  const [existingReport] = await db.select({ id: dayReport.id }).from(dayReport).limit(1)
   if (!existingReport) {
     await db
-      .insert(childUpdate)
-      .values(reports.map(({ pupilId, daysAgo: days, ...report }) => ({ ...report, childId: pupilId, occurredOn: daysAgo(days) })))
+      .insert(dayReport)
+      .values(reports.map(({ pupilId, daysAgo: days, ...report }) => ({ ...report, childId: pupilId, reportDate: daysAgo(days) })))
   }
 
   const [existingMark] = await db.select({ childId: attendanceMark.childId }).from(attendanceMark).limit(1)

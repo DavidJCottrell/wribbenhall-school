@@ -1,5 +1,5 @@
 export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024
-export const MAX_ATTACHMENTS_PER_UPDATE = 5
+export const MAX_FILES_PER_RECORD = 5
 
 export const ALLOWED_ATTACHMENT_TYPES = [
   "application/pdf",
