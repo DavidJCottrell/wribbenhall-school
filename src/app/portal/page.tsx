@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 
 import { PageHeader } from "@/components/site/page-header"
 import { requireUser } from "@/lib/auth/session"
@@ -24,11 +25,16 @@ export default async function PortalHomePage() {
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {children.map((pupil) => (
-              <li key={pupil.id} className="rounded-xl border border-border bg-card p-6">
-                <h2 className="text-heading">
-                  {pupil.firstName} {pupil.lastName}
-                </h2>
-                <p className="mt-1 text-muted-foreground">{pupil.yearGroup}</p>
+              <li key={pupil.id}>
+                <Link
+                  href={`/portal/children/${pupil.id}`}
+                  className="block rounded-xl border border-border bg-card p-6 transition-colors hover:border-severn"
+                >
+                  <h2 className="text-heading">
+                    {pupil.firstName} {pupil.lastName}
+                  </h2>
+                  <p className="mt-1 text-muted-foreground">{pupil.yearGroup}</p>
+                </Link>
               </li>
             ))}
           </ul>

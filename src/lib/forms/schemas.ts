@@ -1,3 +1,4 @@
+import { isValid, parseISO } from "date-fns"
 import { z } from "zod"
 
 const requiredText = (label: string, max = 200) =>
@@ -148,3 +149,15 @@ export const loginSchema = z.object({
 })
 
 export type LoginValues = z.infer<typeof loginSchema>
+
+export const childUpdateSchema = z.object({
+  title: requiredText("a title", 120),
+  occurredOn: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the date of the update")
+    .refine((value) => isValid(parseISO(value)), "Enter a real date"),
+  body: z.string().trim().min(1, "Enter the update").max(5000, "The update must be 5,000 characters or fewer"),
+  visibleToParents: z.boolean(),
+})
+
+export type ChildUpdateValues = z.infer<typeof childUpdateSchema>
