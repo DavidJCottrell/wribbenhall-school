@@ -79,11 +79,11 @@
 }
 
 :root[data-text-size="large"] {
-  --text-scale: 125%;
+  --text-boost: 1.1;
 }
 
 :root[data-text-size="extra-large"] {
-  --text-scale: 150%;
+  --text-boost: 1.2;
 }
 
 @theme inline {
@@ -155,13 +155,13 @@
   }
 
   html {
-    font-size: var(--text-scale, 112.5%);
+    font-size: calc(112.5% * var(--text-boost, 1));
     -webkit-text-size-adjust: 100%;
   }
 
   @media (min-width: 64rem) {
     html {
-      font-size: var(--text-scale, 100%);
+      font-size: calc(100% * var(--text-boost, 1));
     }
   }
 
