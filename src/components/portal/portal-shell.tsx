@@ -4,8 +4,6 @@ import type { ReactNode } from "react"
 import { requireUser } from "@/lib/auth/session"
 import type { UserRole } from "@/lib/auth/roles"
 
-import { SignOutButton } from "./sign-out-button"
-
 const roleLabels: Record<UserRole, string> = {
   parent: "Parent or carer",
   staff: "Staff",
@@ -36,7 +34,6 @@ export async function PortalShell({ children }: { children: ReactNode }) {
                 Administration
               </Link>
             ) : null}
-            <SignOutButton />
           </nav>
         </div>
       </div>
