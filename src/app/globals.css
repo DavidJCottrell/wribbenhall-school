@@ -127,9 +127,9 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   /* Type scale: roughly a 1.25 ratio from an 18px body */
-  --text-display: clamp(2.5rem, 1.4rem + 6vw, 6.75rem);
+  --text-display: clamp(2.5rem, 1.4rem + 6vw, 5.25rem);
   --text-display--line-height: 0.95;
-  --text-title: clamp(2.25rem, 1.75rem + 2.2vw, 3.5rem);
+  --text-title: clamp(2.25rem, 1.75rem + 2.2vw, 3rem);
   --text-title--line-height: 1.05;
   --text-heading: clamp(1.625rem, 1.4rem + 0.9vw, 2.125rem);
   --text-heading--line-height: 1.15;
@@ -157,6 +157,12 @@
   html {
     font-size: var(--text-scale, 112.5%);
     -webkit-text-size-adjust: 100%;
+  }
+
+  @media (min-width: 64rem) {
+    html {
+      font-size: var(--text-scale, 100%);
+    }
   }
 
   body {
