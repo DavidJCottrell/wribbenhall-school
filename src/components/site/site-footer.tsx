@@ -31,6 +31,14 @@ export async function SiteFooter() {
             ))}
             <span className="block">{school.address.postcode}</span>
           </address>
+          <a
+            href={school.address.mapUrl}
+            target="_blank"
+            rel="noopener"
+            className="mt-2 inline-block underline decoration-buttercup decoration-2 underline-offset-4"
+          >
+            Open in a map
+          </a>
           <p className="mt-4">
             <a className="underline decoration-buttercup decoration-2 underline-offset-4" href={`tel:${school.phone.replace(/\s/g, "")}`}>
               {school.phone}
