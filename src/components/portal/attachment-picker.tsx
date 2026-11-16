@@ -19,6 +19,7 @@ type Props = {
   files: File[]
   onChange: (files: File[]) => void
   disabled?: boolean
+  maxFiles?: number
 }
 
 function problemWith(file: File) {
@@ -27,7 +28,7 @@ function problemWith(file: File) {
   return null
 }
 
-export function AttachmentPicker({ files, onChange, disabled }: Props) {
+export function AttachmentPicker({ files, onChange, disabled, maxFiles = MAX_ATTACHMENTS_PER_UPDATE }: Props) {
   const inputId = useId()
   const [problems, setProblems] = useState<string[]>([])
 
@@ -44,12 +45,12 @@ export function AttachmentPicker({ files, onChange, disabled }: Props) {
     }
 
     const combined = [...files, ...accepted]
-    if (combined.length > MAX_ATTACHMENTS_PER_UPDATE) {
+    if (combined.length > maxFiles) {
       found.push(`You can attach up to ${MAX_ATTACHMENTS_PER_UPDATE} files to one update`)
     }
 
     setProblems(found)
-    onChange(combined.slice(0, MAX_ATTACHMENTS_PER_UPDATE))
+    onChange(combined.slice(0, maxFiles))
   }
 
   return (
@@ -64,7 +65,7 @@ export function AttachmentPicker({ files, onChange, disabled }: Props) {
         multiple
         accept={ATTACHMENT_ACCEPT}
         onChange={handleSelection}
-        disabled={disabled || files.length >= MAX_ATTACHMENTS_PER_UPDATE}
+        disabled={disabled || files.length >= maxFiles}
         aria-invalid={problems.length > 0}
       />
       {problems.length > 0 ? (

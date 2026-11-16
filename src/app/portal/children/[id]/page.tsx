@@ -4,7 +4,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { z } from "zod"
 
-import { AddUpdateForm } from "@/components/portal/add-update-form"
+import { UpdateForm } from "@/components/portal/update-form"
 import { UpdateList } from "@/components/portal/update-list"
 import { PageHeader } from "@/components/site/page-header"
 import { requireUser } from "@/lib/auth/session"
@@ -40,7 +40,7 @@ export default async function ChildPage({ params }: PageProps<"/portal/children/
             <h2 id="add-update" className="text-heading mb-6">
               Add an update
             </h2>
-            <AddUpdateForm childId={pupil.id} />
+            <UpdateForm childId={pupil.id} />
           </section>
         ) : null}
 
@@ -48,7 +48,7 @@ export default async function ChildPage({ params }: PageProps<"/portal/children/
           <h2 id="updates" className="text-heading mb-6">
             Updates
           </h2>
-          <UpdateList updates={updates} showVisibility={canAddUpdates} />
+          <UpdateList updates={updates} childId={pupil.id} user={user} />
         </section>
       </div>
     </>

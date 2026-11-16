@@ -3,7 +3,7 @@ import "server-only"
 import { and, asc, count, eq, notInArray } from "drizzle-orm"
 
 import { getDb } from "@/db"
-import { child, guardianship, staffAssignment, user as userTable } from "@/db/schema"
+import { child, childUpdate, guardianship, staffAssignment, user as userTable } from "@/db/schema"
 import { isUserRole, type UserRole } from "@/lib/auth/roles"
 import type { CurrentUser } from "@/lib/auth/session"
 import type { ChildSummary } from "@/lib/portal/children"
@@ -65,6 +65,7 @@ export type PupilAdminDetail = {
   staff: PersonOption[]
   availableParents: PersonOption[]
   availableStaff: PersonOption[]
+  updateCount: number
 }
 
 export async function getPupilAdminDetail(admin: CurrentUser, childId: string): Promise<PupilAdminDetail | null> {
@@ -79,7 +80,8 @@ export async function getPupilAdminDetail(admin: CurrentUser, childId: string): 
 
   const person = { id: userTable.id, name: userTable.name, email: userTable.email }
 
-  const [guardians, staff] = await Promise.all([
+  const [[updates], guardians, staff] = await Promise.all([
+    db.select({ total: count() }).from(childUpdate).where(eq(childUpdate.childId, childId)),
     db
       .select({ ...person, relationship: guardianship.relationship })
       .from(guardianship)
@@ -110,5 +112,5 @@ export async function getPupilAdminDetail(admin: CurrentUser, childId: string): 
     availablePeople("staff", staff),
   ])
 
-  return { pupil, guardians, staff, availableParents, availableStaff }
+  return { pupil, guardians, staff, availableParents, availableStaff, updateCount: updates?.total ?? 0 }
 }
