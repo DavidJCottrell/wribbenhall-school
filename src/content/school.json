@@ -13,7 +13,7 @@
   "address": {
     "lines": ["21 Crundalls Lane", "Bewdley", "Worcestershire"],
     "postcode": "DY12 1JL",
-    "mapUrl": "https://www.openstreetmap.org/search?query=21%20Crundalls%20Lane%2C%20Bewdley%2C%20DY12%201JL"
+    "mapUrl": "https://www.google.com/maps/search/?api=1&query=21%20Crundalls%20Lane%2C%20Bewdley%2C%20DY12%201JL"
   },
   "phone": "01299 405383",
   "email": "enquiries@wribbenhallschool.co.uk",
