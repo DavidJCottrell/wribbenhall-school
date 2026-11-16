@@ -257,10 +257,10 @@
 
 @keyframes river-draw {
   from {
-    stroke-dashoffset: 1;
+    clip-path: inset(-1rem 100% -1rem 0);
   }
   to {
-    stroke-dashoffset: 0;
+    clip-path: inset(-1rem -1rem -1rem 0);
   }
 }
 
@@ -319,8 +319,7 @@
       animation-range: entry 5% entry 45%;
     }
 
-    .river-scroll path {
-      stroke-dasharray: 1;
+    .river-scroll {
       animation: river-draw linear both;
       animation-timeline: view();
       animation-range: entry 10% cover 45%;
